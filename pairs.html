@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Currency Pair Macro Studies | MarbineFX</title>
 
     <script src="https://tailwindcss.com"></script>
@@ -447,7 +447,47 @@
                 gap: 1rem;
             }
         }
-    </style>
+    
+
+/* MARBINEFX CLEAN RESPONSIVE UI */
+html{scroll-behavior:smooth}
+body{overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.navbar{min-height:68px;padding:.85rem clamp(1rem,3vw,2.5rem)!important;gap:1rem}
+.nav-links{align-items:center;justify-content:center;gap:clamp(.9rem,2vw,2rem)!important}
+.nav-links a{white-space:nowrap;font-size:.78rem!important}
+.lang-container{flex-shrink:0}
+main,section{min-width:0}
+img,video{max-width:100%}
+footer{padding-left:1rem!important;padding-right:1rem!important}
+@media(max-width:900px){
+ .navbar{display:grid!important;grid-template-columns:auto auto!important;justify-content:space-between!important;align-items:center!important;padding:.75rem 1rem!important}
+ .nav-links{grid-column:1/-1;order:3;width:100%;justify-content:flex-start!important;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:.15rem 0 .2rem;gap:1.2rem!important}
+ .nav-links::-webkit-scrollbar{display:none}.nav-links li{flex:0 0 auto}.nav-links a{font-size:.72rem!important}
+}
+@media(max-width:560px){
+ .navbar{min-height:0;gap:.55rem}.lang-btn{padding:.38rem .52rem!important;font-size:.68rem!important}
+ footer{font-size:.68rem!important;line-height:1.6!important;padding-top:1.8rem!important;padding-bottom:1.8rem!important}
+}
+
+
+.terminal-container{max-width:1080px!important;padding:clamp(2.4rem,6vw,4.5rem) 1rem 6rem!important}
+.terminal-header{margin-bottom:2rem!important}.terminal-header h1{font-size:clamp(2rem,5vw,3.35rem)!important;line-height:1.05!important;letter-spacing:-.04em!important}
+.terminal-header p{max-width:680px!important;font-size:clamp(.82rem,1.5vw,.98rem)!important;line-height:1.7!important}
+.dropdown-wrapper{max-width:520px!important;margin-top:1.4rem!important}.asset-select{min-height:48px;padding:.8rem 2.6rem .8rem .95rem!important;border-radius:12px!important;font-size:.8rem!important}
+.pair-study-card{padding:clamp(1rem,3vw,1.5rem)!important;border-radius:18px!important}.study-title-row{padding-bottom:1rem!important;margin-bottom:1rem!important}.study-symbol{font-size:clamp(1.45rem,4vw,2rem)!important}
+.study-grid{gap:.75rem!important}.data-block{padding:.95rem;border:1px solid rgba(255,255,255,.055);border-radius:13px;background:rgba(255,255,255,.012)}
+.block-label{font-size:.6rem!important;letter-spacing:.7px!important}.block-content{font-size:.78rem!important;line-height:1.7!important}.full-study-btn{min-height:42px!important;margin-top:1rem!important;border-radius:10px!important}
+.study-modal{padding:12px!important}.study-modal-panel{width:min(980px,100%)!important;margin:0 auto!important;max-height:calc(100vh - 24px)!important;border-radius:18px!important;overflow:auto!important}
+.study-modal-header{padding:1rem 1.1rem!important}.study-modal-title{font-size:1.1rem!important;line-height:1.25!important}.study-modal-body{padding:1rem!important}
+.study-intro,.deep-section{padding:1rem!important;border-radius:13px!important}.study-intro,.deep-section p,.deep-section li{font-size:.77rem!important;line-height:1.72!important}.deep-section h3{font-size:.64rem!important;line-height:1.45!important}.study-section-grid{gap:.7rem!important}
+@media(max-width:760px){
+ .terminal-container{padding:2rem .7rem 4rem!important}.terminal-header{margin-bottom:1.35rem!important}.dropdown-wrapper{width:100%;max-width:none!important}
+ .pair-study-card{padding:.8rem!important}.study-title-row{flex-direction:row!important;align-items:center!important;gap:.6rem!important}.study-grid{grid-template-columns:1fr!important}.data-block{padding:.85rem}
+ .study-modal{padding:0!important}.study-modal-panel{min-height:100dvh!important;max-height:100dvh!important;border-radius:0!important;border-left:0!important;border-right:0!important}
+ .study-modal-body{padding:.8rem!important}.study-section-grid{grid-template-columns:1fr!important}.deep-section.wide{grid-column:auto!important}
+}
+
+</style>
 </head>
 
 <body>
@@ -459,7 +499,7 @@
         <li><a href="index.html">Home</a></li>
         <li><a href="strategies.html">Indicators</a></li>
         <li><a href="pairs.html" class="active">Study Pairs</a></li>
-        <li><a href="forum.html">Forum</a></li>
+            <li><a href="forum.html">Forum</a></li>
     </ul>
 
     <div class="lang-container">
