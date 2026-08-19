@@ -1202,7 +1202,466 @@
         max-width: 92px;
       }
     }
-  </style>
+  
+
+/* =========================================================
+   MARBINEFX — 八方来财 / WEALTH FROM ALL DIRECTIONS THEME
+   Lacquer Black • Antique Gold • Jade • Oxblood • Ivory
+   ========================================================= */
+
+:root {
+    --wealth-black: #050403;
+    --wealth-black-2: #0a0806;
+    --wealth-panel: #0d0b08;
+    --wealth-panel-2: #12100c;
+    --wealth-gold: #d6b35a;
+    --wealth-gold-bright: #f0cf74;
+    --wealth-gold-dark: #8e6d25;
+    --wealth-jade: #175d46;
+    --wealth-jade-bright: #2a8a68;
+    --wealth-red: #7f1d1d;
+    --wealth-red-bright: #b63a2f;
+    --wealth-ivory: #f4ead6;
+    --wealth-muted: #9b917f;
+    --wealth-line: rgba(214,179,90,0.18);
+    --wealth-line-soft: rgba(244,234,214,0.06);
+
+    /* Re-map existing site variables */
+    --primary: var(--wealth-gold);
+    --primary-hover: var(--wealth-gold-bright);
+    --bg-deep: var(--wealth-black);
+    --bg-surface: var(--wealth-black-2);
+    --bg-card: var(--wealth-panel);
+    --text-main: var(--wealth-ivory);
+    --text-muted: var(--wealth-muted);
+    --border-color: var(--wealth-line);
+
+    --gold: var(--wealth-gold);
+    --gold-2: var(--wealth-gold-bright);
+    --text: var(--wealth-ivory);
+    --muted: var(--wealth-muted);
+    --border: var(--wealth-line);
+    --panel: var(--wealth-panel);
+    --panel-2: var(--wealth-panel-2);
+}
+
+html {
+    background: var(--wealth-black);
+}
+
+body {
+    color: var(--wealth-ivory) !important;
+    background:
+        radial-gradient(circle at 12% 8%, rgba(127,29,29,0.12), transparent 25rem),
+        radial-gradient(circle at 88% 4%, rgba(23,93,70,0.13), transparent 28rem),
+        radial-gradient(circle at 50% -8%, rgba(214,179,90,0.10), transparent 34rem),
+        linear-gradient(180deg, #050403 0%, #080603 42%, #040302 100%) !important;
+    background-attachment: fixed !important;
+}
+
+/* Subtle prosperity grid / silk texture */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.34;
+    background-image:
+        linear-gradient(rgba(214,179,90,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(214,179,90,0.014) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent 75%);
+}
+
+/* Premium gold text treatment */
+.logo,
+.brand-name,
+.study-symbol,
+.eyebrow,
+.hot-rank,
+.card-title,
+.strategy-modal-title,
+.study-modal-title {
+    text-shadow: 0 0 24px rgba(214,179,90,0.09);
+}
+
+.logo,
+.brand-name {
+    color: var(--wealth-gold) !important;
+}
+
+.logo span,
+.brand-name span {
+    color: var(--wealth-ivory) !important;
+}
+
+/* Unified navbar */
+.navbar {
+    background:
+        linear-gradient(180deg, rgba(8,6,4,0.96), rgba(5,4,3,0.90)) !important;
+    border-bottom: 1px solid rgba(214,179,90,0.15) !important;
+    box-shadow:
+        0 12px 36px rgba(0,0,0,0.30),
+        inset 0 -1px 0 rgba(127,29,29,0.08);
+}
+
+.nav-links a {
+    color: #9f9687 !important;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--wealth-gold-bright) !important;
+    text-shadow: 0 0 18px rgba(214,179,90,0.18);
+}
+
+.lang-container,
+.lang-switch {
+    background: #0d0a07 !important;
+    border-color: rgba(214,179,90,0.17) !important;
+}
+
+.lang-btn {
+    color: #8f8677 !important;
+}
+
+.lang-btn.active {
+    color: #080603 !important;
+    background:
+        linear-gradient(135deg, var(--wealth-gold-bright), var(--wealth-gold)) !important;
+    box-shadow: 0 4px 18px rgba(214,179,90,0.16);
+}
+
+/* Main headings */
+h1, h2 {
+    color: var(--wealth-ivory);
+}
+
+h1 {
+    text-wrap: balance;
+}
+
+h1 span,
+h2 span[style*="color"],
+.section-header h1 strong {
+    color: var(--wealth-gold-bright);
+}
+
+/* Panels / cards */
+.luxury-card,
+.pair-study-card,
+.panel,
+.teaser-card,
+.stat-card,
+.stat-item,
+.deep-section,
+.detail-box,
+.study-intro,
+.hot-card,
+.hero-card,
+.side-card,
+.entry-card {
+    background:
+        linear-gradient(145deg, rgba(214,179,90,0.025), transparent 38%),
+        linear-gradient(180deg, rgba(18,15,10,0.98), rgba(8,6,4,0.98)) !important;
+    border-color: rgba(214,179,90,0.15) !important;
+    box-shadow:
+        0 18px 50px rgba(0,0,0,0.20),
+        inset 0 1px 0 rgba(244,234,214,0.025) !important;
+}
+
+/* Jade hint on hover */
+.luxury-card:hover,
+.hot-card:hover,
+.teaser-card:hover {
+    border-color: rgba(42,138,104,0.33) !important;
+    box-shadow:
+        0 20px 58px rgba(0,0,0,0.28),
+        0 0 0 1px rgba(23,93,70,0.06) inset !important;
+}
+
+/* Fine gold divider */
+.card-data-wrapper,
+.actions,
+.composer-bottom,
+.study-title-row,
+.strategy-modal-head,
+.study-modal-header {
+    border-color: rgba(214,179,90,0.10) !important;
+}
+
+/* Badges */
+.card-badge,
+.market-tag,
+.tag,
+.risk-badge,
+.live-pill,
+.status-pill,
+.user-pill {
+    background: rgba(214,179,90,0.055) !important;
+    border-color: rgba(214,179,90,0.16) !important;
+    color: #d9bf7e !important;
+}
+
+.risk-high,
+.risk-extreme {
+    background: rgba(127,29,29,0.11) !important;
+    border-color: rgba(182,58,47,0.22) !important;
+    color: #e49380 !important;
+}
+
+.risk-medium {
+    background: rgba(214,179,90,0.08) !important;
+    border-color: rgba(214,179,90,0.20) !important;
+    color: #dfc277 !important;
+}
+
+.risk-low {
+    background: rgba(23,93,70,0.10) !important;
+    border-color: rgba(42,138,104,0.20) !important;
+    color: #7fc6a8 !important;
+}
+
+/* Buttons */
+.cta-btn,
+.full-study-btn,
+.post-btn,
+.entry-submit,
+.name-submit {
+    background:
+        linear-gradient(135deg, #f0cf74 0%, #d6b35a 58%, #aa842f 100%) !important;
+    color: #090603 !important;
+    border-color: rgba(240,207,116,0.40) !important;
+    box-shadow:
+        0 10px 30px rgba(214,179,90,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.35) !important;
+}
+
+.cta-btn:hover,
+.full-study-btn:hover,
+.post-btn:hover,
+.entry-submit:hover,
+.name-submit:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow:
+        0 14px 34px rgba(214,179,90,0.20),
+        inset 0 1px 0 rgba(255,255,255,0.38) !important;
+}
+
+/* Secondary controls */
+.control,
+.asset-select,
+.name-input,
+textarea,
+select {
+    background: #0c0906 !important;
+    border-color: rgba(214,179,90,0.14) !important;
+    color: var(--wealth-ivory) !important;
+}
+
+.control:focus,
+.asset-select:focus,
+.name-input:focus,
+textarea:focus {
+    border-color: rgba(214,179,90,0.46) !important;
+    box-shadow: 0 0 0 3px rgba(214,179,90,0.055) !important;
+}
+
+/* Gold code labels */
+.data-value code {
+    background: rgba(214,179,90,0.055) !important;
+    color: #e6c879 !important;
+}
+
+/* Jade-highlighted positive/live states */
+.live-dot.live,
+.status-dot.live,
+.user-dot {
+    background: #49b98b !important;
+    box-shadow: 0 0 12px rgba(42,138,104,0.55) !important;
+}
+
+/* Market chips */
+.room-chip {
+    background: #0c0906 !important;
+    border-color: rgba(214,179,90,0.13) !important;
+    color: #918878 !important;
+}
+
+.room-chip.active {
+    background:
+        linear-gradient(135deg, #1c6d52, #114737) !important;
+    border-color: rgba(83,173,136,0.45) !important;
+    color: #f7efdf !important;
+    box-shadow: 0 7px 24px rgba(23,93,70,0.22) !important;
+}
+
+/* Hot topic cards use wealth colors */
+.hot-card:nth-child(1) {
+    border-color: rgba(214,179,90,0.28) !important;
+}
+.hot-card:nth-child(2) {
+    border-color: rgba(42,138,104,0.23) !important;
+}
+.hot-card:nth-child(3) {
+    border-color: rgba(182,58,47,0.19) !important;
+}
+
+.heat {
+    background: rgba(214,179,90,0.075) !important;
+}
+
+/* Oxblood warning blocks */
+.strategy-warning,
+.study-warning,
+.auth-warning,
+.error-box {
+    background: rgba(127,29,29,0.08) !important;
+    border-color: rgba(182,58,47,0.20) !important;
+    color: #d49b8e !important;
+}
+
+/* Rich modal presentation */
+.strategy-modal,
+.study-modal,
+.overlay,
+.lightbox {
+    background:
+        radial-gradient(circle at 50% 15%, rgba(127,29,29,0.12), transparent 32rem),
+        rgba(1,1,1,0.90) !important;
+    backdrop-filter: blur(18px) !important;
+}
+
+.strategy-modal-panel,
+.study-modal-panel,
+.modal-card {
+    background:
+        linear-gradient(145deg, rgba(214,179,90,0.025), transparent 45%),
+        #090705 !important;
+    border-color: rgba(214,179,90,0.18) !important;
+}
+
+/* Wealth-mark corner detail */
+.luxury-card,
+.pair-study-card,
+.teaser-card,
+.hot-card,
+.entry-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.luxury-card::after,
+.pair-study-card::after,
+.teaser-card::after,
+.hot-card::after,
+.entry-card::after {
+    content: "";
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    right: 8px;
+    top: 8px;
+    pointer-events: none;
+    opacity: 0.18;
+    border-top: 1px solid var(--wealth-gold);
+    border-right: 1px solid var(--wealth-gold);
+    border-radius: 0 8px 0 0;
+}
+
+/* Slight old-money red accent line */
+.section-header::after,
+.terminal-header::after {
+    content: "";
+    display: block;
+    width: 46px;
+    height: 2px;
+    margin: 1.15rem auto 0;
+    border-radius: 999px;
+    background:
+        linear-gradient(90deg, var(--wealth-red), var(--wealth-gold), var(--wealth-jade));
+    opacity: 0.85;
+}
+
+/* Footer */
+footer {
+    background: #050403 !important;
+    color: #71695d !important;
+    border-color: rgba(214,179,90,0.11) !important;
+}
+
+/* TikTok-friendly motion: rich, slow, not flashy */
+@keyframes wealthShimmer {
+    0%   { box-shadow: 0 0 0 rgba(214,179,90,0); }
+    50%  { box-shadow: 0 0 34px rgba(214,179,90,0.065); }
+    100% { box-shadow: 0 0 0 rgba(214,179,90,0); }
+}
+
+.cta-btn,
+.full-study-btn,
+.hot-card:first-child {
+    animation: wealthShimmer 4.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cta-btn,
+    .full-study-btn,
+    .hot-card:first-child {
+        animation: none !important;
+    }
+}
+
+/* Mobile: preserve rich look without clutter */
+@media (max-width: 760px) {
+    body {
+        background:
+            radial-gradient(circle at 15% 2%, rgba(127,29,29,0.09), transparent 15rem),
+            radial-gradient(circle at 90% 0%, rgba(23,93,70,0.10), transparent 17rem),
+            #050403 !important;
+    }
+
+    .navbar {
+        box-shadow: 0 8px 26px rgba(0,0,0,0.28) !important;
+    }
+
+    .luxury-card,
+    .pair-study-card,
+    .panel,
+    .teaser-card,
+    .hot-card {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.18) !important;
+    }
+}
+
+
+/* FORUM — prosperity market lounge */
+.hero h1 {
+    color: #f5ead4 !important;
+}
+.hero h1 span {
+    color: var(--wealth-gold-bright) !important;
+}
+.post-text {
+    color: #c1b7a7 !important;
+}
+.username {
+    color: #efe5d2 !important;
+}
+.language-choice {
+    background: #0d0a07 !important;
+    border-color: rgba(214,179,90,0.14) !important;
+}
+.language-choice:hover {
+    border-color: rgba(214,179,90,0.35) !important;
+    background: rgba(214,179,90,0.035) !important;
+}
+.language-choice strong {
+    color: var(--wealth-gold-bright) !important;
+}
+
+</style>
 </head>
 
 <body class="lang-en locked">
