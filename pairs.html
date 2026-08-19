@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Pair Macro Studies | MarbineFX</title>
+
+    <script src="https://tailwindcss.com"></script>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        :root {
+            --bg-deep: #030305;
+            --bg-surface: #0a0a0f;
+            --bg-card: #0d0d14;
+            --primary: #f59e0b;
+            --primary-hover: #fbbf24;
+            --text-main: #f4f4f5;
+            --text-muted: #71717a;
+            --border-color: #18181b;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 2.5rem;
+            background: rgba(5, 5, 8, 0.75);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: #ffffff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #a1a1aa;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .lang-container {
+            display: flex;
+            background: #18181b;
+            border: 1px solid var(--border-color);
+            padding: 2px;
+            border-radius: 8px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: #a1a1aa;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: #000000;
+        }
+
+        .terminal-container {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 4rem 2rem 8rem;
+        }
+
+        .terminal-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .terminal-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        .terminal-header p {
+            color: #a1a1aa;
+            font-size: 1rem;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .dropdown-wrapper {
+            max-width: 380px;
+            margin: 2rem auto 0;
+            position: relative;
+        }
+
+        .asset-select {
+            width: 100%;
+            background-color: #0a0a0f;
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 1rem 1.25rem;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            appearance: none;
+        }
+
+        .asset-select:focus {
+            border-color: var(--primary);
+        }
+
+        .dropdown-wrapper::after {
+            content: '▼';
+            font-size: 0.65rem;
+            color: var(--primary);
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .pair-study-card {
+            display: none;
+            background: linear-gradient(
+                180deg,
+                var(--bg-surface) 0%,
+                var(--bg-card) 100%
+            );
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pair-study-card.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .study-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .study-symbol {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: var(--primary);
+        }
+
+        .risk-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 50px;
+            text-transform: uppercase;
+        }
+
+        .study-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem 2rem;
+        }
+
+        .data-block {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .block-label {
+            color: #52525b;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .block-content {
+            color: #e2e8f0;
+            font-size: 0.88rem;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        /* Risk badge colors */
+        .risk-low {
+            background: #27272a;
+            border: 1px solid #3f3f46;
+            color: #d4d4d8;
+        }
+
+        .risk-medium {
+            background: rgba(245, 158, 11, 0.10);
+            border: 1px solid rgba(245, 158, 11, 0.20);
+            color: #fbbf24;
+        }
+
+        .risk-high,
+        .risk-extreme {
+            background: rgba(239, 68, 68, 0.10);
+            border: 1px solid rgba(239, 68, 68, 0.20);
+            color: #f87171;
+        }
+
+
+        /* =========================
+           FULL PAIR STUDY MODAL
+           ========================= */
+        .full-study-btn {
+            width: 100%;
+            margin-top: 2rem;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            border: 1px solid rgba(245, 158, 11, 0.28);
+            background: rgba(245, 158, 11, 0.08);
+            color: var(--primary);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .full-study-btn:hover {
+            background: var(--primary);
+            color: #050505;
+            transform: translateY(-1px);
+        }
+
+        .study-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.82);
+            backdrop-filter: blur(12px);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .study-modal.open { display: block; }
+
+        .study-modal-panel {
+            width: min(1080px, 100%);
+            margin: 24px auto;
+            border: 1px solid #27272a;
+            border-radius: 24px;
+            background: linear-gradient(180deg, #0a0a0f 0%, #07070b 100%);
+            box-shadow: 0 30px 100px rgba(0,0,0,.55);
+            overflow: hidden;
+        }
+
+        .study-modal-header {
+            position: sticky;
+            top: 0;
+            z-index: 4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.4rem 1.6rem;
+            background: rgba(8,8,12,.94);
+            border-bottom: 1px solid #202026;
+            backdrop-filter: blur(16px);
+        }
+
+        .study-modal-title {
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: .3px;
+        }
+
+        .study-modal-subtitle {
+            margin-top: .25rem;
+            font-size: .78rem;
+            color: #71717a;
+        }
+
+        .study-close {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid #27272a;
+            background: #121217;
+            color: #d4d4d8;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .study-close:hover { border-color: var(--primary); color: var(--primary); }
+
+        .study-modal-body { padding: 1.7rem; }
+
+        .study-intro {
+            padding: 1.25rem;
+            border: 1px solid rgba(245,158,11,.16);
+            background: rgba(245,158,11,.045);
+            border-radius: 16px;
+            color: #d4d4d8;
+            font-size: .9rem;
+            line-height: 1.75;
+            margin-bottom: 1.5rem;
+        }
+
+        .study-section-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 1rem;
+        }
+
+        .deep-section {
+            padding: 1.25rem;
+            border: 1px solid #1c1c22;
+            background: #0c0c11;
+            border-radius: 16px;
+        }
+
+        .deep-section.wide { grid-column: 1 / -1; }
+
+        .deep-section h3 {
+            color: var(--primary);
+            font-size: .82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            margin-bottom: .7rem;
+        }
+
+        .deep-section p,
+        .deep-section li {
+            color: #c4c4cc;
+            font-size: .84rem;
+            line-height: 1.75;
+        }
+
+        .deep-section ul { padding-left: 1.15rem; display: grid; gap: .45rem; }
+
+        .pair-rule-box {
+            margin-top: .75rem;
+            padding: .9rem 1rem;
+            border-radius: 12px;
+            border-left: 3px solid var(--primary);
+            background: rgba(245,158,11,.05);
+            color: #e5e7eb;
+            font-size: .82rem;
+            line-height: 1.7;
+        }
+
+        .study-warning {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(248,113,113,.2);
+            background: rgba(248,113,113,.05);
+            color: #fca5a5;
+            font-size: .78rem;
+            line-height: 1.65;
+        }
+
+        body.modal-lock { overflow: hidden; }
+
+        @media(max-width: 760px) {
+            .study-modal { padding: 8px; }
+            .study-modal-panel { margin: 8px auto; border-radius: 18px; }
+            .study-section-grid { grid-template-columns: 1fr; }
+            .deep-section.wide { grid-column: auto; }
+            .study-modal-body { padding: 1rem; }
+            .study-modal-header { padding: 1rem; }
+        }
+
+        @media(max-width: 768px) {
+            .study-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .study-title-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .navbar {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="logo">Marbine<span>FX</span></div>
+
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="strategies.html">Indicators</a></li>
+        <li><a href="pairs.html" class="active">Study Pairs</a></li>
+        <li><a href="forum.html">Forum</a></li>
+    </ul>
+
+    <div class="lang-container">
+        <button class="lang-btn active" id="btn-en" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" id="btn-ms" onclick="setLanguage('ms')">MY</button>
+    </div>
+</nav>
+
+<main class="terminal-container">
+
+    <div class="terminal-header">
+
+        <h1 id="title-text">
+            Macro Asset Deep Studies (20 Instruments)
+        </h1>
+
+        <p id="sub-text">
+            Select an instrument for a quick profile, then open the complete study for history, fundamentals, sessions, correlations, behaviour and practical trading context.
+        </p>
+
+        <div class="dropdown-wrapper">
+
+            <select id="pairSelector"
+                    onchange="switchAssetProfile()"
+                    class="asset-select">
+
+                <option value="">-- Choose Target Instrument --</option>
+
+                <option value="eurusd">1. EUR / USD (Euro / US Dollar)</option>
+                <option value="gbpusd">2. GBP / USD (British Pound / US Dollar)</option>
+                <option value="usdjpy">3. USD / JPY (US Dollar / Japanese Yen)</option>
+                <option value="gbpjpy">4. GBP / JPY (British Pound / Japanese Yen)</option>
+                <option value="xauusd">5. XAU / USD (Gold Spot / Dollar)</option>
+                <option value="usdcad">6. USD / CAD (US Dollar / Canadian Dollar)</option>
+                <option value="btcusd">7. BTC / USD (Bitcoin / US Dollar)</option>
+                <option value="audusd">8. AUD / USD (Australian Dollar / Dollar)</option>
+                <option value="nzdusd">9. NZD / USD (New Zealand Dollar / Dollar)</option>
+                <option value="usdchf">10. USD / CHF (US Dollar / Swiss Franc)</option>
+                <option value="eurjpy">11. EUR / JPY (Euro / Japanese Yen)</option>
+                <option value="eurgbp">12. EUR / GBP (Euro / British Pound)</option>
+                <option value="audjpy">13. AUD / JPY (Australian Dollar / Yen)</option>
+                <option value="usoil">14. USOIL (WTI Crude Oil)</option>
+                <option value="ethusd">15. ETH / USD (Ethereum / US Dollar)</option>
+                <option value="nas100">16. NAS100 (Nasdaq 100)</option>
+                <option value="us30">17. US30 (Dow Jones)</option>
+                <option value="euraud">18. EUR / AUD</option>
+                <option value="gbpcad">19. GBP / CAD</option>
+                <option value="chfjpy">20. CHF / JPY</option>
+
+            </select>
+        </div>
+    </div>
+
+
+    <div id="displayCard" class="pair-study-card">
+
+        <div class="study-title-row">
+            <div id="cardSymbol" class="study-symbol">---</div>
+            <div id="cardRisk" class="risk-badge">---</div>
+        </div>
+
+        <div class="study-grid">
+
+            <div class="data-block">
+                <div id="label-1" class="block-label">How it Started</div>
+                <div id="content-history" class="block-content"></div>
+            </div>
+
+            <div class="data-block">
+                <div id="label-2" class="block-label">
+                    What Affects It (Up / Down)
+                </div>
+                <div id="content-affects" class="block-content"></div>
+            </div>
+
+            <div class="data-block">
+                <div id="label-3" class="block-label">
+                    News To Watch Out For
+                </div>
+                <div id="content-news" class="block-content"></div>
+            </div>
+
+            <div class="data-block">
+                <div id="label-4" class="block-label">
+                    How to Trade & Best Indicators
+                </div>
+                <div id="content-trade" class="block-content"></div>
+            </div>
+
+        </div>
+
+        <button id="fullStudyBtn" class="full-study-btn" onclick="openFullStudy()">
+            Show More — Complete Pair Study
+        </button>
+    </div>
+
+</main>
+
+
+
+<div id="studyModal" class="study-modal" onclick="closeStudyOnBackdrop(event)">
+    <div class="study-modal-panel" role="dialog" aria-modal="true" aria-labelledby="deepStudyTitle">
+        <div class="study-modal-header">
+            <div>
+                <div id="deepStudyTitle" class="study-modal-title">Complete Pair Study</div>
+                <div id="deepStudySubtitle" class="study-modal-subtitle">MarbineFX educational reference</div>
+            </div>
+            <button class="study-close" onclick="closeFullStudy()" aria-label="Close">×</button>
+        </div>
+        <div id="deepStudyBody" class="study-modal-body"></div>
+    </div>
+</div>
+
+<footer style="
+    border-top:1px solid var(--border-color);
+    background:#07070a;
+    padding:2.5rem;
+    text-align:center;
+    font-size:.75rem;
+    color:#52525b;
+    line-height:1.6;
+">
+    &copy; 2026 MarbineFX Network Frameworks.
+    All Rights Reserved.
+    Leveraged derivatives trading carries extreme risk parameters.
+</footer>
+
+
+<script>
+
+let currentLanguage = "en";
+let activeAssetId = "";
+
+const dataDictionary = {
+
+    eurusd: {
+        name: "EUR / USD",
+        rEn: "Risk: Medium",
+        rMs: "Risiko: Sederhana",
+        riskClass: "risk-medium",
+
+        en: [
+            "Launched in 1999 to track the Eurozone economic baseline structure.",
+            "Fed vs ECB interest rate yields, trade balance margins, and EU zone industrial production indicators.",
+            "US Non-Farm Payrolls (NFP), FOMC policy prints, and ECB economic statements.",
+            "Highly technical. Trade key ranges using a 20-period Bollinger Bands template."
+        ],
+
+        ms: [
+            "Dilancarkan pada tahun 1999 untuk menjejak struktur asas ekonomi Zon Euro.",
+            "Kadar faedah Fed lwn ECB, imbangan perdagangan dan pengeluaran industri EU.",
+            "Non-Farm Payrolls AS, FOMC dan kenyataan ekonomi ECB.",
+            "Dagangkan julat harga menggunakan Bollinger Bands 20-period."
+        ]
+    },
+
+
+    gbpusd: {
+        name: "GBP / USD",
+        rEn: "Risk: High",
+        rMs: "Risiko: Tinggi",
+        riskClass: "risk-high",
+
+        en: [
+            "Historically known as 'The Cable' because GBP/USD prices were transmitted across the Atlantic using an undersea telegraph cable.",
+            "Bank of England interest rates, UK inflation, economic growth and US dollar strength.",
+            "BoE rate decisions, UK CPI, UK employment reports, US NFP and FOMC announcements.",
+            "GBP/USD can experience large liquidity sweeps. Watch important support and resistance zones and higher-timeframe structure."
+        ],
+
+        ms: [
+            "Dikenali sebagai 'The Cable' kerana harga GBP/USD pernah dihantar melalui kabel telegraf bawah laut Atlantik.",
+            "Kadar faedah Bank of England, inflasi UK, pertumbuhan ekonomi dan kekuatan dolar AS.",
+            "Keputusan kadar BoE, CPI UK, pekerjaan UK, NFP AS dan pengumuman FOMC.",
+            "GBP/USD boleh mengalami liquidity sweep yang besar. Perhatikan support, resistance dan struktur timeframe tinggi."
+        ]
+    },
+
+
+    usdjpy: {
+        name: "USD / JPY",
+        rEn: "Risk: Med-High",
+        rMs: "Risiko: Sed-Tinggi",
+        riskClass: "risk-medium",
+
+        en: [
+            "One of the world's major currency pairs and an important pair for global carry trades.",
+            "The difference between US and Japanese interest rates is one of its biggest drivers.",
+            "Bank of Japan decisions, FOMC announcements, US Treasury yields and Japanese inflation.",
+            "USD/JPY can form long trends. Trend indicators such as Ichimoku can help identify direction."
+        ],
+
+        ms: [
+            "Salah satu pasangan mata wang utama dunia dan penting untuk carry trade global.",
+            "Perbezaan kadar faedah Amerika Syarikat dan Jepun merupakan penggerak utama.",
+            "Keputusan Bank of Japan, FOMC, hasil bon AS dan inflasi Jepun.",
+            "USD/JPY boleh membentuk trend panjang. Ichimoku boleh membantu mengenal pasti arah."
+        ]
+    },
+
+
+    gbpjpy: {
+        name: "GBP / JPY",
+        rEn: "Risk: Extreme",
+        rMs: "Risiko: Ekstrem",
+        riskClass: "risk-extreme",
+
+        en: [
+            "GBP/JPY is often nicknamed 'The Beast' because of its large daily price movements.",
+            "UK monetary policy, Japanese monetary policy and global risk sentiment strongly affect the pair.",
+            "UK GDP, BoE decisions, Japanese inflation and Bank of Japan announcements.",
+            "Extremely volatile. ATR can help measure volatility while higher-timeframe structure can help control entries."
+        ],
+
+        ms: [
+            "GBP/JPY sering digelar 'The Beast' kerana pergerakan harga hariannya yang besar.",
+            "Dasar UK, dasar Jepun dan sentimen risiko global memberi kesan besar.",
+            "KDNK UK, keputusan BoE, inflasi Jepun dan pengumuman Bank of Japan.",
+            "Sangat volatile. ATR boleh membantu mengukur volatility bersama struktur timeframe tinggi."
+        ]
+    },
+
+
+    xauusd: {
+        name: "XAU / USD",
+        rEn: "Risk: Extreme",
+        rMs: "Risiko: Ekstrem",
+        riskClass: "risk-extreme",
+
+        en: [
+            "Gold has been used as a store of value for thousands of years and remains one of the world's major financial assets.",
+            "US interest rates, real yields, inflation expectations, geopolitical uncertainty and central-bank demand.",
+            "US CPI, FOMC decisions, NFP, Federal Reserve speeches and major geopolitical developments.",
+            "Gold can move extremely fast around news. Use strong risk management and watch major liquidity, support and resistance zones."
+        ],
+
+        ms: [
+            "Emas telah digunakan sebagai penyimpan nilai selama ribuan tahun dan kekal sebagai aset kewangan utama.",
+            "Kadar faedah AS, real yields, inflasi, konflik geopolitik dan permintaan bank pusat.",
+            "CPI AS, FOMC, NFP, ucapan Federal Reserve dan perkembangan geopolitik utama.",
+            "Emas boleh bergerak sangat pantas ketika berita. Gunakan pengurusan risiko dan perhatikan liquidity, support dan resistance."
+        ]
+    },
+
+
+    usdcad: {
+        name: "USD / CAD",
+        rEn: "Risk: Medium",
+        rMs: "Risiko: Sederhana",
+        riskClass: "risk-medium",
+
+        en: [
+            "USD/CAD connects the US dollar with the Canadian dollar, often nicknamed 'The Loonie'.",
+            "Oil prices, Bank of Canada policy, Federal Reserve policy and economic data from both countries.",
+            "BoC rate decisions, Canadian CPI, employment reports, US NFP and crude-oil developments.",
+            "Watch oil correlations together with technical support, resistance and market structure."
+        ],
+
+        ms: [
+            "USD/CAD menghubungkan dolar AS dengan dolar Kanada yang sering digelar 'The Loonie'.",
+            "Harga minyak, dasar Bank of Canada, Federal Reserve dan data ekonomi kedua-dua negara.",
+            "Keputusan BoC, CPI Kanada, pekerjaan, NFP AS dan perkembangan minyak.",
+            "Perhatikan korelasi minyak bersama support, resistance dan market structure."
+        ]
+    },
+
+
+    btcusd: {
+        name: "BTC / USD",
+        rEn: "Risk: Extreme",
+        rMs: "Risiko: Ekstrem",
+        riskClass: "risk-extreme",
+
+        en: [
+            "Bitcoin launched in 2009 following the publication of the Bitcoin white paper under the name Satoshi Nakamoto.",
+            "Global liquidity, institutional demand, ETF flows, crypto sentiment and Bitcoin's supply cycle.",
+            "Major regulatory announcements, ETF developments, Federal Reserve policy and crypto-industry events.",
+            "Bitcoin is highly volatile. Trend-following tools such as Supertrend can be combined with market structure and strict risk management."
+        ],
+
+        ms: [
+            "Bitcoin dilancarkan pada 2009 selepas penerbitan Bitcoin white paper menggunakan nama Satoshi Nakamoto.",
+            "Global liquidity, permintaan institusi, aliran ETF, sentimen crypto dan supply cycle Bitcoin.",
+            "Pengumuman kawal selia, perkembangan ETF, Federal Reserve dan peristiwa industri crypto.",
+            "Bitcoin sangat volatile. Supertrend boleh digabungkan dengan market structure dan pengurusan risiko."
+        ]
+    },
+
+
+    audusd: {
+        name: "AUD / USD",
+        rEn: "Risk: Medium",
+        rMs: "Risiko: Sederhana",
+        riskClass: "risk-medium",
+
+        en: [
+            "AUD/USD is one of the major commodity-linked currency pairs.",
+            "Australian commodity exports, Chinese economic activity, RBA policy and US dollar strength.",
+            "RBA decisions, Australian employment, inflation, China PMI and US economic data.",
+            "Watch Asian-session structure and momentum indicators such as MACD."
+        ],
+
+        ms: [
+            "AUD/USD merupakan salah satu pasangan mata wang utama berkaitan komoditi.",
+            "Eksport komoditi Australia, ekonomi China, dasar RBA dan kekuatan dolar AS.",
+            "Keputusan RBA, pekerjaan Australia, inflasi, PMI China dan data AS.",
+            "Perhatikan struktur sesi Asia dan indikator momentum seperti MACD."
+        ]
+    },
+
+
+    nzdusd: {
+        name: "NZD / USD",
+        rEn: "Risk: Medium",
+        rMs: "Risiko: Sederhana",
+        riskClass: "risk-medium",
+
+        en: [
+            "NZD/USD is commonly called 'The Kiwi' and reflects New Zealand's export-focused economy.",
+            "Dairy prices, global commodity demand, RBNZ policy and general market risk sentiment.",
+            "RBNZ decisions, New Zealand employment, inflation and Global Dairy Trade results.",
+            "The pair can form clean trends. Moving-average structures such as EMA ribbons may help identify direction."
+        ],
+
+        ms: [
+            "NZD/USD biasa dipanggil 'The Kiwi' dan mencerminkan ekonomi eksport New Zealand.",
+            "Harga produk tenusu, permintaan komoditi, dasar RBNZ dan sentimen risiko global.",
+            "Keputusan RBNZ, pekerjaan, inflasi dan Global Dairy Trade.",
+            "Pasangan ini boleh membentuk trend yang jelas. EMA ribbon boleh membantu mengenal pasti arah."
+        ]
+    },
+
+
+    usdchf: {
+        name: "USD / CHF",
+        rEn: "Risk: Med-Low",
+        rMs: "Risiko: Sed-Rendah",
+        riskClass: "risk-low",
+
+        en: [
+            "USD/CHF combines the US dollar with the Swiss franc, traditionally considered a safe-haven currency.",
+            "Swiss National Bank policy, US monetary policy and global risk sentiment.",
+            "SNB announcements, Swiss inflation, FOMC decisions and US economic releases.",
+            "The pair often experiences mean-reverting behaviour. Regression channels can help study ranges."
+        ],
+
+        ms: [
+            "USD/CHF menggabungkan dolar AS dengan franc Swiss yang dianggap sebagai mata wang safe-haven.",
+            "Dasar Swiss National Bank, dasar AS dan sentimen risiko global.",
+            "Pengumuman SNB, inflasi Swiss, FOMC dan data ekonomi AS.",
+            "Pasangan ini sering menunjukkan mean-reversion. Regression channel boleh membantu mengkaji range."
+        ]
+    },
+
+
+    eurjpy: {
+        name: "EUR / JPY",
+        rEn: "Risk: High",
+        rMs: "Risiko: Tinggi",
+        riskClass: "risk-high",
+
+        en: [
+            "EUR/JPY connects two major economic regions: the Eurozone and Japan.",
+            "ECB expectations, Bank of Japan policy, bond yields and global risk sentiment.",
+            "ECB decisions, BoJ announcements, European inflation and Japanese economic releases.",
+            "The pair can experience strong intraday swings. Momentum tools such as CCI may help identify exhaustion."
+        ],
+
+        ms: [
+            "EUR/JPY menghubungkan dua kawasan ekonomi utama iaitu Zon Euro dan Jepun.",
+            "Jangkaan ECB, dasar Bank of Japan, hasil bon dan sentimen risiko global.",
+            "Keputusan ECB, pengumuman BoJ, inflasi Eropah dan data Jepun.",
+            "Pasangan ini boleh mengalami ayunan intraday yang kuat. CCI boleh membantu melihat exhaustion."
+        ]
+    },
+
+
+    eurgbp: {
+        name: "EUR / GBP",
+        rEn: "Risk: Low",
+        rMs: "Risiko: Rendah",
+        riskClass: "risk-low",
+
+        en: [
+            "EUR/GBP represents the exchange relationship between the Eurozone and the United Kingdom.",
+            "ECB versus BoE policy, European and UK inflation, trade and economic growth.",
+            "ECB decisions, BoE decisions, CPI reports and European or UK economic releases.",
+            "Often trades in relatively controlled ranges. Bollinger Bands can help identify range extremes."
+        ],
+
+        ms: [
+            "EUR/GBP mewakili hubungan pertukaran antara Zon Euro dan United Kingdom.",
+            "Dasar ECB berbanding BoE, inflasi Eropah dan UK, perdagangan serta pertumbuhan.",
+            "Keputusan ECB, BoE, laporan CPI dan data ekonomi Eropah atau UK.",
+            "Sering bergerak dalam range yang lebih terkawal. Bollinger Bands boleh membantu melihat hujung range."
+        ]
+    },
+
+
+    audjpy: {
+        name: "AUD / JPY",
+        rEn: "Risk: High",
+        rMs: "Risiko: Tinggi",
+        riskClass: "risk-high",
+
+        en: [
+            "AUD/JPY is commonly watched as a global risk-sentiment currency cross.",
+            "Commodity prices, Chinese growth, RBA policy, BoJ policy and global stock-market sentiment.",
+            "RBA announcements, Japanese inflation, BoJ decisions and major Chinese economic releases.",
+            "Sensitive to risk-on and risk-off moves. ATR can help traders understand changing volatility."
+        ],
+
+        ms: [
+            "AUD/JPY sering diperhatikan sebagai pasangan yang mencerminkan sentimen risiko global.",
+            "Harga komoditi, pertumbuhan China, RBA, BoJ dan sentimen pasaran saham.",
+            "Pengumuman RBA, inflasi Jepun, keputusan BoJ dan data ekonomi China.",
+            "Sensitif kepada risk-on dan risk-off. ATR boleh membantu memahami perubahan volatility."
+        ]
+    },
+
+
+    usoil: {
+        name: "USOIL",
+        rEn: "Risk: Extreme",
+        rMs: "Risiko: Ekstrem",
+        riskClass: "risk-extreme",
+
+        en: [
+            "USOIL commonly represents West Texas Intermediate crude oil, one of the world's major oil benchmarks.",
+            "OPEC+ production, global demand, inventories, geopolitical events and economic growth expectations.",
+            "EIA crude inventories, OPEC+ announcements and major geopolitical or supply disruptions.",
+            "Oil can trend aggressively. Trend indicators can be useful, but major news can cause sudden volatility."
+        ],
+
+        ms: [
+            "USOIL biasanya mewakili West Texas Intermediate, salah satu benchmark minyak utama dunia.",
+            "Pengeluaran OPEC+, permintaan global, inventori, geopolitik dan pertumbuhan ekonomi.",
+            "Inventori minyak EIA, pengumuman OPEC+ dan gangguan bekalan.",
+            "Minyak boleh membentuk trend agresif tetapi berita besar boleh menyebabkan volatility secara tiba-tiba."
+        ]
+    },
+
+
+    ethusd: {
+        name: "ETH / USD",
+        rEn: "Risk: Extreme",
+        rMs: "Risiko: Ekstrem",
+        riskClass: "risk-extreme",
+
+        en: [
+            "Ethereum launched in 2015 as a blockchain platform designed to support programmable smart contracts.",
+            "Crypto liquidity, network activity, DeFi demand, upgrades and broader Bitcoin market direction.",
+            "Ethereum network upgrades, regulatory announcements, ETF developments and crypto-market events.",
+            "ETH can experience rapid momentum. Combine momentum indicators with market structure and risk management."
+        ],
+
+        ms: [
+            "Ethereum dilancarkan pada 2015 sebagai platform blockchain untuk smart contract.",
+            "Crypto liquidity, aktiviti rangkaian, DeFi, upgrade dan arah pasaran Bitcoin.",
+            "Upgrade Ethereum, kawal selia, perkembangan ETF dan peristiwa pasaran crypto.",
+            "ETH boleh bergerak dengan momentum pantas. Gabungkan indikator momentum dengan market structure."
+        ]
+    },
+
+
+    nas100: {
+        name: "NAS100",
+        rEn: "Risk: High",
+        rMs: "Risiko: Tinggi",
+        riskClass: "risk-high",
+
+        en: [
+            "NAS100 tracks the Nasdaq-100, an index containing 100 of the largest non-financial companies listed on Nasdaq.",
+            "Technology-sector earnings, interest rates, economic growth and investor risk appetite.",
+            "Major technology earnings, CPI, NFP and FOMC decisions.",
+            "Often forms strong directional moves. Trend tools such as Supertrend may help identify momentum."
+        ],
+
+        ms: [
+            "NAS100 menjejak Nasdaq-100 yang mengandungi 100 syarikat bukan kewangan terbesar di Nasdaq.",
+            "Pendapatan sektor teknologi, kadar faedah, pertumbuhan ekonomi dan risk appetite.",
+            "Pendapatan syarikat teknologi utama, CPI, NFP dan keputusan FOMC.",
+            "Sering membentuk pergerakan arah yang kuat. Supertrend boleh membantu melihat momentum."
+        ]
+    },
+
+
+    us30: {
+        name: "US30",
+        rEn: "Risk: Med-High",
+        rMs: "Risiko: Sed-Tinggi",
+        riskClass: "risk-medium",
+
+        en: [
+            "US30 generally tracks the Dow Jones Industrial Average, consisting of 30 major US companies.",
+            "Corporate earnings, US economic growth, interest rates and investor sentiment.",
+            "FOMC decisions, employment data, inflation, GDP and major Dow-component earnings.",
+            "Price often reacts around important technical levels. Pivot points may help identify potential reaction zones."
+        ],
+
+        ms: [
+            "US30 biasanya menjejak Dow Jones Industrial Average yang terdiri daripada 30 syarikat utama AS.",
+            "Pendapatan syarikat, pertumbuhan ekonomi AS, kadar faedah dan sentimen pelabur.",
+            "FOMC, pekerjaan, inflasi, KDNK dan earnings syarikat utama.",
+            "Harga sering bertindak balas pada level teknikal penting. Pivot points boleh membantu mengenal pasti zon."
+        ]
+    },
+
+
+    euraud: {
+        name: "EUR / AUD",
+        rEn: "Risk: Med-High",
+        rMs: "Risiko: Sed-Tinggi",
+        riskClass: "risk-medium",
+
+        en: [
+            "EUR/AUD compares the Eurozone economy with Australia's commodity-sensitive economy.",
+            "ECB and RBA policy differences, commodity markets, European growth and Chinese economic conditions.",
+            "ECB decisions, RBA announcements, European inflation and Australian economic data.",
+            "Can develop long multi-day or multi-week trends. RSI divergence may help study possible reversals."
+        ],
+
+        ms: [
+            "EUR/AUD membandingkan ekonomi Zon Euro dengan ekonomi Australia yang sensitif kepada komoditi.",
+            "Perbezaan dasar ECB dan RBA, komoditi, pertumbuhan Eropah dan ekonomi China.",
+            "Keputusan ECB, RBA, inflasi Eropah dan data ekonomi Australia.",
+            "Boleh membentuk trend beberapa hari atau minggu. RSI divergence boleh membantu mengkaji reversal."
+        ]
+    },
+
+
+    gbpcad: {
+        name: "GBP / CAD",
+        rEn: "Risk: High",
+        rMs: "Risiko: Tinggi",
+        riskClass: "risk-high",
+
+        en: [
+            "GBP/CAD combines the British pound with Canada's commodity-linked currency.",
+            "Bank of England policy, Bank of Canada policy, oil prices and economic data.",
+            "UK employment, UK inflation, Canadian inflation, BoC decisions and oil-market developments.",
+            "Can produce large intraday swings. Higher-timeframe structure can help filter lower-timeframe noise."
+        ],
+
+        ms: [
+            "GBP/CAD menggabungkan pound British dengan mata wang Kanada yang berkaitan dengan komoditi.",
+            "Dasar Bank of England, Bank of Canada, harga minyak dan data ekonomi.",
+            "Pekerjaan UK, inflasi UK, inflasi Kanada, keputusan BoC dan perkembangan minyak.",
+            "Boleh menghasilkan ayunan intraday besar. Struktur timeframe tinggi boleh membantu menapis noise."
+        ]
+    },
+
+
+    chfjpy: {
+        name: "CHF / JPY",
+        rEn: "Risk: Medium",
+        rMs: "Risiko: Sederhana",
+        riskClass: "risk-medium",
+
+        en: [
+            "CHF/JPY combines two currencies traditionally associated with safe-haven demand.",
+            "Swiss National Bank policy, Bank of Japan policy, bond yields and global risk sentiment.",
+            "Swiss inflation, SNB decisions, BoJ announcements and major global risk events.",
+            "Can trade through extended ranges. Keltner Channels may help identify volatility boundaries."
+        ],
+
+        ms: [
+            "CHF/JPY menggabungkan dua mata wang yang sering dikaitkan dengan permintaan safe-haven.",
+            "Dasar Swiss National Bank, Bank of Japan, hasil bon dan sentimen risiko global.",
+            "Inflasi Swiss, keputusan SNB, pengumuman BoJ dan peristiwa risiko global.",
+            "Boleh bergerak dalam range panjang. Keltner Channels boleh membantu mengenal pasti sempadan volatility."
+        ]
+    }
+
+};
+
+
+const fullStudyDictionary = {"eurusd":{"overview":"EUR/USD is the exchange rate between the euro and the US dollar. EUR is the base currency and USD is the quote currency: EUR/USD 1.1000 means one euro buys 1.10 US dollars. It is one of the most closely watched FX markets because it links the euro-area economy with the United States.","history":"The euro was introduced for electronic/accounting use on 1 January 1999 and euro banknotes and coins followed in 2002. EUR/USD replaced the old market relationships involving currencies such as the Deutsche Mark, French franc and others. Since then, the pair has reflected major eras including the dot-com period, the 2008 financial crisis, the euro-area sovereign-debt crisis, pandemic policy, inflation shocks and changing ECB/Fed rate cycles.","institutions":"Main institutions: European Central Bank (ECB) for the euro area and Federal Reserve/FOMC for the United States. Traders also follow Eurostat, the US Bureau of Labor Statistics, BEA and national euro-area data because inflation, jobs and growth change expectations for central-bank policy.","drivers":["ECB versus Fed interest-rate expectations and expected future policy path.","US and euro-area inflation, employment, GDP, PMIs and consumer activity.","US Treasury and European bond yields; widening yield advantages can redirect capital.","Global risk sentiment, energy prices, fiscal developments and large geopolitical shocks.","Trade flows and broad demand for US-dollar liquidity."],"bullbear":"EUR/USD tends to receive upward pressure when markets become relatively more optimistic about euro-area growth/rates than US growth/rates, or when expected European yields rise relative to US yields. It tends to receive downward pressure when the reverse happens. This is a relationship, not a mechanical rule; positioning and risk sentiment can dominate temporarily.","news":"Highest-priority events include ECB rate decisions and press conferences, FOMC decisions, US CPI/PCE inflation, US Non-Farm Payrolls, euro-area CPI, PMIs, GDP and major central-bank speeches. Surprise versus expectation matters more than the headline number alone.","sessions":"Liquidity is normally strongest when London is active and especially during the London–New York overlap. The pair can be quieter during parts of the Asian session unless global news creates a catalyst.","correlations":"Useful markets to watch include the US Dollar Index as broad context, US Treasury yields, German/European government-bond yields and sometimes gold/risk assets. Correlations are unstable: use them as context, never as guaranteed signals.","behavior":"EUR/USD often has deep liquidity and relatively tight spreads, so technical levels can be cleaner than on many exotic pairs. It can trend strongly during monetary-policy divergence, but it also spends long periods rotating inside ranges.","trading":"Start with H4/Daily structure, mark major previous highs/lows and weekly levels, then use H1/M15 for execution. In a range, mean-reversion tools such as Bollinger Bands can help identify stretched price; in a trend, EMA structure, pullbacks and momentum confirmation are usually more appropriate. Avoid assuming every band touch is a reversal.","risk":"Do not enter simply because news is scheduled. Spreads and slippage can expand around high-impact releases. Define invalidation first, size the trade from the stop distance, and avoid turning a macro thesis into an unlimited-loss position.","checklist":["What is the current ECB-vs-Fed policy expectation?","Is the Daily/H4 market trending or ranging?","Where are previous day/week highs and lows?","Is major EUR or USD news due soon?","Which session is active?","What would invalidate the idea?","Is reward-to-risk acceptable after spread/slippage?"]},"gbpusd":{"overview":"GBP/USD measures the British pound against the US dollar. GBP is the base currency. The pair is commonly called “Cable,” a nickname linked to the historical transatlantic telegraph cable used to transmit sterling-dollar quotations.","history":"Sterling has a much longer history than modern floating FX. GBP/USD became especially important as London and New York developed into major financial centres. The pair has passed through the Bretton Woods era, the 1992 sterling crisis, the 2008 crisis, the 2016 Brexit referendum, pandemic policy and repeated UK/US inflation and rate cycles.","institutions":"The Bank of England’s Monetary Policy Committee sets UK Bank Rate, while the Federal Reserve/FOMC sets US monetary policy. Traders watch the UK Office for National Statistics alongside US BLS/BEA releases.","drivers":["BoE versus Fed interest-rate expectations.","UK CPI, wages and labour-market data, because persistent wages/services inflation can affect BoE policy.","US CPI, PCE, NFP and US yields.","UK growth, fiscal policy and political uncertainty.","Global risk sentiment and demand for dollars during stress."],"bullbear":"GBP/USD generally strengthens when UK policy/growth expectations improve relative to the US or when the dollar weakens broadly. It generally falls when US yield/policy expectations dominate or UK-specific risks worsen. Sterling can react sharply because expectations can reprice quickly.","news":"Watch BoE decisions, MPC voting split and guidance, UK CPI/wages/employment/GDP/retail sales, FOMC, US CPI/PCE and NFP. UK fiscal announcements and major political developments can also move sterling materially.","sessions":"London is the core session. London–New York overlap often produces the day’s strongest volume and larger moves. Early London liquidity sweeps are common around prior Asian highs/lows.","correlations":"Watch the broad US dollar, UK gilt yields versus US Treasury yields, EUR/GBP for relative sterling strength, and risk sentiment. These relationships change through time.","behavior":"GBP/USD is usually more volatile than EUR/USD. It can make deep intraday sweeps before choosing direction, so very tight stops at obvious highs/lows can be vulnerable.","trading":"Use Daily/H4 trend and key levels first. On M15/H1, wait for price to reach a meaningful location rather than chasing the middle of a range. A liquidity sweep plus reclaim, or a trend pullback aligned with the higher timeframe, is more informative than a naked oscillator signal.","risk":"Sterling can jump on policy headlines. Avoid oversized positions around BoE/Fed releases. Use a stop beyond genuine structural invalidation, not an arbitrary tiny number of pips.","checklist":["BoE versus Fed bias?","Any UK CPI/wage/BoE event today?","Where are Asian/London session highs and lows?","Is H4 trend clear?","Is price at a real level or mid-range?","Where is invalidation?","Is volatility suitable for the stop size?"]},"usdjpy":{"overview":"USD/JPY shows how many Japanese yen one US dollar buys. USD is the base currency. The pair is highly sensitive to the gap between US and Japanese interest rates and to changes in global carry-trade demand.","history":"The yen moved from a fixed post-war framework toward a floating exchange-rate system in the 1970s. USD/JPY has since reflected Japan’s long period of low inflation/rates, the Plaza Accord era, repeated global crises, unconventional BoJ policy, yield-curve policies and later changes in Japanese inflation and rates.","institutions":"Key institutions are the Federal Reserve and Bank of Japan. Japan’s Ministry of Finance is also important because it is responsible for foreign-exchange intervention policy, while the BoJ can act as agent.","drivers":["US Treasury yields and the US-Japan yield differential.","BoJ rate decisions, policy framework and inflation outlook.","Fed policy expectations.","Japanese wage/inflation data and US employment/inflation.","Risk sentiment and carry-trade positioning.","Actual or feared Japanese FX intervention when moves become disorderly."],"bullbear":"Higher relative US yields often support USD/JPY, while narrowing yield differentials can pressure it. Risk-off periods can strengthen the yen through position unwinds, although this relationship is not constant.","news":"BoJ policy meetings, Tokyo/national CPI, Japanese wage data, Fed decisions, US CPI/NFP/PCE, US Treasury-yield moves and official Japanese comments about FX are major catalysts.","sessions":"Tokyo can matter more here than for many major pairs, particularly around Japanese data and fixings. London and New York remain important because US yields and global positioning drive large moves.","correlations":"US 2-year/10-year yields are important context. Nikkei/risk assets and other yen crosses can help reveal whether movement is yen-driven or dollar-driven.","behavior":"USD/JPY can form persistent trends when yield differentials are stable, then reverse violently when policy expectations or intervention risk change.","trading":"Trend tools such as Ichimoku or EMA structure work best when the higher timeframe is directional. In a strong trend, avoid repeatedly shorting an overbought oscillator. For reversals, demand a structural break and confirmation rather than guessing a top.","risk":"Intervention-related moves can be extremely fast. Never assume a historically high or low price alone means reversal. Reduce exposure around BoJ/Fed decisions and official intervention headlines.","checklist":["Direction of US yields?","BoJ/Fed policy gap widening or narrowing?","Any intervention language?","H4/Daily trend?","Tokyo/London/New York liquidity level nearby?","Is the setup trend-following or reversal?","Clear invalidation?"]},"gbpjpy":{"overview":"GBP/JPY is a cross rate between sterling and the yen. It combines a relatively volatile pound with a currency heavily influenced by Japanese rates and global risk appetite, giving the pair its reputation for large ranges.","history":"The pair’s behaviour reflects the long histories of sterling and the yen, but modern trading is especially shaped by UK monetary cycles, Japan’s low-rate era, carry trades, the global financial crisis, Brexit and shifts in BoJ policy.","institutions":"Bank of England, Bank of Japan and Japan’s Ministry of Finance are the main policy institutions. UK ONS and Japanese statistics provide inflation, wage and growth inputs.","drivers":["BoE-BoJ rate expectations and yield differentials.","Global risk-on/risk-off sentiment and carry-trade flows.","UK inflation/wage data and Japanese inflation/wages.","Equity-market volatility.","Sterling-specific political/fiscal developments and intervention risk on the yen."],"bullbear":"Risk-on conditions and a wide UK-Japan yield advantage can support GBP/JPY; risk-off deleveraging or a hawkish shift in Japan can hit it hard. Because both legs can move simultaneously, reactions can be amplified.","news":"BoE/BoJ decisions, UK CPI/wages/employment, Japan CPI/wages, major global risk events and Japanese FX-intervention headlines.","sessions":"Tokyo can establish early yen direction; London often brings major sterling flow; London-New York can extend or reverse moves. Expect larger ranges than EUR/USD.","correlations":"Watch GBP/USD, USD/JPY and global equity/risk sentiment. Decomposing the cross into those two legs can help identify whether GBP or JPY is driving.","behavior":"Large intraday wicks, momentum runs and sharp reversals are normal. Average stop distances often need to be wider than on calmer majors.","trading":"Use H4/Daily directional structure and ATR to understand normal range. Entries are cleaner after pullbacks or liquidity sweeps at meaningful levels. Do not chase a huge candle after the move is already extended.","risk":"Position size should reflect its volatility. A stop appropriate for EUR/USD may be far too tight here. Policy surprises or risk-off shocks can create gap-like moves.","checklist":["Which leg is driving: GBP or JPY?","BoE/BoJ bias?","Risk-on or risk-off?","Current ATR/range?","Major HTF level?","News risk?","Stop wide enough for normal noise but still structurally valid?"]},"xauusd":{"overview":"XAU/USD is the US-dollar price of one troy ounce of gold. It is not a conventional currency pair, but traders quote and trade it similarly. Gold functions as a monetary/financial asset, commodity and reserve asset.","history":"Gold served monetary roles for centuries and was central to various gold-standard systems. The US ended dollar convertibility into gold in the early 1970s, after which gold increasingly traded as a freely priced financial asset. Modern gold cycles have been shaped by inflation, real interest rates, crises, central-bank demand, ETF flows and geopolitical risk.","institutions":"The Federal Reserve matters through US rates and real yields. Central banks globally matter as reserve buyers/sellers. US inflation and labour data affect Fed expectations. Futures-market positioning and major bullion-market flows also influence price.","drivers":["US real yields: rising real yields can raise the opportunity cost of holding non-yielding gold.","US dollar direction, though correlation is not perfect.","Inflation expectations and monetary-policy expectations.","Central-bank purchases/reserve diversification.","Geopolitical/systemic risk and demand for defensive assets.","ETF/futures positioning and liquidity."],"bullbear":"Gold can benefit from falling real yields, a weaker dollar, easing expectations or heightened uncertainty. It can struggle when real yields rise sharply and the dollar strengthens. During severe stress, correlations can change because investors may sell assets to raise cash.","news":"FOMC, US CPI/PCE, NFP, major Fed speeches, Treasury-yield moves, geopolitical shocks and material central-bank/reserve developments.","sessions":"London is important for bullion trading and New York is critical because US macro data and futures activity can move gold rapidly. London-New York overlap often produces major expansion.","correlations":"Watch US real/nominal yields, DXY, silver, risk assets and sometimes oil/inflation expectations. Never treat inverse-dollar correlation as guaranteed.","behavior":"Gold can transition from quiet consolidation to explosive expansion. It frequently sweeps obvious highs/lows and reacts violently to macro data.","trading":"Map Daily/H4 liquidity and support/resistance first. Use ATR for realistic stops. In trend conditions, favor pullbacks and continuation; in ranges, rejection from boundaries can work. Fibonacci/EMA/market structure can be confluence, not reasons by themselves.","risk":"Gold’s dollar-per-ounce movement can produce large P/L quickly. Check contract specification and lot value with the broker. Avoid entering immediately before major US data unless the strategy is designed for news volatility.","checklist":["Real yields and USD direction?","Major US data/Fed event?","Daily/H4 trend or range?","Previous day/week high/low?","ATR and correct lot size?","Entry confirmation at a level?","Clear stop and target before execution?"]},"usdcad":{"overview":"USD/CAD is the US dollar against the Canadian dollar. The Canadian dollar is often called the “loonie.” Canada is a major commodity and energy exporter, so oil and commodity conditions can influence CAD.","history":"Canada has used a floating exchange rate for much of the modern period. USD/CAD has reflected North American trade integration, oil booms and crashes, the global financial crisis, pandemic shocks and changing Fed/Bank of Canada policy.","institutions":"Federal Reserve and Bank of Canada. Statistics Canada, US BLS/BEA and energy agencies provide key economic/commodity data.","drivers":["Fed versus Bank of Canada rate expectations.","WTI crude-oil prices and Canadian terms of trade, though the relationship varies.","Canadian CPI, employment and GDP.","US CPI, NFP and growth.","Risk sentiment and broad USD direction."],"bullbear":"Stronger oil/Canadian growth or relatively hawkish BoC expectations can support CAD and push USD/CAD down. Broad USD strength or weaker Canadian/oil expectations can push the pair higher.","news":"BoC decisions, Canadian CPI/employment/GDP, Fed/FOMC, US CPI/NFP and major oil-supply/inventory news.","sessions":"Most active during North American hours, particularly when Canadian and US data are released. London can establish earlier USD direction.","correlations":"WTI is useful context, along with US/Canadian bond-yield spreads and DXY. Oil correlation can weaken for long periods, so confirm instead of assuming.","behavior":"Often forms structured trends around policy divergence and can react sharply to simultaneous US and Canadian data.","trading":"Combine USD and CAD fundamental bias with H4 structure. If trading oil correlation, first verify that CAD is actually responding to oil that day. Use support/resistance, trend pullbacks and momentum rather than a single correlation.","risk":"US and Canadian data are sometimes released close together, creating two-sided volatility. Avoid basing a trade solely on crude oil.","checklist":["Fed vs BoC?","Oil trend actually influencing CAD?","US/Canada news today?","North American session?","H4 structure?","Invalidation level?","Reasonable stop for current ATR?"]},"btcusd":{"overview":"BTC/USD is the US-dollar price of Bitcoin. Bitcoin is a decentralized digital asset with a predetermined issuance schedule governed by its protocol rather than a central bank.","history":"Bitcoin’s white paper was published under the name Satoshi Nakamoto in 2008 and the network launched in 2009. Major eras include early exchange adoption, repeated boom/bust cycles, institutional participation, derivatives markets, protocol halvings, regulatory developments and the arrival of US spot bitcoin exchange-traded products.","institutions":"No central bank controls Bitcoin. Important influences include regulators, exchanges, custodians, ETF issuers, miners and protocol/network participants. The Fed still matters indirectly because global dollar liquidity and interest rates affect risk appetite.","drivers":["Global liquidity and real/nominal interest-rate expectations.","Spot/derivatives demand and liquidations.","ETF and institutional flows where applicable.","Bitcoin halving/supply dynamics and miner economics.","Regulation, custody and exchange developments.","Broader crypto sentiment and leverage."],"bullbear":"Easier financial conditions and strong capital inflows can support BTC; tighter liquidity, deleveraging or regulatory/exchange shocks can hurt it. Short-term moves are often amplified by leveraged liquidations.","news":"Major regulatory rulings, ETF flow developments, exchange/custody events, protocol/security issues and Fed macro events. Treat social-media rumors cautiously.","sessions":"Trades 24/7. Liquidity can still vary by global business hours and weekends can behave differently from weekday institutional flow.","correlations":"Often compared with technology/risk assets, global liquidity and the dollar, but correlations change significantly across cycles.","behavior":"High volatility, gaps between liquidity pools, weekend trading and leverage-driven cascades are normal. Percentage moves that would be extreme in FX can occur routinely.","trading":"Use percentage risk, not fixed pip thinking. Higher-timeframe market structure, volume, volatility measures and trend tools are more useful than assuming overbought means sell. Confirm breakouts with closes/volume and beware liquidation wicks.","risk":"Crypto can gap violently and exchange/counterparty risk exists in addition to market risk. Leverage can turn ordinary volatility into liquidation.","checklist":["Daily/weekly structure?","Liquidity/leverage conditions?","Major regulatory/ETF/exchange event?","Weekend or weekday liquidity?","Position size based on % risk?","Exchange/custody risk understood?","Stop placed where thesis is invalid, not where liquidation occurs first?"]},"audusd":{"overview":"AUD/USD is the Australian dollar against the US dollar. AUD is widely considered a commodity-sensitive and risk-sensitive currency because Australia exports large quantities of raw materials and trades heavily with Asia.","history":"The Australian dollar was floated in 1983. Since then AUD/USD has reflected commodity supercycles, Chinese industrial growth, the global financial crisis, RBA/Fed cycles and major shifts in global risk appetite.","institutions":"Reserve Bank of Australia and Federal Reserve. Australian Bureau of Statistics, Chinese macro releases and commodity markets are important context.","drivers":["RBA versus Fed rate expectations.","Iron ore and other commodity conditions.","Chinese growth/PMI/property demand because China is a major trading partner.","Australian employment, CPI and wages.","Global risk appetite and US dollar direction."],"bullbear":"Improving commodity/China expectations or relatively hawkish RBA pricing can support AUD; global risk-off, weaker China/commodities or stronger US yields can pressure it.","news":"RBA decisions, Australian CPI/employment/wages, Chinese PMIs/trade/growth data, Fed/FOMC, US CPI/NFP.","sessions":"Asian session matters more than for EUR/USD because Australian and Chinese data can print then. London and New York can extend USD-driven movement.","correlations":"Iron ore, Chinese risk sentiment and broad equities can be useful context. Correlations vary and should be checked, not assumed.","behavior":"Can trend cleanly when global growth/commodity themes are strong, but can become choppy when RBA and Fed expectations are stable.","trading":"Start with Asia-session catalyst and Daily/H4 structure. MACD/EMA momentum tools can support a trend thesis; avoid buying merely because commodities rose if AUD price action is not confirming.","risk":"Chinese headlines can create sudden moves outside Australian data hours. Commodity correlation can break.","checklist":["RBA vs Fed?","China/commodity backdrop?","Asian-session data?","Risk-on/off tone?","H4 trend?","Confirmation on AUD itself?","Defined invalidation?"]},"nzdusd":{"overview":"NZD/USD is the New Zealand dollar against the US dollar, nicknamed the “Kiwi.” New Zealand is a relatively small, trade-dependent economy with meaningful agricultural exports.","history":"The New Zealand dollar was floated in 1985. Modern NZD/USD cycles have reflected dairy/agricultural prices, RBNZ policy, global carry trades, Asian demand and global risk conditions.","institutions":"Reserve Bank of New Zealand and Federal Reserve. Statistics New Zealand and Global Dairy Trade results can be important inputs.","drivers":["RBNZ versus Fed policy expectations.","New Zealand inflation, employment and growth.","Dairy/agricultural export prices.","Chinese/Asian demand and global growth.","Risk sentiment and broad USD liquidity."],"bullbear":"Relatively hawkish RBNZ expectations, firm export prices and risk-on sentiment can support NZD; weakening global growth or stronger US policy expectations can pressure it.","news":"RBNZ decisions, NZ CPI/employment/GDP, Global Dairy Trade, Chinese macro data, FOMC and US inflation/jobs.","sessions":"Asian-Pacific hours can react to NZ/China news; London/New York add USD and global macro flow.","correlations":"AUD/USD is often a useful regional comparison; dairy/commodity and China-related sentiment can provide context.","behavior":"Can trend smoothly but liquidity is thinner than EUR/USD, so spreads and moves can be less forgiving during quiet hours.","trading":"Use Daily/H4 trend plus EMA ribbon or structure. Compare NZD strength with AUD to understand whether the move is regional or NZ-specific.","risk":"Thin liquidity and unexpected global risk headlines can exaggerate moves. Avoid treating dairy prices as a one-to-one signal.","checklist":["RBNZ vs Fed?","NZ data/dairy catalyst?","China/global risk tone?","AUD comparison?","H4 trend?","Session liquidity?","Risk sized for potentially wider spread?"]},"usdchf":{"overview":"USD/CHF is the US dollar against the Swiss franc. CHF is often treated as a defensive or safe-haven currency because of Switzerland’s financial system, external balance and historical investor behaviour.","history":"The Swiss franc has long played a defensive role in global finance. Modern USD/CHF history includes the end of Bretton Woods, repeated crises, unconventional Swiss National Bank policy and the SNB’s 2011–2015 EUR/CHF minimum exchange-rate regime, whose removal caused extraordinary CHF volatility.","institutions":"Swiss National Bank and Federal Reserve. Swiss inflation and SNB communication are crucial; the SNB has also historically discussed or used FX-market operations.","drivers":["SNB versus Fed rate expectations.","Global risk sentiment/safe-haven demand.","US and Swiss inflation.","Broad USD direction.","SNB FX-policy communication and Swiss franc valuation concerns."],"bullbear":"USD/CHF can rise with broad dollar strength or weaker CHF demand, and fall when CHF safe-haven demand strengthens or policy expectations favor CHF. The safe-haven relationship is not constant.","news":"SNB decisions, Swiss CPI, Fed/FOMC, US CPI/NFP and severe geopolitical/financial-stress events.","sessions":"European/London hours are important for CHF; New York adds US macro/yield movement.","correlations":"EUR/CHF and EUR/USD can help reveal CHF versus USD/euro flows. Gold/risk sentiment may provide context but not fixed signals.","behavior":"Often calmer than GBP crosses, but SNB-related events can create rare, extreme dislocations.","trading":"Mean-reversion/channel tools can work in stable ranges; when policy divergence creates trend, do not keep fading it. Confirm range conditions before using regression/Keltner logic.","risk":"Historical SNB events show that apparently stable pairs can gap violently. Leverage should account for tail risk.","checklist":["SNB vs Fed?","Safe-haven demand present?","Range or trend?","EUR/CHF context?","SNB event/news?","Structural stop?","Exposure appropriate for tail risk?"]},"eurjpy":{"overview":"EUR/JPY is the euro against the Japanese yen. It removes the US dollar from the quote and directly expresses relative euro-area versus Japanese conditions plus global risk appetite.","history":"Since the euro’s 1999 launch, EUR/JPY has experienced major carry-trade cycles, the global financial crisis, euro sovereign-debt stress, Japan’s long low-rate period and changing ECB/BoJ policy regimes.","institutions":"ECB and Bank of Japan, with Japan’s Ministry of Finance relevant for FX intervention risk affecting the yen.","drivers":["ECB-BoJ yield/policy differential.","Euro-area inflation/growth versus Japanese inflation/wages.","Global risk sentiment and carry trades.","European political/fiscal risk.","Japanese FX-intervention concerns."],"bullbear":"A widening euro-area yield advantage and risk-on tone can support EUR/JPY; yen strengthening, risk-off flows or relatively hawkish BoJ repricing can pressure it.","news":"ECB/BoJ decisions, euro CPI/PMIs/GDP, Japanese CPI/wages, global risk events and intervention headlines.","sessions":"Tokyo can set yen tone; London is important for EUR; overlap across sessions can produce strong continuation.","correlations":"Compare EUR/USD and USD/JPY to determine which currency leg is driving. European yields versus Japanese yields are useful macro context.","behavior":"Can produce strong trends and sharp risk-off reversals. It often has more range than EUR/USD.","trading":"Trend-following structure usually works better than blindly fading oscillator extremes during strong carry moves. Use CCI/RSI as timing confirmation only after defining the higher-timeframe regime.","risk":"Cross pairs can move from both legs simultaneously. Intervention or geopolitical risk can cause abrupt reversals.","checklist":["ECB vs BoJ?","Which leg drives: EUR or JPY?","Risk-on/off?","H4 trend?","Intervention risk?","Key Tokyo/London levels?","Invalidation defined?"]},"eurgbp":{"overview":"EUR/GBP measures the euro against the British pound. Because both economies are geographically and commercially connected, the pair can be less volatile than many GBP crosses but highly sensitive to relative ECB-versus-BoE expectations.","history":"EUR/GBP began with the euro’s launch in 1999. Its modern history includes the UK’s EU relationship, the 2008 crisis, euro debt crisis, the 2016 Brexit referendum, subsequent Brexit negotiations and changing ECB/BoE inflation cycles.","institutions":"ECB and Bank of England are central. Eurostat, UK ONS and political/fiscal developments on both sides matter.","drivers":["ECB versus BoE rate expectations.","Relative euro-area versus UK inflation/growth.","UK-EU trade and political developments.","European/UK bond-yield spreads.","Relative energy and fiscal shocks."],"bullbear":"EUR/GBP rises when the euro outlook improves relative to sterling and falls when UK policy/growth expectations improve relative to the euro area.","news":"ECB, BoE, euro CPI/PMIs, UK CPI/wages/employment, GDP and major UK-EU political/fiscal developments.","sessions":"European/London session is dominant. Moves can be quiet outside those hours.","correlations":"Compare EUR/USD and GBP/USD to determine whether EUR or GBP is responsible for the move.","behavior":"Often range-bound for extended periods, making relative-value and mean-reversion setups more common than on volatile crosses.","trading":"Bollinger Bands/range structure can be useful only after confirming the pair is truly rotating. For a buy, prefer lower-range rejection plus close back inside the band; for a sell, upper-range rejection plus close back inside. If bands expand and price accepts outside the range, stop fading.","risk":"Because average movement can be smaller, traders sometimes overleverage. A quiet pair can still break violently around BoE/ECB surprises.","checklist":["ECB vs BoE?","Range genuinely intact?","EUR/USD vs GBP/USD relative strength?","London session?","Major event?","Band rejection confirmed by price close?","Stop beyond range invalidation?"]},"audjpy":{"overview":"AUD/JPY is a classic risk-sensitive cross: the Australian dollar often benefits from growth/commodity optimism, while the yen can strengthen when carry positions are unwound.","history":"Modern behaviour has been shaped by Australia’s 1983 float, Japan’s low-rate era, commodity cycles, the 2008 carry-trade unwind, China’s growth cycle and repeated BoJ/RBA shifts.","institutions":"Reserve Bank of Australia, Bank of Japan and Japan’s Ministry of Finance.","drivers":["RBA-BoJ yield differential.","Chinese/Asian growth and commodity expectations.","Global equities and volatility/risk sentiment.","Australian CPI/jobs and Japanese inflation/wages.","Yen intervention risk."],"bullbear":"Risk-on plus a favorable Australian yield/commodity backdrop often supports AUD/JPY. Risk-off or yen-policy repricing can produce fast declines.","news":"RBA/BoJ, Australian CPI/jobs, China PMIs/growth, Japan CPI/wages and global risk shocks.","sessions":"Asian session is particularly meaningful; London/New York can amplify global risk flows.","correlations":"Watch AUD/USD, USD/JPY, equities and China-sensitive markets.","behavior":"Can trend smoothly in stable risk-on regimes but collapse rapidly during deleveraging.","trading":"Use ATR and H4 trend. Trend pullbacks are generally safer than buying after a long risk-on extension. For reversal, wait for structure to break.","risk":"Carry unwinds can be abrupt. Do not use small fixed stops without considering volatility.","checklist":["RBA-BoJ gap?","China/commodity tone?","Equity risk sentiment?","Asian-session structure?","ATR?","Trend continuation or true reversal?","Tail-risk event nearby?"]},"usoil":{"overview":"USOIL usually refers to WTI crude oil, a major North American crude benchmark. The exact CFD/spot symbol is broker-specific, so its price construction and rollover can differ from the underlying futures benchmark.","history":"WTI became a major benchmark as modern oil futures markets developed. Oil history includes the 1970s shocks, OPEC policy cycles, shale expansion, 2008 crash, 2014–2016 supply glut and the extraordinary 2020 futures dislocation when a front-month WTI contract traded below zero.","institutions":"OPEC+ production decisions, US Energy Information Administration data and futures exchanges are key. Central banks affect oil indirectly through growth, dollar and financial conditions.","drivers":["Global supply/demand balance.","OPEC+ quotas and compliance.","US shale production and inventories.","Geopolitical disruptions and sanctions.","Global growth expectations and transport/industrial demand.","US dollar and speculative positioning."],"bullbear":"Supply cuts/disruptions or stronger demand expectations can support oil; oversupply, inventory builds or recession fears can pressure it. Short-term price can diverge from fundamentals due to positioning.","news":"EIA weekly petroleum status/inventories, OPEC+ meetings, major geopolitical/sanctions news, demand forecasts and global growth data.","sessions":"Liquidity is strong during London/New York and US futures hours. Inventory releases can create sharp intraday swings.","correlations":"CAD can sometimes strengthen with oil; energy equities and inflation expectations can provide context. Correlations vary.","behavior":"Oil can trend aggressively, gap on geopolitical news and experience large volatility around inventories/OPEC decisions.","trading":"First identify whether the market is supply-shock, demand-shock or range regime. Use ATR, key inventory/event levels and trend structure. Never assume every inventory draw is bullish—the market trades surprise, product details, expectations and positioning.","risk":"Broker USOIL CFDs can have roll adjustments and different contract specs. Verify tick/lot value, overnight costs and rollover method.","checklist":["Underlying product/contract understood?","OPEC/geopolitical catalyst?","EIA inventory timing?","Supply vs demand narrative?","Trend/range?","ATR and gap risk?","Contract/roll cost checked?"]},"ethusd":{"overview":"ETH/USD is the US-dollar price of Ether, the native asset of the Ethereum network. Ethereum supports programmable smart contracts and decentralized applications.","history":"Ethereum launched in 2015. Its major milestones include the growth of smart contracts and DeFi, the 2016 DAO episode/fork, multiple protocol upgrades and the 2022 transition from proof-of-work to proof-of-stake known as The Merge.","institutions":"Ethereum is protocol/community governed rather than centrally controlled. Developers, validators, exchanges, regulators, ETF/product issuers and application ecosystems can all influence demand and expectations.","drivers":["Broader crypto liquidity and Bitcoin direction.","Network usage, fees and application/DeFi activity.","Protocol upgrades and staking economics.","Institutional product/ETF flows where relevant.","Regulatory treatment.","Leverage and derivatives positioning."],"bullbear":"Strong crypto liquidity, network activity and favorable institutional/regulatory developments can support ETH. Risk-off, protocol/security concerns or deleveraging can pressure it.","news":"Major Ethereum upgrades, security incidents, regulatory decisions, institutional-product flows and Fed/global liquidity events.","sessions":"24/7, with liquidity differences across global hours and weekends.","correlations":"BTC is the most important crypto-market reference. Technology/risk assets can correlate during macro-driven phases.","behavior":"Very volatile, often with higher beta than BTC. Liquidation cascades and weekend moves can be large.","trading":"Use higher-timeframe trend and ETH/BTC relative strength for context. TSI/MACD/EMA can help time momentum, but structure and risk management come first.","risk":"Smart-contract ecosystem, exchange and custody risks add to price risk. Leverage can liquidate positions rapidly.","checklist":["BTC and ETH/BTC direction?","Network/regulatory catalyst?","24/7 liquidity conditions?","Daily/H4 structure?","Leverage/liquidation risk?","Position size by % risk?","Custody/exchange risk considered?"]},"nas100":{"overview":"NAS100 is a broker symbol commonly used for instruments tracking the Nasdaq-100, an index of 100 large non-financial companies listed on Nasdaq. Exact CFD pricing, hours and financing depend on the broker.","history":"The Nasdaq-100 was launched in 1985. Its major eras include the dot-com boom/crash, post-2008 technology expansion, pandemic-era acceleration and later rate/inflation repricing.","institutions":"Nasdaq maintains the index methodology. The Federal Reserve strongly influences discount rates/financial conditions; corporate earnings from large constituents are major drivers.","drivers":["US interest rates and especially expectations for long-duration growth valuations.","Mega-cap technology earnings and guidance.","AI/semiconductor/cloud spending cycles.","US growth/inflation and Fed policy.","Risk appetite and equity volatility."],"bullbear":"Falling expected discount rates and strong earnings/growth can support the index; rising yields, earnings disappointments or risk-off shocks can pressure it.","news":"FOMC, CPI/PCE/NFP, major constituent earnings, semiconductor/AI guidance and major regulatory/geopolitical technology news.","sessions":"US cash-session open is critical; premarket data and earnings can move futures/CFDs before cash opens. London-New York transition can also matter.","correlations":"US Treasury yields, S&P 500, semiconductor indices and volatility measures are useful context.","behavior":"Can trend strongly and gap between sessions. Concentration in large companies means a few mega-caps can materially influence the index.","trading":"Mark prior day high/low and US session levels. Trend tools such as Supertrend/EMA are more useful in directional days; in opening volatility, wait for structure rather than chasing the first candle.","risk":"CFD leverage plus opening gaps can cause losses beyond a tight technical expectation. Earnings and macro days require smaller size.","checklist":["Fed/yield backdrop?","Major mega-cap earnings?","US cash open timing?","Prior day high/low?","Trend or range day?","CFD contract value/financing known?","Gap risk sized appropriately?"]},"us30":{"overview":"US30 is a common broker symbol for products tracking the Dow Jones Industrial Average (DJIA), a price-weighted index of 30 prominent US companies. CFD construction can vary by broker.","history":"The DJIA dates to the late 19th century and has reflected industrialization, depressions, wars, inflation cycles, the 1987 crash, dot-com era, 2008 crisis, pandemic shock and modern US corporate cycles.","institutions":"S&P Dow Jones Indices maintains the index. The Federal Reserve and US macro data influence valuation and growth expectations. Earnings of the 30 components matter.","drivers":["US growth and industrial/consumer outlook.","Fed and interest-rate expectations.","Corporate earnings.","Fiscal policy and business-cycle expectations.","Global risk sentiment."],"bullbear":"Stronger economic/earnings expectations can support US30, while recession fears, higher discount rates or risk shocks can pressure it. Sector composition makes its response different from NAS100.","news":"FOMC, CPI/NFP/GDP/retail sales, large component earnings and major fiscal/geopolitical developments.","sessions":"US cash-session open and New York hours are most important; futures/CFDs can move earlier on macro releases.","correlations":"S&P 500, NAS100, US yields and volatility indices provide context, but sector weights differ.","behavior":"Often reacts cleanly to daily pivots and prior session levels, but can gap and trend strongly on macro days.","trading":"Use Daily/H1 levels, previous day high/low and pivot points as location tools. Require price action confirmation; a pivot is not automatically support/resistance.","risk":"Broker US30 point value can be large. Verify contract size before trading and reduce leverage around US macro/earnings events.","checklist":["US macro/Fed catalyst?","How is US30 behaving vs NAS100/S&P?","Prior day levels/pivots?","US session timing?","Contract point value known?","Stop based on structure?","Gap/event risk acceptable?"]},"euraud":{"overview":"EUR/AUD is a cross between the euro and Australian dollar. It often reflects a contrast between European policy/growth and commodity/China-sensitive Australian conditions.","history":"Since the euro’s 1999 launch, EUR/AUD has moved through commodity supercycles, the euro debt crisis, China-led growth cycles and major ECB/RBA policy divergence.","institutions":"ECB and Reserve Bank of Australia.","drivers":["ECB versus RBA policy expectations.","Euro-area growth/inflation versus Australian growth/inflation.","Chinese growth and commodity demand.","European energy/fiscal conditions.","Global risk sentiment."],"bullbear":"EUR/AUD can rise when Europe outperforms Australia/China-sensitive expectations or RBA expectations soften; it can fall when Australian commodity/growth and RBA expectations strengthen relatively.","news":"ECB, RBA, euro CPI/PMIs, Australian CPI/jobs and major Chinese data.","sessions":"Asia can move AUD leg; London strongly affects EUR leg. The transition can create multi-session trends.","correlations":"Compare EUR/USD and AUD/USD to identify which leg is moving; commodities/China can add context.","behavior":"Can form long directional swings because policy and growth differences can persist.","trading":"Higher-timeframe trend and pullbacks often suit the pair. RSI divergence can flag loss of momentum but should not override an intact trend without structure breaking.","risk":"Cross pairs may have wider spreads than major USD pairs. Two separate macro regions create event risk across more hours.","checklist":["ECB vs RBA?","China/commodity backdrop?","Which leg drives?","Spread/session?","H4/Daily trend?","Divergence confirmed by structure?","Event risk on either region?"]},"gbpcad":{"overview":"GBP/CAD is a cross between the British pound and Canadian dollar. It combines sterling’s sensitivity to UK policy with CAD’s sensitivity to North American policy, commodities and oil.","history":"Modern GBP/CAD has reflected UK monetary/fiscal cycles, Brexit, Canadian commodity cycles, oil shocks and BoE/BoC divergence.","institutions":"Bank of England and Bank of Canada.","drivers":["BoE versus BoC rate expectations.","UK inflation/wages versus Canadian inflation/jobs.","Oil/commodity effects on CAD.","UK fiscal/political developments.","Global risk and broad USD-linked flows indirectly."],"bullbear":"Relatively stronger UK policy/growth expectations can lift GBP/CAD; stronger CAD/oil/BoC expectations can lower it.","news":"BoE, BoC, UK CPI/wages/jobs, Canadian CPI/jobs/GDP and major oil-market events.","sessions":"London is important for GBP; North American hours are important for CAD. This creates multiple active windows.","correlations":"Compare GBP/USD and USD/CAD to diagnose the cross. WTI can provide CAD context.","behavior":"Large intraday ranges and long wicks are common. Moves can continue from London into New York.","trading":"Use H4 structure and avoid entering mid-range. Liquidity sweeps at clear swing levels plus confirmation can be more useful than raw oscillator crosses.","risk":"Wider spread and high volatility require smaller size. Simultaneous UK/Canada catalysts can reverse the pair quickly.","checklist":["BoE vs BoC?","Oil/CAD tone?","GBP/USD and USD/CAD confirm?","London or North America session?","ATR/spread?","HTF level?","Stop sized for volatility?"]},"chfjpy":{"overview":"CHF/JPY is a cross between the Swiss franc and Japanese yen. Both can attract defensive demand, so the pair often reflects differences in Swiss versus Japanese policy and which safe-haven currency is preferred.","history":"Modern behaviour has been shaped by Switzerland’s defensive currency role, SNB unconventional policy, Japan’s long low-rate environment, global crises and changes in BoJ policy.","institutions":"Swiss National Bank, Bank of Japan and Japan’s Ministry of Finance.","drivers":["SNB versus BoJ policy/yield expectations.","Relative safe-haven flows.","European versus Japanese inflation/growth.","Global risk shocks.","Intervention/policy communication involving CHF or JPY."],"bullbear":"CHF/JPY rises when CHF outperforms JPY and falls when JPY outperforms CHF. Because both can strengthen in stress, direction depends on relative rather than absolute safe-haven demand.","news":"SNB/BoJ decisions, Swiss CPI, Japanese CPI/wages and intervention-related headlines.","sessions":"Tokyo matters for JPY and European/London hours for CHF, creating two relevant liquidity windows.","correlations":"EUR/CHF and USD/JPY can help identify the driving leg.","behavior":"Can range for long periods and then trend when relative policy diverges.","trading":"Keltner/mean-reversion tools suit confirmed ranges; trend-following is better once price accepts outside the established range. Require candle closes and structure.","risk":"Do not assume “both are safe havens so the pair will not move.” Relative policy shocks can produce substantial trends.","checklist":["SNB vs BoJ?","Which safe haven is stronger?","EUR/CHF and USD/JPY context?","Range or trend?","Tokyo/Europe session?","Intervention risk?","Clear invalidation?"]}};
+
+const fullStudyDictionaryMs = {"eurusd":{"overview":"EUR/USD ialah kadar pertukaran antara euro dan dolar AS. EUR ialah mata wang asas dan USD ialah mata wang sebut harga. Contohnya, EUR/USD 1.1000 bermaksud 1 euro bernilai 1.10 dolar AS.","history":"Euro mula digunakan untuk transaksi elektronik dan perakaunan pada 1 Januari 1999, manakala wang kertas dan syiling euro diperkenalkan pada 2002. Sejak itu EUR/USD mencerminkan krisis kewangan 2008, krisis hutang Zon Euro, pandemik, perubahan inflasi dan kitaran kadar faedah ECB serta Fed.","institutions":"Institusi utama ialah European Central Bank (ECB) dan Federal Reserve/FOMC. Pedagang juga memantau Eurostat, US BLS, BEA dan data ekonomi negara-negara Zon Euro kerana inflasi, pekerjaan dan pertumbuhan mempengaruhi jangkaan kadar faedah.","drivers":["Jangkaan kadar faedah ECB berbanding Fed.","Inflasi, pekerjaan, KDNK, PMI dan aktiviti pengguna AS/Zon Euro.","Hasil bon AS dan Eropah.","Sentimen risk-on/risk-off, tenaga, fiskal dan geopolitik.","Permintaan global terhadap dolar AS dan aliran perdagangan."],"bullbear":"EUR/USD biasanya menerima tekanan naik apabila pasaran menjangka ekonomi atau kadar Eropah lebih kuat berbanding AS. Ia cenderung turun apabila hasil dan dasar AS menjadi lebih menarik. Ini bukan formula tetap kerana positioning dan sentimen boleh mengubah hubungan tersebut.","news":"Pantau keputusan kadar ECB, sidang media ECB, FOMC, CPI/PCE AS, NFP, CPI Zon Euro, PMI, KDNK dan ucapan pegawai bank pusat. Perbezaan antara data sebenar dan jangkaan pasaran biasanya lebih penting daripada nombor semata-mata.","sessions":"Kecairan biasanya paling tinggi semasa sesi London dan terutama overlap London-New York. Sesi Asia selalunya lebih perlahan kecuali terdapat berita besar.","correlations":"Pantau DXY sebagai konteks dolar, hasil Treasury AS, hasil bon Eropah/Jerman dan kadang-kadang emas atau aset risiko. Korelasi boleh berubah, jadi jangan gunakannya sebagai signal mutlak.","behavior":"EUR/USD mempunyai kecairan tinggi dan spread yang biasanya rendah. Ia boleh trending kuat ketika dasar ECB dan Fed berbeza, tetapi juga boleh berada dalam range untuk tempoh panjang.","trading":"Mulakan dengan struktur Daily/H4, tandakan high/low hari dan minggu sebelumnya, kemudian gunakan H1/M15 untuk entry. Dalam range, Bollinger Bands boleh membantu melihat harga terlalu jauh daripada purata. Dalam trend, EMA, pullback dan momentum lebih sesuai.","risk":"Jangan entry hanya kerana berita akan keluar. Spread dan slippage boleh meningkat ketika berita besar. Tentukan invalidation dahulu dan kira saiz posisi berdasarkan jarak stop loss.","checklist":["Apa bias ECB berbanding Fed?","Daily/H4 sedang trend atau range?","Di mana high/low hari dan minggu sebelumnya?","Ada berita EUR atau USD besar?","Sesi apa sedang aktif?","Apa yang membatalkan setup?","Adakah reward-to-risk masih munasabah selepas spread?"]},"gbpusd":{"overview":"GBP/USD mengukur pound British berbanding dolar AS. GBP ialah mata wang asas. Pasangan ini terkenal dengan nama “Cable”, berasal daripada kabel telegraf bawah laut yang dahulu digunakan untuk menghantar harga sterling-dolar.","history":"Sterling mempunyai sejarah sangat panjang. GBP/USD melalui era Bretton Woods, krisis sterling 1992, krisis kewangan 2008, referendum Brexit 2016, pandemik dan banyak kitaran kadar faedah UK/AS.","institutions":"Bank of England (BoE) melalui Monetary Policy Committee menetapkan Bank Rate UK, manakala Federal Reserve/FOMC mengurus dasar monetari AS.","drivers":["Jangkaan kadar BoE berbanding Fed.","CPI UK, gaji dan data pekerjaan.","CPI/PCE/NFP AS dan hasil bon AS.","Pertumbuhan UK, dasar fiskal dan politik.","Sentimen risiko global dan permintaan dolar."],"bullbear":"GBP/USD biasanya naik apabila outlook UK atau jangkaan BoE lebih kuat relatif kepada AS, atau dolar AS melemah. Ia turun apabila hasil/dasar AS menguasai atau risiko khusus UK meningkat.","news":"Pantau keputusan BoE, undian MPC, CPI/gaji/pekerjaan/KDNK UK, FOMC, CPI/PCE dan NFP AS. Pengumuman fiskal dan politik UK juga boleh menggerakkan sterling dengan kuat.","sessions":"London ialah sesi utama. Overlap London-New York sering menghasilkan volume dan range harian paling besar. Liquidity sweep pada high/low Asia juga kerap berlaku selepas London dibuka.","correlations":"Pantau DXY, hasil gilt UK berbanding Treasury AS, EUR/GBP dan sentimen risiko. Hubungan ini berubah mengikut keadaan pasaran.","behavior":"GBP/USD biasanya lebih volatile daripada EUR/USD dan sering membuat wick atau sweep yang dalam sebelum memilih arah.","trading":"Gunakan trend Daily/H4 dan level utama dahulu. Pada M15/H1 tunggu harga sampai ke lokasi bermakna. Liquidity sweep + reclaim atau pullback selari dengan trend timeframe tinggi lebih kuat daripada oscillator sahaja.","risk":"Sterling boleh bergerak sangat laju semasa headline dasar. Elakkan posisi terlalu besar ketika BoE/Fed. Stop perlu berada selepas invalidation struktur, bukan sekadar beberapa pip rawak.","checklist":["Bias BoE vs Fed?","Ada CPI/gaji/BoE hari ini?","Di mana high/low Asia dan London?","Trend H4 jelas?","Harga di level atau tengah range?","Di mana invalidation?","Volatility sesuai dengan stop?"]},"usdjpy":{"overview":"USD/JPY menunjukkan berapa yen Jepun diperlukan untuk membeli 1 dolar AS. Pasangan ini sangat sensitif kepada perbezaan kadar faedah AS-Jepun dan carry trade.","history":"Yen bergerak daripada sistem kadar tetap pascaperang kepada kadar terapung pada 1970-an. USD/JPY kemudian dipengaruhi era Plaza Accord, kadar rendah Jepun, polisi luar biasa BoJ, yield-curve control dan perubahan inflasi Jepun.","institutions":"Federal Reserve, Bank of Japan (BoJ) dan Ministry of Finance Jepun. MoF penting kerana ia bertanggungjawab terhadap dasar campur tangan FX.","drivers":["Hasil Treasury AS dan jurang hasil AS-Jepun.","Keputusan serta panduan BoJ.","Jangkaan dasar Fed.","Gaji/inflasi Jepun dan pekerjaan/inflasi AS.","Sentimen risiko dan carry trade.","Risiko campur tangan yen."],"bullbear":"Hasil AS yang lebih tinggi relatif kepada Jepun sering menyokong USD/JPY. Jurang hasil yang mengecil boleh menekan pasangan. Risk-off juga boleh menguatkan yen melalui unwind carry trade.","news":"BoJ, CPI Tokyo/Jepun, data gaji, FOMC, CPI/NFP/PCE AS, hasil Treasury dan komen rasmi Jepun mengenai kadar tukaran.","sessions":"Sesi Tokyo lebih penting untuk pasangan ini, terutama ketika data Jepun dan fixing. London/New York tetap penting kerana hasil AS dan positioning global.","correlations":"Hasil Treasury 2Y/10Y, Nikkei dan pasangan yen lain boleh membantu mengenal pasti sama ada pergerakan dipacu yen atau dolar.","behavior":"USD/JPY boleh membentuk trend panjang ketika jurang hasil stabil, tetapi reversal boleh sangat cepat apabila jangkaan polisi atau risiko intervention berubah.","trading":"Ichimoku atau EMA sesuai ketika H4/Daily directional. Jangan terus sell hanya kerana oscillator overbought ketika trend kuat. Untuk reversal, tunggu market structure benar-benar pecah.","risk":"Intervention boleh menghasilkan pergerakan sangat pantas. Harga yang sudah tinggi bukan alasan automatik untuk sell. Kurangkan exposure ketika BoJ/Fed dan headline intervention.","checklist":["Arah hasil AS?","Jurang Fed-BoJ melebar atau mengecil?","Ada komen intervention?","Trend H4/Daily?","Level liquidity sesi?","Trend-follow atau reversal?","Invalidation jelas?"]},"gbpjpy":{"overview":"GBP/JPY ialah cross antara pound British dan yen. Ia menggabungkan sterling yang volatile dengan yen yang sangat sensitif terhadap polisi Jepun dan risk sentiment, sebab itu ia sering digelar “The Beast”.","history":"Pergerakan moden GBP/JPY banyak dipengaruhi kitaran kadar UK, era kadar rendah Jepun, carry trade, krisis kewangan global, Brexit dan perubahan polisi BoJ.","institutions":"Bank of England, Bank of Japan dan Ministry of Finance Jepun.","drivers":["Jangkaan kadar BoE-BoJ.","Risk-on/risk-off dan carry trade.","Inflasi/gaji UK dan Jepun.","Volatility ekuiti global.","Risiko sterling dan intervention yen."],"bullbear":"Risk-on dan kelebihan hasil UK biasanya menyokong GBP/JPY. Risk-off, hawkish BoJ atau unwind carry trade boleh menurunkannya dengan sangat pantas.","news":"BoE, BoJ, CPI/gaji/pekerjaan UK, CPI/gaji Jepun, kejutan risiko global dan berita intervention.","sessions":"Tokyo boleh menetapkan arah yen awal, London membawa flow GBP, manakala London-New York boleh meneruskan atau membalikkan move.","correlations":"Pantau GBP/USD, USD/JPY dan ekuiti global. Dua pasangan itu membantu melihat sama ada GBP atau JPY yang menjadi driver.","behavior":"Wick besar, momentum kuat dan reversal tajam adalah normal. Stop biasanya perlu lebih luas daripada major pair yang lebih tenang.","trading":"Gunakan H4/Daily dan ATR. Cari pullback atau liquidity sweep pada level bermakna, bukan kejar candle besar selepas move sudah extended.","risk":"Saiz posisi mesti disesuaikan dengan volatility tinggi. Stop yang sesuai untuk EUR/USD mungkin terlalu kecil untuk GBP/JPY.","checklist":["GBP atau JPY yang drive?","Bias BoE/BoJ?","Risk-on atau risk-off?","ATR semasa?","Level HTF?","Berita besar?","Stop cukup luas tetapi masih valid?"]},"xauusd":{"overview":"XAU/USD ialah harga satu troy ounce emas dalam dolar AS. Ia bukan pasangan mata wang biasa tetapi didagangkan hampir seperti satu pair. Emas berfungsi sebagai aset monetari, komoditi dan reserve asset.","history":"Emas memainkan peranan kewangan selama berabad-abad dan menjadi asas beberapa sistem gold standard. AS menamatkan convertibility dolar kepada emas pada awal 1970-an. Selepas itu harga emas semakin bebas dan dipengaruhi inflasi, real yields, krisis, pembelian bank pusat, ETF dan geopolitik.","institutions":"Federal Reserve penting melalui kadar AS dan real yields. Bank pusat global juga penting sebagai pembeli/penjual reserve. Data CPI dan pekerjaan AS mengubah jangkaan Fed, manakala futures positioning dan bullion flow turut mempengaruhi harga.","drivers":["Real yields AS: kenaikan real yield boleh meningkatkan opportunity cost memegang emas.","Arah dolar AS, walaupun korelasi tidak sempurna.","Jangkaan inflasi dan dasar monetari.","Pembelian bank pusat/reserve diversification.","Risiko geopolitik/sistemik dan permintaan aset defensif.","ETF/futures positioning dan liquidity."],"bullbear":"Emas boleh mendapat manfaat daripada real yields yang jatuh, dolar lebih lemah, jangkaan easing atau ketidakpastian tinggi. Ia boleh tertekan apabila real yields naik kuat dan dolar mengukuh. Dalam stress ekstrem, korelasi boleh berubah.","news":"FOMC, CPI/PCE AS, NFP, ucapan Fed, pergerakan Treasury yields, kejutan geopolitik dan perubahan besar dalam permintaan reserve bank pusat.","sessions":"London penting untuk bullion, manakala New York sangat penting kerana data makro AS dan futures. Overlap London-New York kerap menghasilkan expansion besar.","correlations":"Pantau real/nominal yields AS, DXY, silver, aset risiko dan kadang-kadang oil/inflation expectations. Jangan anggap hubungan inverse dengan dolar sentiasa berlaku.","behavior":"Emas boleh berubah daripada consolidation tenang kepada expansion sangat agresif. Ia sering sweep high/low jelas dan bergerak liar semasa data makro.","trading":"Tandakan Daily/H4 liquidity, support dan resistance. Gunakan ATR untuk stop realistik. Dalam trend cari pullback/continuation; dalam range cari rejection boundary. Fibonacci/EMA hanyalah confluence, bukan sebab entry tunggal.","risk":"Pergerakan beberapa dolar pada emas boleh menghasilkan P/L besar. Semak contract size dan lot value broker. Elakkan entry tepat sebelum data AS besar kecuali strategi memang direka untuk news.","checklist":["Real yields dan USD ke mana?","Ada data AS/Fed?","Daily/H4 trend atau range?","High/low hari/minggu sebelumnya?","ATR dan lot betul?","Ada confirmation pada level?","Stop dan target sudah ditetapkan?"]},"usdcad":{"overview":"USD/CAD ialah dolar AS berbanding dolar Kanada, yang sering dipanggil “loonie”. Kanada ialah pengeksport komoditi dan tenaga utama, jadi oil boleh mempengaruhi CAD.","history":"USD/CAD mencerminkan integrasi ekonomi Amerika Utara, boom/crash oil, krisis 2008, pandemik dan perubahan dasar Fed serta Bank of Canada.","institutions":"Federal Reserve dan Bank of Canada (BoC), bersama Statistics Canada dan agensi data AS.","drivers":["Fed vs BoC.","WTI crude oil dan terms of trade Kanada.","CPI, pekerjaan dan GDP Kanada.","CPI/NFP/growth AS.","Risk sentiment dan broad USD."],"bullbear":"Oil/ekonomi Kanada yang lebih kuat atau BoC lebih hawkish boleh menyokong CAD dan menurunkan USD/CAD. Broad USD strength atau outlook Kanada yang lemah boleh menaikkannya.","news":"BoC, CPI/pekerjaan/GDP Kanada, FOMC, CPI/NFP AS dan berita oil besar.","sessions":"Paling aktif ketika sesi Amerika Utara, terutama semasa data AS/Kanada. London boleh menetapkan arah USD lebih awal.","correlations":"WTI, yield spread AS-Kanada dan DXY berguna sebagai konteks. Hubungan oil-CAD boleh lemah untuk tempoh tertentu.","behavior":"Boleh trend dengan kemas ketika dasar Fed dan BoC berbeza serta boleh spike apabila data AS/Kanada keluar serentak.","trading":"Gabungkan bias USD/CAD dengan struktur H4. Jika menggunakan oil sebagai confirmation, pastikan CAD benar-benar bertindak balas kepada oil pada hari itu.","risk":"Data AS dan Kanada kadang-kadang keluar hampir serentak dan menyebabkan volatility dua arah. Jangan trade hanya berdasarkan oil.","checklist":["Fed vs BoC?","Oil benar-benar mempengaruhi CAD hari ini?","Ada berita AS/Kanada?","Sesi Amerika Utara?","Struktur H4?","Invalidation?","Stop sesuai ATR?"]},"btcusd":{"overview":"BTC/USD ialah harga Bitcoin dalam dolar AS. Bitcoin ialah aset digital decentralized dengan jadual bekalan yang ditentukan oleh protokol, bukan bank pusat.","history":"Bitcoin white paper diterbitkan menggunakan nama Satoshi Nakamoto pada 2008 dan rangkaian dilancarkan pada 2009. Sejarahnya merangkumi adoption exchange, kitaran boom/bust, institutional participation, derivatives, halving, regulation dan produk spot bitcoin ETF.","institutions":"Tiada bank pusat mengawal Bitcoin. Regulator, exchange, custodian, ETF issuer, miner dan peserta rangkaian mempengaruhi ekosistem. Fed masih penting secara tidak langsung melalui liquidity dolar dan kadar faedah.","drivers":["Global liquidity dan kadar faedah.","Spot/derivatives demand dan liquidation.","ETF/institutional flow.","Halving dan supply dynamics.","Regulation/custody/exchange news.","Crypto sentiment dan leverage."],"bullbear":"Financial conditions yang lebih mudah dan inflow kuat boleh menyokong BTC. Liquidity lebih ketat, deleveraging atau shock regulation/exchange boleh menekannya.","news":"Regulatory rulings, ETF flow, exchange/custody incidents, protocol/security issues dan event Fed. Jangan percaya rumor social media tanpa pengesahan.","sessions":"Didagangkan 24/7. Liquidity tetap berubah mengikut waktu global dan weekend boleh berkelakuan berbeza daripada hari bekerja.","correlations":"Sering dibandingkan dengan tech/risk assets, global liquidity dan dolar, tetapi correlation berubah besar mengikut cycle.","behavior":"Volatility tinggi, liquidation cascade dan weekend move adalah normal. Peratusan move yang ekstrem untuk FX boleh berlaku dengan kerap.","trading":"Gunakan percentage risk, bukan fixed pips. Struktur Daily/H4, volume, volatility dan trend tools lebih berguna daripada anggap overbought = sell.","risk":"Selain market risk, terdapat exchange/counterparty/custody risk. Leverage boleh menyebabkan liquidation sangat cepat.","checklist":["Struktur Daily/Weekly?","Liquidity/leverage?","Ada regulation/ETF/exchange event?","Weekend atau weekday?","Position size ikut % risk?","Exchange/custody risk?","Stop sebelum liquidation?"]},"audusd":{"overview":"AUD/USD ialah dolar Australia berbanding dolar AS. AUD sering dianggap commodity-sensitive dan risk-sensitive kerana Australia banyak mengeksport bahan mentah dan berdagang rapat dengan Asia.","history":"Dolar Australia diapungkan pada 1983. Sejak itu AUD/USD dipengaruhi commodity supercycle, pertumbuhan China, krisis global dan kitaran RBA/Fed.","institutions":"Reserve Bank of Australia (RBA), Federal Reserve dan Australian Bureau of Statistics. Data China juga penting.","drivers":["RBA vs Fed.","Iron ore dan komoditi.","Pertumbuhan/PMI/property China.","Pekerjaan, CPI dan gaji Australia.","Risk appetite dan broad USD."],"bullbear":"Commodity/China yang lebih baik atau RBA lebih hawkish boleh menyokong AUD. Risk-off, China lemah atau US yields lebih tinggi boleh menekannya.","news":"RBA, CPI/pekerjaan/gaji Australia, PMI/trade/growth China, FOMC, CPI/NFP AS.","sessions":"Sesi Asia penting kerana data Australia dan China. London/New York boleh meneruskan pergerakan yang dipacu USD.","correlations":"Iron ore, sentimen China dan equities berguna sebagai konteks, tetapi correlation tidak tetap.","behavior":"Boleh trending cantik ketika tema global growth/commodity jelas, tetapi choppy apabila RBA/Fed stabil.","trading":"Mulakan dengan catalyst sesi Asia dan struktur Daily/H4. MACD/EMA boleh membantu momentum tetapi price action AUD mesti confirm.","risk":"Headline China boleh menghasilkan move mengejut. Jangan anggap komoditi mesti menggerakkan AUD setiap masa.","checklist":["RBA vs Fed?","China/commodity backdrop?","Data sesi Asia?","Risk-on/off?","Trend H4?","AUD price action confirm?","Invalidation?"]},"nzdusd":{"overview":"NZD/USD ialah dolar New Zealand berbanding dolar AS dan dipanggil “Kiwi”. Ekonomi New Zealand kecil, bergantung kepada perdagangan dan eksport pertanian.","history":"NZD diapungkan pada 1985. Pair ini dipengaruhi harga dairy, RBNZ, carry trade, permintaan Asia dan sentimen global.","institutions":"Reserve Bank of New Zealand (RBNZ), Federal Reserve dan Statistics New Zealand.","drivers":["RBNZ vs Fed.","Inflasi, pekerjaan dan growth NZ.","Harga dairy/agriculture.","Permintaan China/Asia.","Risk sentiment dan USD liquidity."],"bullbear":"RBNZ lebih hawkish, export prices kukuh dan risk-on boleh menyokong NZD. Growth global lemah atau USD kuat boleh menekannya.","news":"RBNZ, CPI/pekerjaan/GDP NZ, Global Dairy Trade, data China, FOMC dan data AS.","sessions":"Asia-Pacific penting untuk NZ/China news; London/New York menambah flow USD dan macro global.","correlations":"AUD/USD berguna sebagai perbandingan regional. Dairy/commodity dan China sentiment juga boleh membantu.","behavior":"Boleh trend lancar tetapi liquidity lebih nipis daripada EUR/USD, jadi spread boleh lebih sensitif ketika waktu sunyi.","trading":"Gunakan Daily/H4 + EMA/structure. Bandingkan NZD dengan AUD untuk melihat sama ada move regional atau khusus NZ.","risk":"Thin liquidity dan global headline boleh membesarkan move. Jangan gunakan dairy sebagai signal satu-ke-satu.","checklist":["RBNZ vs Fed?","NZ data/dairy catalyst?","China/global risk?","AUD comparison?","Trend H4?","Session liquidity?","Spread dan risk sesuai?"]},"usdchf":{"overview":"USD/CHF ialah dolar AS berbanding franc Swiss. CHF sering dianggap safe-haven kerana sistem kewangan Switzerland dan tingkah laku sejarah pelabur.","history":"CHF lama dianggap mata wang defensif. Sejarah moden termasuk polisi luar biasa SNB dan minimum EUR/CHF 2011–2015; penamatannya menghasilkan volatility CHF yang sangat besar.","institutions":"Swiss National Bank (SNB) dan Federal Reserve. CPI Swiss dan komunikasi SNB sangat penting.","drivers":["SNB vs Fed.","Safe-haven demand.","Inflasi AS/Swiss.","Broad USD.","Komunikasi dan polisi FX SNB."],"bullbear":"USD/CHF boleh naik apabila dolar kuat atau CHF demand lemah, dan turun apabila safe-haven demand CHF meningkat atau policy expectation memihak CHF.","news":"SNB, CPI Swiss, FOMC, CPI/NFP AS dan kejutan geopolitik/financial stress.","sessions":"Sesi Eropah/London penting untuk CHF; New York membawa macro dan yield AS.","correlations":"EUR/CHF dan EUR/USD boleh membantu mengenal pasti flow CHF dan dolar. Gold/risk sentiment hanya konteks.","behavior":"Sering lebih tenang daripada GBP crosses tetapi event SNB boleh menghasilkan dislocation ekstrem.","trading":"Mean reversion/channel sesuai hanya dalam range stabil. Jika policy divergence menghasilkan trend, jangan terus fade.","risk":"Sejarah SNB menunjukkan pair yang kelihatan stabil boleh gap kuat. Leverage perlu mengambil kira tail risk.","checklist":["SNB vs Fed?","Safe-haven demand?","Range atau trend?","EUR/CHF context?","Ada SNB news?","Structural stop?","Exposure sesuai tail risk?"]},"eurjpy":{"overview":"EUR/JPY ialah euro berbanding yen dan terus membandingkan keadaan Zon Euro dengan Jepun tanpa USD sebagai quote.","history":"Sejak euro dilancarkan pada 1999, EUR/JPY melalui carry-trade cycle, krisis 2008, krisis hutang Eropah, era kadar rendah Jepun dan perubahan ECB/BoJ.","institutions":"ECB, Bank of Japan dan Ministry of Finance Jepun.","drivers":["ECB-BoJ policy/yield gap.","Inflasi/growth Eropah vs Jepun.","Risk sentiment dan carry trade.","Risiko politik/fiskal Eropah.","Risiko intervention yen."],"bullbear":"Kelebihan yield Eropah dan risk-on boleh menyokong EUR/JPY. Yen kuat, risk-off atau BoJ lebih hawkish boleh menekannya.","news":"ECB, BoJ, CPI/PMI/GDP Eropah, CPI/gaji Jepun dan intervention headlines.","sessions":"Tokyo menetapkan tone yen; London penting untuk EUR. Peralihan sesi boleh menghasilkan continuation kuat.","correlations":"Bandingkan EUR/USD dan USD/JPY untuk melihat leg mana yang drive. Yield Eropah vs Jepun juga berguna.","behavior":"Boleh trending kuat dan membuat reversal tajam ketika risk-off.","trading":"Trend-following biasanya lebih sesuai daripada fade oscillator dalam carry trend. Gunakan CCI/RSI hanya sebagai timing selepas regime dikenal pasti.","risk":"Cross pair boleh bergerak kerana kedua-dua leg serentak. Intervention atau geopolitik boleh menyebabkan reversal pantas.","checklist":["ECB vs BoJ?","EUR atau JPY yang drive?","Risk-on/off?","Trend H4?","Intervention risk?","Level Tokyo/London?","Invalidation?"]},"eurgbp":{"overview":"EUR/GBP ialah euro berbanding pound British. Oleh sebab ekonomi UK dan Eropah rapat, volatility selalunya lebih rendah tetapi pair sangat sensitif kepada ECB vs BoE.","history":"EUR/GBP bermula bersama euro pada 1999 dan melalui krisis 2008, euro debt crisis, referendum Brexit 2016, rundingan Brexit serta kitaran inflasi ECB/BoE.","institutions":"ECB dan Bank of England, bersama Eurostat dan UK ONS.","drivers":["ECB vs BoE.","Inflasi/growth Eropah vs UK.","UK-EU trade dan politik.","Bond yield spreads.","Energy/fiscal shocks."],"bullbear":"EUR/GBP naik apabila outlook euro lebih baik relatif kepada sterling dan turun apabila outlook UK lebih kuat relatif kepada Zon Euro.","news":"ECB, BoE, CPI/PMI Eropah, CPI/gaji/pekerjaan UK, GDP dan berita politik/fiskal UK-EU.","sessions":"Sesi Eropah/London dominan dan boleh agak tenang di luar waktu itu.","correlations":"Bandingkan EUR/USD dan GBP/USD untuk melihat sama ada EUR atau GBP yang drive.","behavior":"Sering range-bound lama, jadi setup mean-reversion lebih biasa daripada pada cross GBP yang volatile.","trading":"Bollinger Bands sesuai hanya apabila range benar-benar jelas. Buy selepas harga reject lower band dan close semula di dalam; sell selepas reject upper band dan close semula di dalam. Jika bands expand dan harga accept breakout, jangan fade.","risk":"Pair tenang boleh membuat trader overleverage. Surprise ECB/BoE tetap boleh memecahkan range dengan kuat.","checklist":["ECB vs BoE?","Range masih valid?","EUR/USD vs GBP/USD?","London session?","Event besar?","Band rejection sudah close?","Stop selepas invalidation range?"]},"audjpy":{"overview":"AUD/JPY ialah cross risk-sensitive: AUD sering mendapat manfaat daripada growth/commodity optimism, manakala JPY boleh menguat ketika carry trade di-unwind.","history":"Dipengaruhi float AUD 1983, era kadar rendah Jepun, commodity cycle, carry-trade unwind 2008, China growth dan perubahan RBA/BoJ.","institutions":"RBA, BoJ dan Ministry of Finance Jepun.","drivers":["RBA-BoJ yield gap.","China/commodity outlook.","Equities dan risk sentiment.","Data Australia/Jepun.","Intervention yen."],"bullbear":"Risk-on + yield advantage Australia menyokong AUD/JPY. Risk-off atau repricing polisi yen boleh menghasilkan penurunan pantas.","news":"RBA, BoJ, CPI/jobs Australia, data China, CPI/gaji Jepun dan global risk shocks.","sessions":"Sesi Asia sangat penting; London/New York boleh membesarkan flow risk global.","correlations":"AUD/USD, USD/JPY, equities dan China-sensitive markets.","behavior":"Boleh trend lancar dalam risk-on stabil tetapi jatuh pantas ketika deleveraging.","trading":"Gunakan ATR dan H4 trend. Cari pullback, bukan buy selepas move sudah terlalu extended. Untuk reversal tunggu structure break.","risk":"Carry unwind boleh berlaku tiba-tiba. Stop kecil tanpa mengambil kira volatility mudah terkena.","checklist":["RBA-BoJ gap?","China/commodity?","Equity risk tone?","Asia structure?","ATR?","Continuation atau reversal?","Tail-risk event?"]},"usoil":{"overview":"USOIL biasanya merujuk WTI crude oil. Symbol CFD broker mungkin berbeza daripada futures sebenar dari segi pricing, rollover dan financing.","history":"WTI menjadi benchmark utama melalui perkembangan futures moden. Sejarah oil termasuk shock 1970-an, kitaran OPEC, shale boom, crash 2008, glut 2014–2016 dan dislocation 2020 apabila satu kontrak front-month WTI sempat negatif.","institutions":"OPEC+, US EIA dan futures exchanges sangat penting. Bank pusat mempengaruhi oil secara tidak langsung melalui growth, dolar dan financial conditions.","drivers":["Supply-demand global.","OPEC+ quotas/compliance.","US shale dan inventory.","Geopolitik/sanctions.","Global growth dan transport demand.","USD dan speculative positioning."],"bullbear":"Supply cut/disruption atau demand kuat boleh menaikkan oil; oversupply, inventory build atau recession fear boleh menekannya. Positioning boleh mengatasi fundamental untuk tempoh pendek.","news":"EIA inventory, OPEC+ meetings, geopolitik/sanctions, demand forecasts dan global growth data.","sessions":"London/New York dan jam futures AS paling aktif. Inventory release boleh menghasilkan spike besar.","correlations":"CAD, energy equities dan inflation expectations boleh memberi konteks tetapi correlation berubah.","behavior":"Oil boleh trend agresif, gap kerana geopolitik dan sangat volatile semasa EIA/OPEC.","trading":"Kenal pasti dulu sama ada regime supply shock, demand shock atau range. Gunakan ATR dan event levels. Inventory draw tidak semestinya bullish kerana market trade surprise dan positioning.","risk":"Semak CFD contract, tick/lot value, overnight cost dan rollover broker sebelum trade.","checklist":["Produk/contract difahami?","OPEC/geopolitik catalyst?","EIA bila?","Supply atau demand narrative?","Trend/range?","ATR/gap risk?","Rollover/contract cost?"]},"ethusd":{"overview":"ETH/USD ialah harga Ether, aset native rangkaian Ethereum. Ethereum membolehkan smart contract dan decentralized applications.","history":"Ethereum dilancarkan pada 2015. Milestone termasuk perkembangan smart contract/DeFi, DAO 2016, pelbagai upgrade dan peralihan 2022 daripada proof-of-work kepada proof-of-stake melalui The Merge.","institutions":"Tiada bank pusat. Developer, validator, exchange, regulator, product issuer dan ekosistem aplikasi mempengaruhi demand dan expectation.","drivers":["Crypto liquidity dan arah BTC.","Network usage, fees dan DeFi.","Protocol upgrades/staking.","Institutional product flows.","Regulation.","Leverage dan derivatives."],"bullbear":"Crypto liquidity kuat, network activity dan berita institution/regulation positif boleh menyokong ETH. Risk-off, security concern atau deleveraging boleh menekannya.","news":"Ethereum upgrades, security incidents, regulation, institutional-product flows dan Fed/global liquidity events.","sessions":"24/7, tetapi liquidity berubah mengikut waktu global dan weekend.","correlations":"BTC ialah reference paling penting. Tech/risk assets boleh berkorelasi semasa macro-driven phase.","behavior":"Sangat volatile dan sering mempunyai beta lebih tinggi daripada BTC. Liquidation cascade boleh besar.","trading":"Gunakan higher-timeframe trend dan ETH/BTC relative strength. TSI/MACD/EMA boleh bantu timing tetapi structure dan risk management dahulu.","risk":"Smart-contract ecosystem, exchange dan custody risk menambah market risk. Leverage boleh liquidate dengan pantas.","checklist":["BTC dan ETH/BTC?","Network/regulatory catalyst?","Liquidity 24/7?","Daily/H4 structure?","Leverage risk?","Position size % risk?","Custody/exchange risk?"]},"nas100":{"overview":"NAS100 ialah symbol broker yang biasanya menjejak Nasdaq-100, indeks 100 syarikat bukan kewangan besar di Nasdaq. Harga CFD, waktu dan financing bergantung broker.","history":"Nasdaq-100 dilancarkan pada 1985. Era utama termasuk dot-com boom/crash, expansion tech selepas 2008, pandemic acceleration dan repricing kadar/inflasi.","institutions":"Nasdaq mengurus metodologi indeks. Federal Reserve mempengaruhi discount rate dan financial conditions; earnings syarikat mega-cap juga sangat penting.","drivers":["US interest rates dan valuation growth stocks.","Mega-cap tech earnings/guidance.","AI/semiconductor/cloud cycle.","US growth/inflation dan Fed.","Risk appetite dan equity volatility."],"bullbear":"Expected rates yang lebih rendah dan earnings kuat boleh menyokong NAS100. Yields naik, earnings lemah atau risk-off boleh menekannya.","news":"FOMC, CPI/PCE/NFP, earnings syarikat besar, semiconductor/AI guidance dan tech regulation/geopolitik.","sessions":"US cash open sangat penting. Premarket data dan earnings boleh menggerakkan futures/CFD sebelum cash open.","correlations":"Treasury yields, S&P 500, semiconductor indices dan volatility measures.","behavior":"Boleh trend kuat dan gap antara sesi. Beberapa mega-cap boleh memberi kesan besar kepada indeks.","trading":"Tandakan previous day high/low dan level sesi AS. Trend tools seperti Supertrend/EMA sesuai pada directional day; jangan kejar candle pembukaan pertama.","risk":"CFD leverage dan opening gaps boleh menghasilkan loss besar. Kurangkan saiz ketika macro/earnings day.","checklist":["Fed/yield backdrop?","Mega-cap earnings?","US cash open?","PDH/PDL?","Trend atau range day?","Contract value diketahui?","Gap risk sesuai?"]},"us30":{"overview":"US30 ialah symbol broker yang biasanya menjejak Dow Jones Industrial Average, indeks price-weighted 30 syarikat AS terkemuka. CFD boleh berbeza mengikut broker.","history":"DJIA bermula pada akhir abad ke-19 dan melalui industrialization, depression, perang, inflasi, crash 1987, dot-com, 2008, pandemik dan cycle korporat moden.","institutions":"S&P Dow Jones Indices menyelenggara indeks. Fed, data makro AS dan earnings 30 komponen mempengaruhi harga.","drivers":["US growth dan industrial/consumer outlook.","Fed/rate expectations.","Corporate earnings.","Fiscal policy/business cycle.","Global risk sentiment."],"bullbear":"Growth/earnings yang lebih kuat boleh menyokong US30. Recession fear, higher discount rates atau risk shock boleh menekannya.","news":"FOMC, CPI/NFP/GDP/retail sales, earnings komponen besar dan perkembangan fiskal/geopolitik.","sessions":"US cash open dan New York paling penting; futures/CFD boleh bergerak lebih awal selepas macro release.","correlations":"S&P 500, NAS100, US yields dan volatility indices.","behavior":"Sering react pada daily pivots dan previous-session levels tetapi boleh gap/trend kuat pada macro day.","trading":"Gunakan Daily/H1, previous day high/low dan pivot sebagai location. Tunggu price-action confirmation; pivot bukan support/resistance automatik.","risk":"Point value US30 CFD boleh besar. Semak contract size dan kurangkan leverage sekitar data/earnings.","checklist":["US macro/Fed catalyst?","US30 vs NAS100/S&P?","PDH/PDL/pivots?","US session?","Point value diketahui?","Structural stop?","Gap risk?"]},"euraud":{"overview":"EUR/AUD ialah cross euro dan dolar Australia. Ia sering membandingkan outlook Eropah dengan Australia yang sensitif kepada komoditi dan China.","history":"Sejak euro 1999, EUR/AUD melalui commodity supercycle, euro debt crisis, China-led growth cycle dan perbezaan polisi ECB/RBA.","institutions":"ECB dan Reserve Bank of Australia.","drivers":["ECB vs RBA.","Growth/inflation Eropah vs Australia.","China growth dan commodity demand.","European energy/fiscal conditions.","Global risk sentiment."],"bullbear":"EUR/AUD naik apabila outlook Eropah lebih kuat atau RBA lebih dovish; turun apabila Australia/commodity/China dan RBA outlook lebih kuat.","news":"ECB, RBA, euro CPI/PMI, Australian CPI/jobs dan data China.","sessions":"Asia menggerakkan AUD; London kuat untuk EUR. Peralihan sesi boleh mewujudkan trend berbilang sesi.","correlations":"Bandingkan EUR/USD dan AUD/USD; commodity/China sebagai konteks tambahan.","behavior":"Boleh membentuk swing trend panjang kerana policy/growth differences boleh berterusan.","trading":"Higher-timeframe trend dan pullback sesuai. RSI divergence hanya amaran momentum, bukan alasan melawan trend tanpa structure break.","risk":"Cross pair boleh mempunyai spread lebih luas dan event risk dari dua region.","checklist":["ECB vs RBA?","China/commodity?","Leg mana drive?","Spread/session?","H4/Daily trend?","Divergence + structure?","Event risk kedua-dua region?"]},"gbpcad":{"overview":"GBP/CAD ialah cross pound British dan dolar Kanada. Ia menggabungkan sensitiviti GBP kepada UK policy dengan CAD kepada oil, BoC dan ekonomi Amerika Utara.","history":"Dipengaruhi kitaran monetari/fiskal UK, Brexit, commodity cycle Kanada, oil shocks dan BoE/BoC divergence.","institutions":"Bank of England dan Bank of Canada.","drivers":["BoE vs BoC.","UK inflation/wages vs Canada inflation/jobs.","Oil/commodity effects pada CAD.","UK fiscal/political developments.","Global risk."],"bullbear":"Outlook UK lebih kuat boleh menaikkan GBP/CAD; CAD/oil/BoC lebih kuat boleh menurunkannya.","news":"BoE, BoC, UK CPI/wages/jobs, Canada CPI/jobs/GDP dan oil events.","sessions":"London penting untuk GBP; North America penting untuk CAD. Terdapat lebih daripada satu active window.","correlations":"Bandingkan GBP/USD dan USD/CAD. WTI membantu melihat CAD context.","behavior":"Intraday range besar dan wick panjang biasa berlaku. Move London boleh bersambung ke New York.","trading":"Gunakan H4 dan elak entry mid-range. Liquidity sweep pada swing level + confirmation lebih baik daripada oscillator cross raw.","risk":"Spread dan volatility tinggi memerlukan size lebih kecil. Catalyst UK/Canada boleh reverse pair cepat.","checklist":["BoE vs BoC?","Oil/CAD tone?","GBP/USD & USD/CAD confirm?","London/North America?","ATR/spread?","HTF level?","Stop sesuai volatility?"]},"chfjpy":{"overview":"CHF/JPY ialah cross franc Swiss dan yen Jepun. Kedua-duanya boleh menerima safe-haven demand, jadi pair banyak bergantung kepada perbezaan policy Swiss-Jepun dan safe haven mana lebih kuat.","history":"Dipengaruhi peranan defensif CHF, unconventional SNB policy, era kadar rendah Jepun, krisis global dan perubahan BoJ.","institutions":"Swiss National Bank, Bank of Japan dan Ministry of Finance Jepun.","drivers":["SNB vs BoJ policy/yields.","Relative safe-haven flow.","Europe vs Japan inflation/growth.","Global risk shocks.","Intervention/policy communication CHF/JPY."],"bullbear":"CHF/JPY naik apabila CHF mengatasi JPY dan turun apabila JPY mengatasi CHF. Kedua-duanya boleh menguat ketika stress, jadi yang penting ialah relative strength.","news":"SNB/BoJ, CPI Swiss, CPI/gaji Jepun dan intervention headlines.","sessions":"Tokyo penting untuk JPY; Europe/London untuk CHF.","correlations":"EUR/CHF dan USD/JPY membantu mengenal pasti leg yang drive.","behavior":"Boleh range lama kemudian trend apabila relative policy diverges.","trading":"Keltner/mean reversion sesuai dalam confirmed range. Selepas price accept breakout, trend-following lebih sesuai. Gunakan candle close dan structure.","risk":"Jangan anggap pair tidak bergerak hanya kerana kedua-duanya safe haven. Relative policy shock boleh menghasilkan trend besar.","checklist":["SNB vs BoJ?","Safe haven mana lebih kuat?","EUR/CHF & USD/JPY?","Range atau trend?","Tokyo/Europe session?","Intervention risk?","Invalidation?"]}};
+
+const deepLabels = {
+    en: {
+        titleSuffix: "Complete Pair Study",
+        subtitle: "History • Fundamentals • Sessions • Correlations • Trading Behaviour • Risk",
+        overview: "1. What Exactly Is This Market?",
+        history: "2. Full Historical Background",
+        institutions: "3. Who Controls / Influences It?",
+        drivers: "4. Main Price Drivers",
+        bullbear: "5. What Usually Pushes It Up or Down?",
+        news: "6. News & Data Traders Must Watch",
+        sessions: "7. Best / Most Important Trading Sessions",
+        correlations: "8. Correlations & Markets To Watch",
+        behavior: "9. How This Market Normally Behaves",
+        trading: "10. Practical Trading Approach",
+        risk: "11. Biggest Risks & Common Mistakes",
+        checklist: "12. Pre-Trade Checklist",
+        show: "Show More — Complete Pair Study"
+    },
+    ms: {
+        titleSuffix: "Kajian Lengkap Pasangan",
+        subtitle: "Sejarah • Fundamental • Sesi • Korelasi • Tingkah Laku • Risiko",
+        overview: "1. Apakah Pasaran Ini?",
+        history: "2. Latar Belakang Sejarah",
+        institutions: "3. Institusi Yang Mempengaruhi",
+        drivers: "4. Penggerak Harga Utama",
+        bullbear: "5. Apa Yang Biasanya Menolak Harga Naik / Turun?",
+        news: "6. Berita & Data Yang Perlu Dipantau",
+        sessions: "7. Sesi Dagangan Penting",
+        correlations: "8. Korelasi & Pasaran Untuk Dipantau",
+        behavior: "9. Tingkah Laku Pasaran",
+        trading: "10. Pendekatan Dagangan Praktikal",
+        risk: "11. Risiko & Kesilapan Biasa",
+        checklist: "12. Senarai Semak Sebelum Trade",
+        show: "Show More — Kajian Lengkap"
+    }
+};
+
+function escapeHTML(str) {
+    return String(str).replace(/[&<>"']/g, ch => ({
+        '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+    }[ch]));
+}
+
+function sectionHTML(title, content, wide=false) {
+    return `<section class="deep-section ${wide ? 'wide' : ''}">
+        <h3>${escapeHTML(title)}</h3>
+        <p>${escapeHTML(content)}</p>
+    </section>`;
+}
+
+function listSectionHTML(title, items, wide=false) {
+    return `<section class="deep-section ${wide ? 'wide' : ''}">
+        <h3>${escapeHTML(title)}</h3>
+        <ul>${items.map(x => `<li>${escapeHTML(x)}</li>`).join('')}</ul>
+    </section>`;
+}
+
+function openFullStudy() {
+    if (!activeAssetId || !fullStudyDictionary[activeAssetId]) return;
+
+    const pair = dataDictionary[activeAssetId];
+    const d = (currentLanguage === 'ms' ? fullStudyDictionaryMs[activeAssetId] : fullStudyDictionary[activeAssetId]);
+    const L = deepLabels[currentLanguage] || deepLabels.en;
+
+    document.getElementById('deepStudyTitle').innerText = `${pair.name} — ${L.titleSuffix}`;
+    document.getElementById('deepStudySubtitle').innerText = L.subtitle;
+
+    document.getElementById('deepStudyBody').innerHTML = `
+        <div class="study-intro">${escapeHTML(d.overview)}</div>
+        <div class="study-section-grid">
+            ${sectionHTML(L.history, d.history, true)}
+            ${sectionHTML(L.institutions, d.institutions)}
+            ${listSectionHTML(L.drivers, d.drivers)}
+            ${sectionHTML(L.bullbear, d.bullbear, true)}
+            ${sectionHTML(L.news, d.news)}
+            ${sectionHTML(L.sessions, d.sessions)}
+            ${sectionHTML(L.correlations, d.correlations)}
+            ${sectionHTML(L.behavior, d.behavior)}
+            ${sectionHTML(L.trading, d.trading, true)}
+            ${sectionHTML(L.risk, d.risk)}
+            ${listSectionHTML(L.checklist, d.checklist)}
+        </div>
+        <div class="study-warning">
+            Educational material only. Market relationships and correlations change. Never treat a single indicator,
+            economic release, correlation or historical pattern as a guaranteed buy/sell signal. Always define risk before entry.
+        </div>
+    `;
+
+    document.getElementById('studyModal').classList.add('open');
+    document.body.classList.add('modal-lock');
+}
+
+function closeFullStudy() {
+    document.getElementById('studyModal').classList.remove('open');
+    document.body.classList.remove('modal-lock');
+}
+
+function closeStudyOnBackdrop(event) {
+    if (event.target.id === 'studyModal') closeFullStudy();
+}
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeFullStudy();
+});
+
+
+
+function renderTerminalUI() {
+
+    if (currentLanguage === "en") {
+
+        document.getElementById("title-text").innerText =
+            "Macro Asset Deep Studies (20 Instruments)";
+
+        document.getElementById("sub-text").innerText =
+            "Select an instrument for a quick profile, then open the complete study for history, fundamentals, sessions, correlations, behaviour and practical trading context.";
+
+        document.getElementById("label-1").innerText =
+            "How it Started";
+
+        document.getElementById("label-2").innerText =
+            "What Affects It (Up / Down)";
+
+        document.getElementById("label-3").innerText =
+            "News To Watch Out For";
+
+        document.getElementById("label-4").innerText =
+            "How to Trade & Best Indicators";
+
+    } else {
+
+        document.getElementById("title-text").innerText =
+            "Kajian Mendalam Aset Makro (20 Instrumen)";
+
+        document.getElementById("sub-text").innerText =
+            "Pilih instrumen dagangan daripada senarai di bawah untuk melihat profil aset.";
+
+        document.getElementById("label-1").innerText =
+            "Bagaimana Ia Bermula";
+
+        document.getElementById("label-2").innerText =
+            "Apa Yang Mempengaruhi Harga";
+
+        document.getElementById("label-3").innerText =
+            "Berita Ekonomi Yang Perlu Diperhatikan";
+
+        document.getElementById("label-4").innerText =
+            "Cara Berdagang & Indikator Terbaik";
+    }
+
+
+    if (activeAssetId !== "") {
+
+        const targetData = dataDictionary[activeAssetId];
+
+        const activeArray =
+            currentLanguage === "en"
+                ? targetData.en
+                : targetData.ms;
+
+        const badge =
+            currentLanguage === "en"
+                ? targetData.rEn
+                : targetData.rMs;
+
+
+        document.getElementById("cardSymbol").innerText =
+            targetData.name;
+
+        document.getElementById("cardRisk").innerText =
+            badge;
+
+        document.getElementById("cardRisk").className =
+            "risk-badge " + targetData.riskClass;
+
+
+        document.getElementById("content-history").innerText =
+            activeArray[0];
+
+        document.getElementById("content-affects").innerText =
+            activeArray[1];
+
+        document.getElementById("content-news").innerText =
+            activeArray[2];
+
+        document.getElementById("content-trade").innerText =
+            activeArray[3];
+    }
+}
+
+
+function setLanguage(targetLang) {
+
+    currentLanguage = targetLang;
+
+    document.getElementById("btn-en").className =
+        targetLang === "en"
+            ? "lang-btn active"
+            : "lang-btn";
+
+    document.getElementById("btn-ms").className =
+        targetLang === "ms"
+            ? "lang-btn active"
+            : "lang-btn";
+
+    renderTerminalUI();
+
+    const studyBtn = document.getElementById("fullStudyBtn");
+    if (studyBtn) {
+        studyBtn.innerText = (deepLabels[targetLang] || deepLabels.en).show;
+    }
+    if (document.getElementById('studyModal')?.classList.contains('open')) {
+        openFullStudy();
+    }
+}
+
+
+function switchAssetProfile() {
+
+    const chosenValue =
+        document.getElementById("pairSelector").value;
+
+    activeAssetId = chosenValue;
+
+    const card =
+        document.getElementById("displayCard");
+
+
+    if (chosenValue === "") {
+
+        card.classList.remove("active");
+
+    } else {
+
+        renderTerminalUI();
+        card.classList.add("active");
+    }
+}
+
+</script>
+
+</body>
+</html>

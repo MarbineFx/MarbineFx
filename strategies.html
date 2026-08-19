@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Technical Frameworks | MarbineFX</title>
+    <!-- Tailwind Framework Module -->
+    <script src="https://tailwindcss.com"></script>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Core System Settings */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        :root {
+            --bg-deep: #030305;
+            --bg-surface: #0a0a0f;
+            --bg-card: #0d0d14;
+            --primary: #f59e0b;
+            --primary-hover: #fbbf24;
+            --text-main: #f4f4f5;
+            --text-muted: #71717a;
+            --border-color: #18181b;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Modern Navigation Bar */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.2rem 2.5rem; background: rgba(5, 5, 8, 0.75);
+            border-bottom: 1px solid var(--border-color); backdrop-filter: blur(16px);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; color: var(--primary); text-transform: uppercase; }
+        .logo span { color: #ffffff; }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+        .nav-links a { color: #a1a1aa; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); }
+
+        .lang-container { display: flex; background: #18181b; border: 1px solid var(--border-color); padding: 2px; border-radius: 8px; }
+        .lang-btn {
+            background: transparent; border: none; color: #a1a1aa;
+            padding: 6px 12px; font-size: 0.75rem; font-weight: 700;
+            border-radius: 5px; cursor: pointer; transition: all 0.3s;
+        }
+        .lang-btn.active { background: var(--primary); color: #000000; }
+
+        /* Technical Indicator Section Grid Layout */
+        .section-container { max-width: 1300px; margin: 0 auto; padding: 4rem 2rem 8rem 2rem; }
+        .section-header { margin-bottom: 4rem; }
+        /* FIXED: Changed tracking-tight configuration string to standard valid CSS rule */
+        .section-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.75rem; letter-spacing: -0.5px; }
+        .section-header p { color: #a1a1aa; font-size: 1rem; font-weight: 300; max-width: 700px; }
+        
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1.5rem; }
+        
+        /* Premium Card Framework Design */
+        .luxury-card {
+            background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-card) 100%);
+            border: 1px solid var(--border-color); border-radius: 20px; padding: 2rem;
+            display: flex; flex-direction: column; justify-content: space-between;
+            position: relative; overflow: hidden;
+        }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .card-title { font-size: 1.2rem; font-weight: 700; color: #ffffff; line-height: 1.3; max-width: 75%; }
+        .card-badge { font-size: 0.65rem; font-weight: 700; background: #18181b; border: 1px solid var(--border-color); color: var(--primary); padding: 4px 10px; border-radius: 6px; font-family: monospace; }
+        .card-desc { font-size: 0.85rem; color: #a1a1aa; font-weight: 300; line-height: 1.5; margin-bottom: 1.5rem; min-height: 45px; }
+        
+        .card-data-wrapper { border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; }
+        .data-row { font-size: 0.75rem; line-height: 1.4; }
+        .data-label { color: #52525b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .data-value { color: #e2e8f0; font-weight: 400; }
+        .data-value code { font-family: monospace; color: var(--primary); font-size: 0.8rem; background: rgba(245, 158, 11, 0.05); padding: 2px 6px; border-radius: 4px; }
+        .risk-value { color: #fca5a5; }
+
+        /* The Luxury Scroll Reveal Classes */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .scroll-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Multi-language structural visibility rules */
+        [lang-item] { display: none; }
+        body.lang-en [lang-item="en"] { display: block; }
+        body.lang-ms [lang-item="ms"] { display: block; }
+        
+        @media(max-width: 768px) {
+            .grid-layout { grid-template-columns: 1fr; }
+            .navbar { padding: 1rem 1.5rem; }
+        }
+
+
+        /* Detailed Strategy Modal - keeps original card GUI intact */
+        .show-more-btn {
+            margin-top: 1.15rem; width: 100%; border: 1px solid rgba(245,158,11,.28);
+            background: rgba(245,158,11,.07); color: var(--primary); padding: .8rem 1rem;
+            border-radius: 10px; font-size: .75rem; font-weight: 800; cursor: pointer;
+            letter-spacing: .4px; transition: .25s ease;
+        }
+        .show-more-btn:hover { background: var(--primary); color:#050505; transform: translateY(-1px); }
+        .strategy-modal { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.82); backdrop-filter:blur(10px); padding:2rem; overflow-y:auto; }
+        .strategy-modal.active { display:block; }
+        .strategy-modal-panel { max-width:980px; margin:2rem auto; background:linear-gradient(180deg,#0b0b11,#07070b); border:1px solid #27272a; border-radius:24px; box-shadow:0 30px 100px rgba(0,0,0,.55); overflow:hidden; }
+        .strategy-modal-head { position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; padding:1.5rem 1.7rem; background:rgba(10,10,15,.96); border-bottom:1px solid #202026; backdrop-filter:blur(16px); }
+        .strategy-modal-title { font-size:1.45rem; font-weight:800; color:#fff; }
+        .strategy-modal-sub { margin-top:.35rem; color:#a1a1aa; font-size:.82rem; }
+        .strategy-close { width:38px; height:38px; border-radius:10px; border:1px solid #2b2b31; background:#111116; color:#fff; cursor:pointer; font-size:1.1rem; }
+        .strategy-close:hover { color:#000; background:var(--primary); }
+        .strategy-body { padding:1.7rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .detail-box { border:1px solid #1f1f26; background:#0c0c12; border-radius:15px; padding:1.15rem; }
+        .detail-box.full { grid-column:1/-1; }
+        .detail-label { font-size:.7rem; color:var(--primary); text-transform:uppercase; font-weight:800; letter-spacing:.8px; margin-bottom:.55rem; }
+        .detail-text { color:#d4d4d8; font-size:.86rem; line-height:1.75; white-space:pre-line; }
+        .trade-rule { border-left:3px solid var(--primary); padding-left:.9rem; }
+        .trade-rule.sell { border-left-color:#f87171; }
+        .strategy-warning { color:#fca5a5; }
+        @media(max-width:768px){ .strategy-modal{padding:.6rem}.strategy-modal-panel{margin:.6rem auto}.strategy-body{grid-template-columns:1fr;padding:1rem}.detail-box.full{grid-column:auto}.strategy-modal-title{font-size:1.15rem} }
+
+    </style>
+</head>
+<body class="lang-en">
+
+    <!-- 📌 NAVIGATION BAR -->
+    <nav class="navbar">
+        <div class="logo">Marbine<span>FX</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="strategies.html" class="active">Indicators</a></li>
+            <li><a href="pairs.html">Study Pairs</a></li>
+            <li><a href="forum.html">Forum</a></li>
+        </ul>
+        <div class="lang-container">
+            <button class="lang-btn active" id="btn-en" onclick="setLanguage('en')">EN</button>
+            <button class="lang-btn" id="btn-ms" onclick="setLanguage('ms')">MY</button>
+        </div>
+    </nav>
+
+    <!-- 📊 THE 30 STRATEGY INFRASTRUCTURE GRID -->
+    <main class="section-container">
+        <div class="section-header">
+            <h1>
+                <span lang-item="en">The 30 Elite Indicators &amp; Trading Systems</span>
+                <span lang-item="ms">30 Tetapan Indikator &amp; Sistem Dagangan Elit</span>
+            </h1>
+            <p>
+                <span lang-item="en">An institutional-grade catalog detailing custom entry metrics, target settings, optimal timeframes, and precise structural risk scenarios.</span>
+                <span lang-item="ms">Katalog bertaraf institusi yang memperincikan metrik kemasukan, tetapan penunjuk, rangka masa optimum, dan senario risiko struktur pasaran.</span>
+            </p>
+        </div>
+
+        <div class="grid-layout">
+            
+            <!-- 1. Kangaroo Tails -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">1. Kangaroo Tails System</div>
+                        <div class="card-badge">H4 / Daily</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Identifies high-probability institutional stop-hunts tracking clear extended raw pin bar shadows.</span>
+                        <span lang-item="ms">Mengenal pasti pengambilan kecairan (stop-hunt) melalui ekor lilin pin bar yang panjang.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Price Action Raw Structure</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">GBP/USD, EUR/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Avoid execution mid-range without structural boundaries.</div></div>
+                </div>
+            </div>
+
+            <!-- 2. Bollinger Bands -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">2. Bollinger Bands Mean Reversal</div>
+                        <div class="card-badge">M15 / H1</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Exploits extreme asset distribution deviations closing fully outside variance channels.</span>
+                        <span lang-item="ms">Mengeksploitasi herotan harga ekstrem ditutup di luar sempadan garisan sisihan saluran band.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 20, Deviation 2.5</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">USD/JPY, EUR/GBP</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Bands widen heavily during major news. Never fight an aggressive breakout.</div></div>
+                </div>
+            </div>
+
+            <!-- 3. RSI Hidden Divergence -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">3. RSI Hidden Divergence</div>
+                        <div class="card-badge">H1 / H4</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Catches explosive trend continuations via structural mismatches between price and oscillators.</span>
+                        <span lang-item="ms">Menangkap sambungan trend agresif melalui ketidakpadanan momentum harga dan osilator.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 14, Levels 70/30 (Close)</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">XAU/USD, AUD/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Avoid entries if index lines lock flat inside overbought structures.</div></div>
+                </div>
+            </div>
+
+            <!-- 4. MACD Cross Engine -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">4. MACD Institutional Cross</div>
+                        <div class="card-badge">H1 / Daily</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Tracks structural trend speed variations utilizing exponential averaging lines.</span>
+                        <span lang-item="ms">Menjejak kelajuan trend pasaran dengan silangan purata bergerak eksponen.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>12 Fast, 26 Slow, 9 Signal</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">EUR/USD, USD/CAD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Prone to intense technical whipsaws inside horizontal consolidation blocks.</div></div>
+                </div>
+            </div>
+
+            <!-- 5. ATR Volatility Breakout -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">5. ATR Volatility Channel</div>
+                        <div class="card-badge">M30 / H1</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Triggers momentum tracking metrics during rapid trading range expansion steps.</span>
+                        <span lang-item="ms">Mencetuskan parameter kemasukan ketika pengembangan julat harga pasaran berlaku pantas.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 14, Multiplier 2.0x</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">GBP/JPY, XAU/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Sudden volume dropouts trap breakout buyers into immediate deep rollbacks.</div></div>
+                </div>
+            </div>
+            <!-- 6. EMA Ribbon Cascade -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">6. EMA Institutional Ribbon</div>
+                        <div class="card-badge">H1 / H4</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Creates deep dynamic support paths by overlaying multi-layered moving averages.</span>
+                        <span lang-item="ms">Membina zon sokongan dinamik berlapis dengan tindanan purata bergerak eksponen.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>EMA 20, 50, 100, 200 Overlays</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">NZD/USD, EUR/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Deactivate trend continuation plays if lines twist together completely flat.</div></div>
+                </div>
+            </div>
+
+            <!-- 7. Ichimoku Cloud Edge -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">7. Ichimoku Cloud Break</div>
+                        <div class="card-badge">H4 / Daily</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Full systemic visualization mapping future boundaries. Trade breaks out of Kumo.</span>
+                        <span lang-item="ms">Sistem lengkap memaparkan sempadan masa hadapan. Dagangkan pecahan awan Kumo.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>9, 26, 52, 26 Standard Setup</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">USD/JPY, GBP/JPY</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Heavy account degradation occurs if capital is deployed inside cloud charts.</div></div>
+                </div>
+            </div>
+
+            <!-- 8. MTF Stochastic -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">8. MTF Stochastic Engine</div>
+                        <div class="card-badge">M15 / H1</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Tracks structural close placements against historical session highs and lows.</span>
+                        <span lang-item="ms">Menjejaki lokasi penutupan harga berbanding julat tertinggi-terendah sesi lalu.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>%K 14, %D 3, Slowing 3</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">EUR/USD, GBP/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Index lines lock within extremes effortlessly during aggressive parabolic runs.</div></div>
+                </div>
+            </div>
+
+            <!-- 9. Parabolic SAR -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">9. Parabolic Trailing Stop</div>
+                        <div class="card-badge">H1 / Daily</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Plots dynamic trailing coordinates to lock in running trend acceleration returns.</span>
+                        <span lang-item="ms">Melakar titik 'trailing stop' dinamik untuk mengunci keuntungan aliran pantas.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Start 0.02, Increment 0.02, Max 0.2</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">USD/CHF, EUR/CAD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Destructive during lateral ranges. Confirm a clean 200 EMA slope angle first.</div></div>
+                </div>
+            </div>
+
+            <!-- 10. CCI Cyclical -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">10. CCI Cyclical Model</div>
+                        <div class="card-badge">H1 / H4</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Measures asset speed variations relative to mathematical historical averages.</span>
+                        <span lang-item="ms">Mengukur kelajuan variasi harga berbanding purata matematik data sejarah.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 20, Filter +/-100</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">AUD/JPY, CAD/JPY</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Do not counter-trade instantly just because lines cross outside parameters.</div></div>
+                </div>
+            </div>
+            <!-- 11. Supertrend -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">11. Supertrend Algo Filter</div>
+                        <div class="card-badge">M30 / H1</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Generates clean directional execution coordinates using ATR volatility shifts.</span>
+                        <span lang-item="ms">Mencipta koordinat arah aliran yang bersih menggunakan anjakan turun naik ATR.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>ATR Period 10, Multiplier 3.0</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">XAU/USD, GBP/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Bypass raw color flips inside low-volume Asian trading hours.</div></div>
+                </div>
+            </div>
+
+            <!-- 12. Donchian Channel -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">12. Donchian Channel Break</div>
+                        <div class="card-badge">H4 / Daily</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Maps high and low structural extremes over fixed session intervals to capture trends.</span>
+                        <span lang-item="ms">Melakar julat harga tertinggi/terendah sesi lepas untuk menangkap pecahan arah.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 20 Channel Extremes</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">USD/JPY, EUR/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">False breakouts hit edges. Require true candle closes beyond boundaries.</div></div>
+                </div>
+            </div>
+
+            <!-- 13. Keltner Volatility -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">13. Keltner Volatility Band</div>
+                        <div class="card-badge">H1 Scale</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Combines exponential moving metrics with ATR factors for smoother structural channels.</span>
+                        <span lang-item="ms">Menggabungkan metrik eksponen bersama data ATR untuk kelancaran saluran.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>EMA 20, ATR 10, Multiplier 2x</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">EUR/JPY, GBP/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Watch for steep immediate reversals if macro news drops on channel lines.</div></div>
+                </div>
+            </div>
+
+            <!-- 14. Floor Pivot Grid -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">14. Floor Pivot Target Grid</div>
+                        <div class="card-badge">Daily Setup</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Pure mathematical target markers calculated via previous session transactional profiles.</span>
+                        <span lang-item="ms">Tahap matematik ramalan dikira berdasarkan profil data transaksi sesi lepas.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Standard Daily Mathematical Layout</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">All Major Asset Matrices</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Pivot layers offer zero protection during high impact interest rate drops.</div></div>
+                </div>
+            </div>
+
+            <!-- 15. Fibonacci Golden Ratio -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">15. Fibonacci Golden Ratio</div>
+                        <div class="card-badge">All Scales</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Locates hidden institutional valuation depths inside defined expansion legs.</span>
+                        <span lang-item="ms">Mendedahkan kedalaman pembetulan pasaran dalam siri ayunan harga besar.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Retracement 50.0% &amp; 61.8%</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">GBP/USD, XAU/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Clean structural extensions past 78.6% levels invalidate the setup.</div></div>
+                </div>
+            </div>
+            <!-- 16. Session VWAP Anchor -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">16. Session VWAP True Anchor</div>
+                        <div class="card-badge">M5 / M15</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Establishes accurate transaction benchmarks weighted directly by volume distribution nodes.</span>
+                        <span lang-item="ms">Menetapkan tanda aras harga pasaran tepat mengikut kepadatan volum urusniaga.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Session Anchored Intraday Tracking</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">EUR/USD, USD/JPY</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Ensure broker feed data integrates verified tier-1 execution feeds.</div></div>
+                </div>
+            </div>
+
+            <!-- 17. Chaikin Money Flow -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">17. Chaikin Money Flow</div>
+                        <div class="card-badge">H1 / H4</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Measures asset accumulation and distribution weights across fixed volume cycles.</span>
+                        <span lang-item="ms">Mengukur pemberat pengumpulan pasaran berbanding siri pengagihan volum semasa.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 21 Zero Line Cross Matrix</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">USD/CAD, AUD/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Whipsaw events occur if crosses materialize during seasonal bank holidays.</div></div>
+                </div>
+            </div>
+
+            <!-- 18. Hull Velocity -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">18. Hull Zero-Lag Velocity</div>
+                        <div class="card-badge">M30 / H1</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Bypasses technical lagging entirely while maintaining smooth structural trend lines.</span>
+                        <span lang-item="ms">Menhancurkan jurang masa pergerakan purata harga tanpa menjejaskan kelancaran garis.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 16 Weighted Matrix Engine</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">GBP/JPY, USD/JPY</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Fast speed properties cause over-trading entry traps inside lateral chop structures.</div></div>
+                </div>
+            </div>
+
+            <!-- 19. Williams Multi-Cycle Engine -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">19. Williams Multi-Cycle Engine</div>
+                        <div class="card-badge">H1 / H4</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Tracks asset close speeds over three distinct calculation windows to eliminate anomalies.</span>
+                        <span lang-item="ms">Menggabungkan tiga tetingkap waktu pengiraan berbeza bagi menepis isyarat palsu.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Short 7, Medium 14, Long 28</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">EUR/USD, GBP/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Always lock confirmations on chart candles before purchasing oscillator spikes.</div></div>
+                </div>
+            </div>
+
+            <!-- 20. Linear Regression Channel -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">20. Linear Regression Channel</div>
+                        <div class="card-badge">H4 Frame</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Applies standard deviation calculations to map median mathematical trajectory paths.</span>
+                        <span lang-item="ms">Menggunakan formula sisihan piawai bagi melakar unjuran trajektori harga sejarah.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Length 100, Deviation Scale 2.0x</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">EUR/USD, USD/CAD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Severe macro updates break paths. Adjust positions immediately if structures collapse.</div></div>
+                </div>
+            </div>
+            <!-- 21. ROC Pure Momentum -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">21. ROC Pure Momentum</div>
+                        <div class="card-badge">M15 / H1</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Gauges percentage change fields between current asset points and historical anchors.</span>
+                        <span lang-item="ms">Mengukur peratusan perubahan harga semasa berbanding sauh sejarah masa lalu.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 9 Pure Momentum Metrics</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">XAU/USD, GBP/JPY</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Intense news spikes map heavily across index metrics during active execution sessions.</div></div>
+                </div>
+            </div>
+
+            <!-- 22. True Strength Index -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">22. True Strength Index (TSI)</div>
+                        <div class="card-badge">H1 Scale</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Uses double-smoothed exponential moving averages to render clean, noise-free directions.</span>
+                        <span lang-item="ms">Menggunakan purata eksponen berganda bagi memaparkan arah aliran tanpa gangguan.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Long 25, Short 13, Signal Length 13</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">NZD/USD, AUD/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Slight cross entry anomalies can form inside low volume global market gaps.</div></div>
+                </div>
+            </div>
+
+            <!-- 23. ALMA Gaussian Filter -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">23. ALMA Gaussian Filter</div>
+                        <div class="card-badge">M15 / H1</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Deploys Gaussian distribution curves to offer hyper-responsive tracking setups.</span>
+                        <span lang-item="ms">Menggunakan lengkungan Gaussian untuk konfigurasi tindak balas purata harga pantas.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Window 9, Offset 0.85, Sigma 6</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">EUR/USD, GBP/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Do not execute raw boundary line touches without distinct volume validation candles.</div></div>
+                </div>
+            </div>
+
+            <!-- 24. Money Flow Index -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">24. Money Flow Index (MFI)</div>
+                        <div class="card-badge">H1 / H4</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Injects transactional volume data directly into standard price momentum equations.</span>
+                        <span lang-item="ms">Mengadun data volum pasaran terus ke dalam formula matematik momentum harga.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 14, Exhaustion Levels 80/20</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">XAU/USD, USD/JPY</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Heavy trends can lock volume indices inside extreme bands over multi-day spans.</div></div>
+                </div>
+            </div>
+
+            <!-- 25. Elder Ray Bull/Bear Core -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">25. Elder Ray Bull/Bear Power</div>
+                        <div class="card-badge">H4 Scale</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Isolates structural buyer and seller forces relative to core exponential averages.</span>
+                        <span lang-item="ms">Mengasingkan kuasa pembeli dan penjual berbanding purata eksponen tengah.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Base Exponential EMA: 13 Period</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">GBP/USD, EUR/JPY</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Halt execution maps if power lines compress flatly under key zero markers.</div></div>
+                </div>
+            </div>
+            <!-- 26. Center of Gravity -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">26. Center of Gravity (COG)</div>
+                        <div class="card-badge">H1 Setup</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Zero-lag oscillator capturing macro structural trend turn target coordinates.</span>
+                        <span lang-item="ms">Osilator tanpa jurang masa bagi menjejak titik pertukaran arah aliran struktur.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Length 10, Smoothing Matrix 3</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">USD/CHF, EUR/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Requires strict management parameters as lines recalculate instantly upon big macro steps.</div></div>
+                </div>
+            </div>
+
+            <!-- 27. Coppock Matrix -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">27. Coppock Cyclical Matrix</div>
+                        <div class="card-badge">Daily Setup</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Long term algorithmic trend layout checking moving calculation variances.</span>
+                        <span lang-item="ms">Indikator kitaran jangka panjang bagi mengesan pertukaran arah trend makro global.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>ROC Long 14, ROC Short 11, WMA 10</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">All Major Cross Asset Blocks</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Highly lagging model if applied to short term day trading or scalping operations.</div></div>
+                </div>
+            </div>
+
+            <!-- 28. DPO Model -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">28. Detrended Price Model</div>
+                        <div class="card-badge">H1 / H4</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Removes long term price trends to isolate pure structural cycle waves.</span>
+                        <span lang-item="ms">Membuang data arah aliran jangka panjang bagi mengasingkan kitaran harga tulen.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Period 21 Centered Average Mode</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">GBP/USD, USD/JPY</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Must combine exclusively alongside fixed, validated horizontal target support layers.</div></div>
+                </div>
+            </div>
+
+            <!-- 29. Klinger Volume Force -->
+            <div class="luxury-card scroll-reveal">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">29. Klinger Volume Force</div>
+                        <div class="card-badge">H1 Scale</div>
+                    </div>
+                    <div class="card-desc">
+                        <span lang-item="en">Determines underlying transactional volume forces while checking fast order books.</span>
+                        <span lang-item="ms">Menjejaki kuasa aliran volum urusniaga dan mengesan ketidakimbangan pesanan pasaran.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper">
+                    <div class="data-row"><div class="data-label">Best Settings:</div><div class="data-value"><code>Fast 34, Slow 55, Signal Length 13</code></div></div>
+                    <div class="data-row"><div class="data-label">Best Asset Pair:</div><div class="data-value">XAU/USD, EUR/USD</div></div>
+                    <div class="data-row"><div class="data-label">Risk Situation:</div><div class="data-value risk-value">Signal crossovers can print false trend triggers inside tightening wedge consolidations.</div></div>
+                </div>
+            </div>
+
+            <!-- 30. MarbineFX System Pro Indicator -->
+            <div class="luxury-card scroll-reveal" style="grid-column: 1 / -1; border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(135deg, #0e0e1a 0%, #06060c 100%);">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title" style="font-size: 1.6rem; color: var(--primary);">30. MarbineFX Proprietary Algorithmic Indicator</div>
+                        <div class="card-badge" style="background: var(--primary); color: #000;">EXCLUSIVE PRO</div>
+                    </div>
+                    <div class="card-desc" style="font-size: 0.95rem; margin-bottom: 2rem;">
+                        <span lang-item="en">The crowning jewel of our website ecosystem. Our custom scripts synthesize macro Gaussian distribution nodes, real-time volume footprints, and automated ATR parameters into a single engine. Built to strip out retail noise and isolate pure tier-1 entries.</span>
+                        <span lang-item="ms">Kemuncak agung ekosistem platform kami. Algoritma pintar kami mengadun data taburan Gaussian, jejak volum institusi masa nyata, dan parameter volatiliti ATR ke dalam satu enjin penunjuk bersepadu untuk kemasukan tepat.</span>
+                    </div>
+                </div>
+                <div class="card-data-wrapper" style="flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div class="data-row"><div class="data-label">System Deployment Status:</div><div class="data-value" style="color: #4ade80; font-weight: 700;">✨ Private Beta Testing Track Underway</div></div>
+                    <a href="https://t.me/marbinefx" target="_blank" class="bg-amber-500 hover:bg-amber-400 text-black px-6 py-3 rounded-xl font-bold text-xs transition-transform transform hover:-translate-y-0.5 text-center">Get Free Access Keys Inside Telegram</a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+
+    <!-- Detailed indicator popup -->
+    <div id="strategyModal" class="strategy-modal" onclick="modalBackdropClose(event)">
+        <div class="strategy-modal-panel">
+            <div class="strategy-modal-head">
+                <div>
+                    <div id="modalTitle" class="strategy-modal-title">Indicator Strategy</div>
+                    <div id="modalSub" class="strategy-modal-sub"></div>
+                </div>
+                <button class="strategy-close" onclick="closeIndicatorDetails()" aria-label="Close">✕</button>
+            </div>
+            <div class="strategy-body">
+                <div class="detail-box full"><div id="lblWhat" class="detail-label">What this indicator is</div><div id="dWhat" class="detail-text"></div></div>
+                <div class="detail-box"><div id="lblWhy" class="detail-label">Why traders use it</div><div id="dWhy" class="detail-text"></div></div>
+                <div class="detail-box"><div id="lblSetup" class="detail-label">Chart setup</div><div id="dSetup" class="detail-text"></div></div>
+                <div class="detail-box trade-rule"><div id="lblBuy" class="detail-label">BUY setup — step by step</div><div id="dBuy" class="detail-text"></div></div>
+                <div class="detail-box trade-rule sell"><div id="lblSell" class="detail-label">SELL setup — step by step</div><div id="dSell" class="detail-text"></div></div>
+                <div class="detail-box"><div id="lblRisk" class="detail-label">Stop loss & take profit</div><div id="dRisk" class="detail-text"></div></div>
+                <div class="detail-box"><div id="lblWhen" class="detail-label">Best market condition</div><div id="dWhen" class="detail-text"></div></div>
+                <div class="detail-box"><div id="lblConfirm" class="detail-label">Confirmation to use</div><div id="dConfirm" class="detail-text"></div></div>
+                <div class="detail-box"><div id="lblAvoid" class="detail-label">Do NOT use it when</div><div id="dAvoid" class="detail-text strategy-warning"></div></div>
+                <div class="detail-box full"><div id="lblExample" class="detail-label">Simple example</div><div id="dExample" class="detail-text"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <footer style="border-top: 1px solid var(--border-color); background: #07070a; padding: 2.5rem; text-align: center; font-size: 0.75rem; color: #52525b; line-height: 1.6;">
+        &copy; 2026 MarbineFX Network Frameworks. All Rights Reserved. Leveraged derivatives trading carries extreme risk parameters.
+    </footer>
+
+    <script>
+        function setLanguage(targetLang) {
+            strategyLanguage = targetLang;
+            document.body.classList.remove('lang-en','lang-ms');
+            document.body.classList.add('lang-' + targetLang);
+            document.getElementById('btn-en').classList.remove('active');
+            document.getElementById('btn-ms').classList.remove('active');
+            document.getElementById('btn-' + targetLang).classList.add('active');
+            updateStrategyLanguageUI();
+            if(activeDetailId !== null && document.getElementById('strategyModal').classList.contains('active')) {
+                openIndicatorDetails(activeDetailId);
+            }
+        }
+
+        // Native High Performance Intersection Observer Engine
+        const revealCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const revealObserver = new IntersectionObserver(revealCallback, {
+            root: null,
+            threshold: 0.05 // Lower threshold for dense structural layouts
+        });
+
+        document.querySelectorAll('.scroll-reveal').forEach(element => {
+            revealObserver.observe(element);
+        });
+
+
+
+        const strategyModalLabels = {
+            en:{what:'What this indicator is',why:'Why traders use it',setup:'Chart setup',buy:'BUY setup — step by step',sell:'SELL setup — step by step',risk:'Stop loss & take profit',when:'Best market condition',confirm:'Confirmation to use',avoid:'Do NOT use it when',example:'Simple example',button:'SHOW MORE — FULL STRATEGY'},
+            ms:{what:'Apa sebenarnya indikator ini',why:'Kenapa trader menggunakannya',setup:'Tetapan carta',buy:'Setup BUY — langkah demi langkah',sell:'Setup SELL — langkah demi langkah',risk:'Stop loss & take profit',when:'Keadaan pasaran terbaik',confirm:'Confirmation yang digunakan',avoid:'JANGAN guna apabila',example:'Contoh mudah',button:'SHOW MORE — STRATEGI PENUH'}
+        };
+        let strategyLanguage = 'en';
+        function makeMalayDetail(id,d){
+            const c = indicatorDetailsMsCore[id];
+            if(!c) return d;
+            const card = [...document.querySelectorAll('.luxury-card')].find(x=>x.querySelector('.card-title')?.textContent.trim().startsWith(id+'.'));
+            const setting = card?.querySelector('.data-value code')?.textContent.trim() || '';
+            const pair = card?.querySelectorAll('.data-value')?.[1]?.textContent.trim() || '';
+            return {
+                what:c[0],
+                why:'Indikator ini digunakan sebagai alat confirmation dan timing, bukan signal automatik. Gabungkan dengan market structure, support/resistance dan keadaan pasaran.',
+                setup:(setting ? 'Gunakan tetapan: '+setting+'. ' : '') + (pair ? 'Aset yang dicadangkan pada kad: '+pair+'. ' : '') + 'Mulakan pada timeframe yang tertera pada kad dan tandakan struktur timeframe lebih tinggi terlebih dahulu.',
+                buy:c[1],
+                sell:c[2],
+                risk:'Letakkan stop loss di luar swing atau level yang membatalkan setup, bukan pada garis indikator secara rawak. Ambil TP pertama pada struktur terdekat dan sasarkan reward-to-risk yang munasabah seperti 1.5R–2R+ jika market membenarkan.',
+                when:'Paling sesuai apabila keadaan market sepadan dengan fungsi indikator: trend indicator ketika market trending, mean-reversion oscillator ketika range, dan breakout indicator ketika volatility sedang berkembang.',
+                confirm:'Gunakan market structure, candle close, support/resistance, liquidity level, timeframe lebih tinggi dan jika relevan volume/ATR sebagai confirmation tambahan.',
+                avoid:c[3],
+                example:'Contoh: tunggu semua syarat BUY atau SELL di atas berlaku pada level penting. Jangan entry semasa candle signal masih terbentuk. Selepas candle close dan structure confirm, entry dengan stop di luar invalidation dan target pada struktur seterusnya.'
+            };
+        }
+
+        const indicatorDetailsMsCore = {"1":["Kangaroo Tail ialah candle rejection dengan wick panjang dan body kecil. Ia berguna pada support/resistance atau selepas liquidity sweep.","Harga sweep bawah support, candle close semula di atas level dengan lower wick panjang, kemudian buy selepas high candle rejection pecah.","Harga sweep atas resistance, candle close semula di bawah level dengan upper wick panjang, kemudian sell selepas low candle rejection pecah.","Jangan guna pattern rawak di tengah range atau tepat sebelum high-impact news."],"2":["Bollinger Bands mempunyai middle moving average serta upper/lower band yang mengembang mengikut volatility.","Pastikan market range. Harga keluar bawah Lower Band, tunggu candle CLOSE semula di dalam band, kemudian buy selepas confirmation/high candle pecah.","Pastikan market range. Harga keluar atas Upper Band, tunggu candle CLOSE semula di dalam band, kemudian sell selepas confirmation/low candle pecah.","Jangan fade band ketika trend sangat kuat atau bands sedang melebar agresif selepas news."],"3":["RSI Hidden Divergence mencari continuation trend. Bullish: price higher low tetapi RSI lower low. Bearish: price lower high tetapi RSI higher high.","Dalam uptrend, tunggu higher low pada price + lower low pada RSI, kemudian buy selepas bullish structure confirmation.","Dalam downtrend, tunggu lower high pada price + higher high pada RSI, kemudian sell selepas bearish confirmation.","Jangan guna divergence tanpa trend yang jelas atau ketika struktur sudah patah."],"4":["MACD mengukur momentum dan trend melalui MACD line, signal line dan histogram.","Trend bullish; MACD line cross DI ATAS signal line, lebih baik di atas/berhampiran zero selepas pullback. Buy selepas price confirm.","Trend bearish; MACD line cross DI BAWAH signal line, lebih baik di bawah/berhampiran zero selepas rally. Sell selepas confirm.","Elakkan crossover berulang dalam sideways market kerana whipsaw."],"5":["ATR mengukur volatility, bukan arah. ATR Channel membantu melihat expansion dan jarak stop yang lebih realistik.","Cari breakout bullish selepas range contraction; price close atas channel/structure dan ATR meningkat. Buy selepas close/retest.","Cari breakout bearish; price close bawah channel/structure dan ATR meningkat. Sell selepas close/retest.","Jangan chase breakout jika volume/momentum terus jatuh atau candle sudah terlalu extended."],"6":["EMA Ribbon menggunakan beberapa EMA seperti 20/50/100/200 untuk menunjukkan trend, momentum dan dynamic support/resistance.","EMA tersusun bullish 20>50>100>200 dan slope naik. Tunggu pullback ke ribbon + bullish rejection, kemudian buy.","EMA tersusun bearish 20<50<100<200 dan slope turun. Tunggu rally ke ribbon + bearish rejection, kemudian sell.","Jika semua EMA bersilang dan flat, market sedang chop; elak trend entry."],"7":["Ichimoku menggabungkan Tenkan, Kijun, Kumo dan Chikou untuk trend, momentum serta support/resistance.","Price close atas Kumo, Tenkan di atas Kijun dan cloud depan bullish. Buy selepas breakout/retest.","Price close bawah Kumo, Tenkan di bawah Kijun dan cloud depan bearish. Sell selepas breakout/retest.","Jangan entry ketika price berada di dalam cloud kerana arah tidak jelas."],"8":["Stochastic membandingkan close semasa dengan recent high-low range dan digunakan untuk momentum/exhaustion.","Di support/range, %K cross atas %D dari bawah 20 dan price confirm bullish. Buy selepas structure confirmation.","Di resistance/range, %K cross bawah %D dari atas 80 dan price confirm bearish. Sell selepas confirmation.","Dalam trend kuat stochastic boleh kekal overbought/oversold lama; jangan lawan trend hanya kerana level ekstrem."],"9":["Parabolic SAR meletakkan titik trailing yang membantu mengikuti trend dan mengurus trailing stop.","Pastikan trend bullish, contoh price atas EMA200. Apabila SAR flip ke bawah price selepas pullback, buy selepas confirmation.","Trend bearish; SAR flip ke atas price selepas rally, kemudian sell selepas confirmation.","Sangat lemah dalam sideways market kerana banyak flip palsu."],"10":["CCI mengukur sejauh mana price menyimpang daripada purata. +100/-100 sering digunakan untuk momentum atau exhaustion.","Dalam bullish context, CCI recover dari bawah -100 atau break +100 bersama price breakout. Buy selepas price confirm.","Dalam bearish context, CCI turn down dari atas +100 atau break -100 bersama breakdown. Sell selepas confirm.","Jangan terus counter-trade hanya kerana CCI berada di luar ±100."],"11":["Supertrend menggunakan ATR untuk membina garis trend dan signal arah.","Price close atas Supertrend dan garis flip bullish; lebih kuat jika H1/H4 structure juga bullish. Buy pada close/retest.","Price close bawah Supertrend dan garis flip bearish; sell selepas close/retest jika structure sehala.","Elak color flip rawak ketika low volume atau sideways."],"12":["Donchian Channel menandakan highest high dan lowest low sepanjang period tertentu, sesuai untuk breakout trend.","Candle CLOSE atas upper Donchian boundary. Tunggu close sebenar atau retest, kemudian buy.","Candle CLOSE bawah lower boundary. Tunggu close/retest, kemudian sell.","Wick sahaja bukan breakout; false breakout biasa dalam range."],"13":["Keltner Channel menggunakan EMA + ATR untuk channel volatility yang lebih smooth.","Dalam uptrend, pullback ke middle/lower Keltner dan bullish rejection; atau breakout atas channel dengan momentum. Buy selepas confirm.","Dalam downtrend, rally ke middle/upper Keltner dan bearish rejection; atau breakout bawah channel. Sell selepas confirm.","News besar boleh menembusi channel dengan cepat; jangan anggap boundary pasti hold."],"14":["Floor Pivot menggunakan harga high/low/close sesi sebelumnya untuk mengira Pivot, S1/S2 dan R1/R2.","Jika bias bullish dan price hold Pivot/S1 dengan bullish rejection, buy menuju R1/R2.","Jika bias bearish dan price reject Pivot/R1, sell menuju S1/S2.","Pivot hanyalah level rujukan, bukan guarantee; elak menggunakannya sendirian ketika high-impact news."],"15":["Fibonacci Retracement mengukur pullback dalam swing. Zon 50%-61.8% sering digunakan sebagai kawasan confluence.","Dalam uptrend, tarik Fib dari swing low ke swing high. Tunggu pullback 50-61.8% + support/confirmation, kemudian buy.","Dalam downtrend, tarik dari swing high ke swing low. Tunggu retrace 50-61.8% + resistance/confirmation, kemudian sell.","Jika structure jelas menembusi 78.6% dan swing invalid, jangan paksa setup."],"16":["VWAP menunjukkan purata harga berwajaran volume sepanjang sesi dan sering menjadi benchmark intraday.","Jika bias bullish, price reclaim VWAP dan hold di atasnya selepas pullback. Buy pada bullish confirmation.","Jika bias bearish, price reject/reclaim bawah VWAP dan kekal di bawah. Sell selepas bearish confirmation.","Kualiti volume feed penting; jangan gunakan tick volume broker seolah-olah ia volume centralized yang sempurna."],"17":["Chaikin Money Flow menggabungkan price location dan volume untuk mengukur accumulation/distribution. Zero line ialah reference utama.","CMF cross atas zero atau recover bullish ketika price hold support/break resistance. Buy selepas price confirm.","CMF cross bawah zero ketika price reject resistance/break support. Sell selepas confirmation.","Elak zero-cross berulang ketika volume sangat rendah atau holiday session."],"18":["Hull Moving Average direka untuk lebih responsive dengan lag lebih rendah berbanding moving average biasa.","HMA slope naik/bertukar bullish dan price di atasnya; tunggu pullback/reclaim lalu buy.","HMA slope turun/bertukar bearish dan price di bawahnya; tunggu rally/reject lalu sell.","Respons yang cepat boleh menyebabkan overtrading dalam chop."],"19":["Williams %R mengukur kedudukan close dalam recent range. Nilai sekitar -80/-20 sering digunakan untuk exhaustion.","Di support, %R keluar semula dari oversold bawah -80 dan price confirm bullish. Buy selepas confirmation.","Di resistance, %R turun semula dari overbought atas -20 dan price confirm bearish. Sell selepas confirmation.","Jangan trade hanya kerana oscillator ekstrem ketika trend kuat."],"20":["Linear Regression Channel membina garis trend matematik dengan upper/lower deviation channel.","Dalam regression uptrend, tunggu price reject lower channel dan structure kekal bullish; buy menuju median/upper channel.","Dalam regression downtrend, tunggu reject upper channel dan bearish confirmation; sell menuju median/lower channel.","Macro shock boleh memecahkan channel; channel bukan support/resistance mutlak."],"21":["Rate of Change (ROC) mengukur kadar perubahan harga berbanding beberapa period lalu dan menunjukkan momentum.","ROC cross atas zero/meningkat bersama breakout bullish dan price confirm. Buy selepas confirmation.","ROC cross bawah zero/menurun bersama breakdown bearish. Sell selepas confirmation.","News spike boleh menghasilkan bacaan ekstrem palsu; gunakan structure dahulu."],"22":["TSI ialah momentum oscillator double-smoothed yang cuba mengurangkan noise sambil menunjukkan arah momentum.","TSI cross atas signal, idealnya bersama bullish structure/zero-line improvement. Buy selepas price confirm.","TSI cross bawah signal bersama bearish structure. Sell selepas confirm.","Cross kecil dalam low-volume market mudah palsu."],"23":["ALMA ialah moving average berasaskan Gaussian weighting yang cuba kekal smooth tetapi responsive.","ALMA slope naik dan price reclaim/hold atas line selepas pullback. Buy selepas bullish candle/structure.","ALMA slope turun dan price reject line dari bawah. Sell selepas bearish confirmation.","Jangan entry hanya kerana touch line tanpa price-action atau volume confirmation."],"24":["Money Flow Index (MFI) menggabungkan price dan volume. Level 80/20 sering digunakan untuk overbought/oversold.","Di support, MFI bawah/dekat 20 kemudian turn up; lebih kuat dengan bullish divergence. Buy selepas structure break.","Di resistance, MFI atas/dekat 80 kemudian turn down; bearish divergence menambah confirmation. Sell selepas structure break.","Trend kuat boleh mengekalkan MFI ekstrem lama; level ekstrem sahaja bukan reversal signal."],"25":["Elder Ray menggunakan EMA13 bersama Bull Power dan Bear Power untuk melihat tekanan pembeli dan penjual.","EMA13 slope naik; pullback berlaku; Bear Power negatif tetapi mula naik dan Bull Power kekal kuat. Buy selepas bullish confirmation.","EMA13 slope turun; rally berlaku; Bull Power lemah dan Bear Power semakin kuat. Sell selepas bearish confirmation.","Jika EMA flat dan Bull/Bear Power compress sekitar zero, market range."],"26":["Center of Gravity ialah oscillator cycle/turning-point; implementation boleh berbeza antara platform.","Di support range, COG sampai lower extreme dan turn up/cross bullish. Buy selepas price rejection/structure confirmation.","Di resistance, COG upper extreme turn down/cross bearish. Sell selepas confirmation.","Jangan bergantung padanya semasa breakout kuat; sesetengah versi boleh recalculate/repaint."],"27":["Coppock Curve ialah momentum indicator jangka panjang, lebih sesuai untuk swing/position daripada scalping.","Daily structure membina base, Coppock turn up dari bacaan rendah dan price break resistance. Buy selepas confirmation.","Untuk short market yang sesuai, tunggu long-term structure lemah, Coppock roll down dan price break major support.","Jangan gunakan untuk M5/M15; indicator ini memang lambat."],"28":["DPO membuang komponen trend panjang untuk memudahkan melihat price cycle yang lebih pendek.","Di established support, DPO berada pada cycle low dan turn up, price reject bullish. Buy menuju midpoint/resistance.","Di resistance, DPO cycle high turn down dan price confirm bearish. Sell menuju midpoint/support.","Elak ketika breakout/trend kuat; sesetengah plot DPO juga shifted."],"29":["Klinger Volume Oscillator cuba mengukur money-flow/volume force dengan fast, slow dan signal line.","Price bullish/break resistance, Klinger cross atas signal dan lebih kuat jika bergerak ke/atas zero. Buy selepas breakout/retest confirm.","Price bearish/break support, Klinger cross bawah signal dan lebih kuat di bawah zero. Sell selepas confirm.","Cross dalam wedge/range mudah palsu; kualiti volume feed juga penting."]};
+
+        const indicatorDetails = {
+1:{what:"Kangaroo Tail is a price-action reversal pattern: one candle has a very long wick and a relatively small body near one end of the candle. The long wick shows price pushed into a level, was rejected, and closed back away from it.",why:"Use it to spot rejection after a liquidity sweep at an important support/resistance zone. The candle alone is not the signal; the location of the candle is what makes it useful.",setup:"Timeframe: H4 or Daily.\nMark clear swing highs/lows, previous support/resistance, weekly highs/lows and major supply/demand zones. No extra indicator is required.",buy:"1. Price falls into an important support or previous swing-low area.\n2. A candle trades below the level but rejects it and leaves a long LOWER wick.\n3. The candle body closes back above the level.\n4. Prefer the next candle to break the Kangaroo Tail candle high.\n5. Buy only after that confirmation; do not buy while the rejection candle is still forming.",sell:"1. Price rises into resistance or a previous swing-high area.\n2. A candle trades above the level and leaves a long UPPER wick.\n3. The body closes back below the level.\n4. Prefer the next candle to break the Kangaroo Tail candle low.\n5. Sell after confirmation.",risk:"BUY stop: a little below the rejection wick. SELL stop: a little above the wick.\nFirst target: nearest opposing structure. Second target: next major swing. Aim for a sensible reward-to-risk such as 1.5R–2R+ instead of forcing a fixed pip target.",when:"Best after a clear run into support/resistance, especially after an obvious liquidity sweep. Higher-timeframe levels are stronger than random mid-range candles.",confirm:"Market structure shift, strong close back inside the level, rising session activity, or confluence with a higher-timeframe support/resistance zone.",avoid:"Avoid random Kangaroo Tails in the middle of a range, tiny wicks, or patterns directly before high-impact news. Do not assume every long wick means reversal.",example:"EUR/USD H4 falls into a previous weekly low. Price spikes 20 pips below the level, then closes back above it with a long lower wick. The next H4 candle breaks the rejection candle high. That is the confirmation for a possible buy; the stop goes below the wick and the target is the next H4 resistance."},
+2:{what:"Bollinger Bands use a middle moving average and two volatility bands. With Period 20 and Deviation 2.5, the middle line is the 20-period average and the outer bands expand or contract depending on volatility.",why:"Use them to understand whether price is stretched away from its recent average and whether volatility is expanding or contracting. For a mean-reversion strategy, the goal is not to buy every lower-band touch or sell every upper-band touch; you wait for rejection and a move back inside the band.",setup:"Timeframe: M15 or H1.\nSettings: Period 20, Deviation 2.5, Close price.\nLines: Upper Band, Middle Band (20-period average), Lower Band.\nBest in a sideways/ranging market or after a controlled overextension.",buy:"1. Confirm the market is ranging or slowing down — not strongly trending down.\n2. Price pushes through or closes outside the LOWER Bollinger Band.\n3. Wait for a candle to reject the low and CLOSE BACK INSIDE the lower band.\n4. Stronger setup: RSI is near oversold or price is also at support.\n5. Enter buy after the confirmation candle closes or after its high is broken.\n6. First target = Middle Band. Second target = Upper Band only if momentum remains strong.",sell:"1. Confirm the market is ranging or slowing down — not strongly trending up.\n2. Price pushes through or closes outside the UPPER Bollinger Band.\n3. Wait for a bearish candle to CLOSE BACK INSIDE the upper band.\n4. Stronger setup: RSI is near overbought or price is at resistance.\n5. Enter sell after the confirmation candle closes or its low is broken.\n6. First target = Middle Band. Second target = Lower Band if weakness continues.",risk:"BUY stop: below the rejection swing low. SELL stop: above the rejection swing high.\nDo not put the stop exactly on the Bollinger Band because the band moves. Use actual price structure.\nFor mean reversion, the middle band is the logical first take-profit.",when:"Best in calm or balanced markets where price repeatedly rotates around the middle band. Also useful after a temporary spike away from the average that immediately loses momentum.",confirm:"Horizontal support/resistance, RSI 70/30 behaviour, a rejection candle, or a break of the small counter-trend structure after price re-enters the band.",avoid:"Do NOT fade the bands during a powerful trend when price keeps walking the upper or lower band. If the bands are widening aggressively after news, a touch outside the band can be continuation, not reversal.",example:"EUR/GBP H1 is ranging. Price closes above the upper band at resistance, then the next candle closes back inside the band with a bearish body. A sell can be considered below that confirmation candle, with a stop above the swing high and the middle band as the first target."},
+3:{what:"RSI Hidden Divergence compares price swings with RSI swings to find trend continuation. Hidden bullish divergence happens when price makes a HIGHER LOW while RSI makes a LOWER LOW. Hidden bearish divergence happens when price makes a LOWER HIGH while RSI makes a HIGHER HIGH.",why:"Regular divergence looks for reversal. Hidden divergence is different: it is mainly used to join an existing trend after a pullback.",setup:"RSI Period 14, Close, levels 70/30. Use H1 or H4. First identify the trend using swing structure or a 50/200 EMA; then compare two pullback points.",buy:"1. Confirm an uptrend: higher highs and higher lows.\n2. Price pulls back but forms a HIGHER LOW.\n3. RSI at that second low forms a LOWER LOW than on the previous price low.\n4. Wait for bullish price confirmation — e.g. break of the pullback's minor swing high.\n5. Buy after confirmation, not simply when the divergence appears.",sell:"1. Confirm a downtrend: lower highs and lower lows.\n2. Price rallies but forms a LOWER HIGH.\n3. RSI forms a HIGHER HIGH compared with the RSI reading at the previous price high.\n4. Wait for bearish structure confirmation.\n5. Sell after the pullback low is broken or a strong bearish rejection appears.",risk:"Stop beyond the pullback swing. Target the previous trend high/low first; if that breaks, trail toward the next structure. Hidden divergence works best when the reward still makes sense before the previous extreme.",when:"Best during established trends after an orderly pullback into support/resistance, an EMA, Fibonacci zone or previous structure.",confirm:"Trend structure, 50/200 EMA direction, Fibonacci retracement zone, or a clear break back in the trend direction.",avoid:"Avoid hidden divergence in flat markets or when you are forcing swing points that are not obvious. RSI can remain extreme for a long time in strong trends.",example:"XAU/USD H1 is making higher highs. Gold pulls back and forms a higher low, but RSI prints a lower low. Price then breaks the pullback's small lower-high. That break is the buy confirmation; stop goes below the higher low."},
+4:{what:"MACD measures the relationship between a fast EMA and a slow EMA. Standard settings are 12 fast, 26 slow and 9 signal. The MACD line crossing the Signal line shows a change in momentum; the zero line helps show whether momentum is generally bullish or bearish.",why:"Use MACD to confirm trend momentum and to time a pullback continuation. It is better as confirmation than as a standalone buy/sell button.",setup:"H1 or Daily. Settings 12/26/9. Add a 200 EMA if you want a trend filter. Bullish bias is stronger when price is above 200 EMA and MACD is above or moving toward zero.",buy:"1. Prefer price above the 200 EMA or clear bullish structure.\n2. Allow price to pull back.\n3. MACD line crosses ABOVE the Signal line.\n4. Stronger if the crossover happens below zero and then moves toward/through zero, showing momentum recovery.\n5. Enter after a bullish candle or minor structure break confirms the turn.",sell:"1. Prefer price below the 200 EMA or clear bearish structure.\n2. Wait for a rally/pullback.\n3. MACD line crosses BELOW the Signal line.\n4. Stronger if momentum rolls over near/above zero and then falls.\n5. Enter after bearish price confirmation.",risk:"Stop beyond the pullback swing. Target previous swing first, then trail if a new trend leg develops. Do not place stops based on the MACD panel itself.",when:"Best in trending markets with clear directional structure and clean pullbacks.",confirm:"200 EMA slope, break of minor structure, support/resistance, or increasing MACD histogram in the trade direction.",avoid:"Avoid repeated MACD crosses when price is flat and the MACD lines are tangled around zero — that is classic whipsaw territory.",example:"EUR/USD H1 is above a rising 200 EMA. Price pulls back, MACD crosses bullish, histogram turns positive and price breaks the pullback high. That combination is a cleaner buy than taking the MACD cross alone."},
+5:{what:"ATR measures average volatility; it does not tell direction. An ATR volatility channel places boundaries around price using a chosen ATR multiplier, here Period 14 and 2.0x.",why:"Use it to identify when price expands beyond its normal recent range and to size stops according to current volatility.",setup:"M30/H1, ATR 14, multiplier 2.0. Use with a directional filter such as 50/200 EMA or market structure.",buy:"1. Confirm bullish structure or price above a rising trend filter.\n2. Wait for price to compress/consolidate.\n3. A strong candle CLOSES above the upper ATR channel.\n4. Prefer expanding ATR and a real body close, not only a wick.\n5. Enter on close or a controlled retest of the breakout level.",sell:"1. Confirm bearish structure.\n2. Wait for compression.\n3. A strong candle CLOSES below the lower ATR channel.\n4. Prefer ATR increasing.\n5. Sell on confirmation or retest.",risk:"A common volatility stop is 1–1.5 ATR beyond entry or behind the breakout structure, whichever is more logical. Target next structure or trail by ATR as the move expands.",when:"Best when a quiet market transitions into expansion and there is a clear directional bias.",confirm:"Volume/tick activity, Donchian breakout, strong candle close, or trend filter alignment.",avoid:"Avoid buying an upper-channel break directly into major resistance or after an already huge exhausted candle. Low volume can produce false breakouts.",example:"GBP/JPY H1 compresses for several hours above a rising 50 EMA. ATR begins rising and a full-bodied candle closes above the 2x ATR upper channel. A retest holds. That is a stronger breakout-buy structure than a wick-only break."},
+6:{what:"An EMA ribbon uses several exponential moving averages — here 20, 50, 100 and 200 — to show short-, medium- and long-term trend alignment.",why:"Use it to see trend direction, trend strength and dynamic pullback zones. The spacing between EMAs matters: clean separation suggests a healthier trend; tangled flat EMAs suggest no trend.",setup:"H1/H4. Add EMA 20, 50, 100 and 200. For buys, ideal order is 20 above 50 above 100 above 200. Reverse for sells.",buy:"1. EMAs are stacked bullish: 20 > 50 > 100 > 200.\n2. All or most EMAs slope upward.\n3. Price pulls back toward the 20/50 EMA zone without breaking major structure.\n4. A bullish rejection candle forms or price breaks the pullback high.\n5. Buy after confirmation.",sell:"1. EMAs stack bearish: 20 < 50 < 100 < 200.\n2. EMAs slope down.\n3. Price rallies into 20/50 EMA resistance.\n4. Bearish rejection/structure break confirms.\n5. Sell.",risk:"Stop beyond the pullback swing, not directly on an EMA. Target the prior swing and then trail along the 20/50 EMA if the trend extends.",when:"Best in smooth trends. It is especially helpful for staying with a trend instead of trying to pick reversals.",confirm:"Higher-high/lower-low structure, MACD momentum, session strength, or a rejection candle from the ribbon.",avoid:"Do not trade ribbon continuation when all EMAs are crossing and lying flat. That means the market is ranging.",example:"NZD/USD H4 has 20/50/100/200 EMAs perfectly stacked upward. Price pulls back to the 20–50 zone and prints a bullish engulfing candle. The buy is taken after the engulfing high breaks, with stop below the pullback low."},
+7:{what:"Ichimoku combines trend, momentum and projected support/resistance. The Kumo (cloud) is the main trend filter; Tenkan-sen and Kijun-sen help show short/medium momentum.",why:"Use it to avoid trading against the dominant trend and to trade clean cloud breakouts or pullbacks.",setup:"H4/Daily. Standard 9,26,52,26. Price above cloud = bullish environment; below cloud = bearish; inside cloud = uncertain/choppy.",buy:"1. Price is above the cloud or breaks from below to CLOSE above it.\n2. Prefer future cloud bullish and Tenkan above Kijun.\n3. Wait for the breakout candle close; stronger if a retest of cloud edge holds.\n4. Buy after bullish confirmation.",sell:"1. Price is below the cloud or closes below it after a downside breakout.\n2. Prefer Tenkan below Kijun and bearish future cloud.\n3. Sell after close/retest confirmation.",risk:"Stop on the opposite side of the breakout structure or beyond Kijun/cloud edge depending on setup. Target prior swing/next major structure.",when:"Best in directional higher-timeframe markets with clean cloud separation.",confirm:"Tenkan/Kijun alignment, Chikou span confirmation, cloud thickness and market structure.",avoid:"Avoid entries while price is inside the cloud; signals are mixed and whipsaws are common.",example:"USD/JPY H4 closes above the Kumo, Tenkan is above Kijun and a retest of the cloud top holds. That creates a more complete buy setup than simply buying the first cloud touch."},
+8:{what:"Stochastic compares the current close with the recent high-low range. With %K 14, %D 3, slowing 3, readings above 80 are considered high in the range and below 20 low in the range.",why:"Use it to time pullbacks and range reversals. Overbought does not automatically mean sell and oversold does not automatically mean buy.",setup:"M15/H1. Use H1 for directional bias and M15 for entry timing. Levels 80/20.",buy:"1. H1 bias is bullish or price is at clear support.\n2. On M15, Stochastic falls below 20.\n3. %K crosses ABOVE %D and ideally exits back above 20.\n4. Price prints bullish confirmation.\n5. Buy after confirmation.",sell:"1. H1 bias bearish or price at resistance.\n2. M15 Stochastic rises above 80.\n3. %K crosses BELOW %D and exits under 80.\n4. Price confirms bearish.\n5. Sell.",risk:"Use the price swing for stop placement. In ranges, target the range midpoint then opposite boundary. In trends, target previous swing.",when:"Best in ranges or as a pullback timer inside a larger trend.",confirm:"Higher-timeframe trend, support/resistance, divergence, or candlestick rejection.",avoid:"Do not short simply because Stochastic is overbought during a strong uptrend; it can remain above 80 for a long time.",example:"EUR/USD H1 is bullish. On M15 the pullback reaches support and Stochastic falls under 20. %K crosses above %D, then price breaks a small M15 swing high. That provides a timed buy entry."},
+9:{what:"Parabolic SAR plots dots that trail price. Dots below price suggest an uptrend; dots above price suggest a downtrend. It accelerates as the trend continues.",why:"Use it mainly for trend management and trailing stops, not for predicting reversals in sideways markets.",setup:"H1/Daily. Start .02, increment .02, max .2. Add a 200 EMA trend filter.",buy:"1. Price is above a rising 200 EMA.\n2. SAR dots flip from ABOVE price to BELOW price after a pullback.\n3. Prefer a bullish structure break.\n4. Buy after confirmation; trail under new SAR dots if the trend remains clean.",sell:"1. Price below falling 200 EMA.\n2. SAR dots flip from below to above price.\n3. Confirm bearish structure.\n4. Sell and trail above SAR dots.",risk:"Initial stop beyond the latest swing. Once profitable, SAR can be used as a trailing exit, but do not tighten so fast that normal volatility knocks you out.",when:"Best in smooth directional markets.",confirm:"200 EMA slope, ADX/trend strength, or break of pullback structure.",avoid:"Avoid in sideways price action; dots will flip repeatedly and create losses.",example:"USD/CHF H1 is under a declining 200 EMA. After a small rally, SAR dots flip above price and the pullback low breaks. That is a cleaner sell than taking the dot flip alone."},
+10:{what:"CCI measures how far price is from its statistical average. Values above +100 show strong upside deviation; below -100 strong downside deviation.",why:"Use it to identify momentum expansions, pullback recoveries and possible exhaustion, depending on market context.",setup:"H1/H4, Period 20, levels +100/-100 and zero.",buy:"Trend method: 1. Confirm bullish structure. 2. Let CCI fall during pullback, often below zero or -100. 3. Wait for CCI to cross back ABOVE -100/zero while price confirms. 4. Buy with trend.",sell:"Trend method: 1. Confirm bearish structure. 2. CCI rises during pullback. 3. Wait for CCI to cross back BELOW +100/zero. 4. Sell after price confirmation.",risk:"Stop beyond pullback swing. Target previous swing and next structure. Treat CCI as timing, not stop placement.",when:"Best in cyclical markets with visible swings or trend pullbacks.",confirm:"Trend structure, EMA direction, support/resistance and candle close.",avoid:"Do not automatically counter-trade every +100 or -100 reading; strong trends can stay extreme.",example:"AUD/JPY H1 is bullish. CCI drops below -100 on a pullback into support, then crosses back above -100 as price forms a bullish engulfing candle. That is a continuation-buy setup."},
+11:{what:"Supertrend uses ATR to place a trend-following line above or below price. A flip occurs when price crosses enough to move the calculated line to the other side.",why:"Use it as a trend filter and trailing reference. It is simple, but raw color flips are weak in choppy markets.",setup:"M30/H1, ATR 10, multiplier 3.0. Add 200 EMA or market-structure filter.",buy:"1. Price is above 200 EMA / bullish structure.\n2. Supertrend flips bullish and line moves BELOW price.\n3. Prefer a candle close above recent resistance.\n4. Enter on confirmation or retest.",sell:"1. Price below 200 EMA / bearish structure.\n2. Supertrend flips bearish and line moves ABOVE price.\n3. Prefer support break/retest.\n4. Sell.",risk:"Stop behind structure or beyond the Supertrend line if it is not excessively far. Trail with the line only after trade has room to breathe.",when:"Best in trending, active sessions.",confirm:"200 EMA, ADX, market structure, volume/tick activity.",avoid:"Avoid taking every flip in Asian-session chop or narrow ranges.",example:"XAU/USD M30 is above a rising 200 EMA. Supertrend flips bullish after a consolidation breakout and price retests the breakout level. The retest hold provides the higher-quality buy."},
+12:{what:"Donchian Channels plot the highest high and lowest low over a chosen lookback, here 20 periods. They show the boundaries price must break to create a new 20-period extreme.",why:"Use them for objective breakout trading and trend following.",setup:"H4/Daily, Period 20. Upper = 20-period high, lower = 20-period low.",buy:"1. Prefer bullish higher-timeframe bias.\n2. Price consolidates under the upper channel.\n3. A candle CLOSES above the upper channel — not only a wick.\n4. Enter on close or retest.\n5. Hold while new highs continue and structure remains bullish.",sell:"1. Bearish bias.\n2. Consolidation above lower channel.\n3. Candle CLOSES below lower channel.\n4. Sell on close/retest.",risk:"Stop behind breakout structure or use an ATR-based stop. Target next major structure; trend followers may trail using a shorter Donchian exit channel.",when:"Best when a market is transitioning into a trend after consolidation.",confirm:"ATR expansion, volume increase, trend filter, strong candle body.",avoid:"Avoid wick-only breaks and breakouts directly into major higher-timeframe levels.",example:"EUR/USD H4 trades in a 20-candle box. A full candle closes above the Donchian upper line and the next candle retests the old high as support. That is a structured breakout buy."},
+13:{what:"Keltner Channels use an EMA center line plus ATR-based upper/lower bands. Unlike Bollinger Bands, they are built from ATR rather than standard deviation.",why:"Use them to define trend channels, pullback zones and volatility breakouts with smoother boundaries.",setup:"H1, EMA 20, ATR 10, multiplier 2.0.",buy:"Trend pullback: 1. Center EMA slopes up. 2. Price holds mostly above center. 3. Pullback reaches center/lower channel. 4. Bullish rejection forms. 5. Buy targeting upper band/previous high.",sell:"1. EMA slopes down. 2. Price holds below center. 3. Rally reaches center/upper channel. 4. Bearish rejection. 5. Sell targeting lower band/previous low.",risk:"Stop beyond pullback swing. Target channel opposite side or structure. If using breakout version, use ATR-sized stop.",when:"Best in orderly trends and volatility expansions.",confirm:"EMA slope, market structure, momentum oscillator or rejection candle.",avoid:"Avoid counter-trend channel fades during strong news-driven expansion.",example:"EUR/JPY H1 trends up. Price pulls back to the 20 EMA/Keltner midline, rejects it and closes bullish. A break of that candle high triggers the buy toward the upper channel."},
+14:{what:"Floor pivots are mathematically calculated support/resistance levels derived from the previous session's high, low and close. Standard levels include Pivot Point (P), R1/R2/R3 and S1/S2/S3.",why:"Use them to map likely intraday reaction and target zones before the session begins.",setup:"Daily pivot calculation applied to intraday chart. Mark P, R1, R2, S1, S2. Combine with session trend.",buy:"1. Bullish session bias.\n2. Price pulls into P or S1 and rejects it.\n3. Wait for bullish candle/structure break.\n4. Buy with next pivot resistance as target.\nAlternative breakout: close above R1, retest R1, then buy toward R2.",sell:"1. Bearish bias.\n2. Price rejects P or R1.\n3. Confirm bearish structure.\n4. Sell toward S1/S2.\nAlternative: break below S1, retest, sell toward S2.",risk:"Stop beyond the pivot reaction swing. Do not put the stop exactly one tick beyond the pivot. Targets are naturally the next pivot levels.",when:"Best during normal liquid sessions when price respects intraday structure.",confirm:"Session open direction, VWAP, candlestick rejection, previous day high/low.",avoid:"High-impact rate decisions can slice through multiple pivot levels; treat them as reference zones, not guaranteed barriers.",example:"US30 opens above the daily pivot, pulls back to P, rejects it and reclaims VWAP. A buy can target R1, with stop below the pullback low."},
+15:{what:"Fibonacci retracement measures how far price pulls back within a defined swing. Common levels include 38.2%, 50%, 61.8% and 78.6%. The 50–61.8% area is often watched as a deeper pullback zone.",why:"Use it to plan pullback entries inside an existing trend and to locate confluence with structure.",setup:"Draw from swing LOW to swing HIGH in an uptrend; from swing HIGH to swing LOW in a downtrend. Keep the swing objective and obvious.",buy:"1. Confirm uptrend.\n2. Draw Fib low-to-high on the impulse leg.\n3. Wait for pullback into 50–61.8%.\n4. Stronger if that zone overlaps prior support/order block/EMA.\n5. Wait for bullish confirmation and buy.",sell:"1. Confirm downtrend.\n2. Draw Fib high-to-low.\n3. Wait for retracement into 50–61.8%.\n4. Look for resistance confluence.\n5. Sell after bearish confirmation.",risk:"Stop beyond the structural swing that invalidates the pullback idea, often beyond 78.6% or the actual swing. Target previous extreme first, then extensions if trend continues.",when:"Best after a clean impulse move followed by an orderly pullback.",confirm:"Structure, EMA, support/resistance, rejection candle, momentum recovery.",avoid:"Do not draw Fib on random tiny swings. A clean move through 78.6% and the origin swing often means the setup is invalid.",example:"Gold H1 rallies from 3300 to 3340, then retraces to the 50–61.8% zone that overlaps prior resistance turned support. A bullish structure break from that zone creates the buy setup."},
+16:{what:"VWAP is the volume-weighted average price for a session. It estimates the average price paid, weighted by volume, and is widely used as an intraday benchmark.",why:"Use it to judge whether intraday price is trading at a premium or discount to the session average and to trade pullbacks/reclaims around fair value.",setup:"M5/M15. Reset/anchor VWAP to the trading session. For FX, volume may be tick volume depending on platform, so treat it as a practical benchmark rather than centralized exchange volume.",buy:"1. Bullish intraday structure.\n2. Price trades above VWAP.\n3. Pullback reaches VWAP and holds/reclaims it.\n4. Bullish candle closes back above VWAP.\n5. Buy toward session high/next resistance.",sell:"1. Bearish structure.\n2. Price below VWAP.\n3. Rally retests VWAP and fails.\n4. Bearish candle closes back below.\n5. Sell toward session low.",risk:"Stop beyond the VWAP rejection swing. Target session high/low, previous liquidity or fixed R multiples.",when:"Best during active intraday sessions with stable participation.",confirm:"Opening range, session high/low, market structure and volume/tick activity.",avoid:"Avoid repeatedly fading VWAP during strong trend days where price remains one-sided far from the benchmark.",example:"EUR/USD M15 opens bullish, stays above session VWAP, then pulls back to VWAP during London. A bullish engulfing candle reclaims VWAP. Buy above the engulfing high, target the London high."},
+17:{what:"Chaikin Money Flow (CMF) estimates buying/selling pressure using where price closes within each period's range combined with volume. The zero line separates positive and negative flow.",why:"Use it to confirm whether price moves are supported by accumulation/buying pressure or distribution/selling pressure.",setup:"H1/H4, Period 21, zero line.",buy:"1. Price forms bullish structure or breaks resistance.\n2. CMF moves from below zero to ABOVE zero.\n3. Stronger if CMF makes higher lows while price holds support.\n4. Buy after price confirmation.",sell:"1. Price bearish/breaks support.\n2. CMF crosses BELOW zero.\n3. Stronger if CMF weakens while price retests resistance.\n4. Sell after confirmation.",risk:"Use price structure for stops and targets; CMF is confirmation only.",when:"Best when meaningful volume data is available and the market is liquid.",confirm:"Breakout/retest, EMA trend, support/resistance.",avoid:"Low-volume holidays or poor broker volume feeds can reduce reliability. Avoid taking zero-line crosses alone.",example:"USD/CAD H1 breaks resistance, retests it, and CMF crosses above zero at the same time. That supports the breakout-buy thesis."},
+18:{what:"Hull Moving Average (HMA) is designed to reduce moving-average lag while remaining smooth. A shorter HMA such as 16 reacts quickly to changing price direction.",why:"Use it to track short-term trend direction and pullback resumption with less delay than many traditional moving averages.",setup:"M30/H1, HMA 16. Optional 100/200 EMA for higher-timeframe trend bias.",buy:"1. Higher-timeframe bias bullish.\n2. HMA slopes upward.\n3. Price pulls back to/just below HMA.\n4. Price closes back above HMA and HMA turns/continues up.\n5. Buy after a small structure break.",sell:"1. Bias bearish.\n2. HMA slopes down.\n3. Price rallies to HMA.\n4. Closes back below and structure turns bearish.\n5. Sell.",risk:"Stop beyond the pullback swing. Target prior swing or trail with HMA only in smooth trends.",when:"Best in fast but orderly trends.",confirm:"Longer EMA direction, market structure, MACD or momentum.",avoid:"Fast HMA can flip repeatedly in sideways chop and encourage over-trading.",example:"GBP/JPY M30 is below the 200 EMA. HMA 16 slopes down, price retests it and prints a bearish engulfing candle. Sell below the engulfing low."},
+19:{what:"Williams %R measures where the close sits within a recent high-low range. Using multiple periods such as 7, 14 and 28 lets you compare short-, medium- and longer-cycle momentum.",why:"Use multiple cycles to avoid acting on one fast oscillator spike when the broader momentum disagrees.",setup:"H1/H4. Williams %R lengths 7,14,28. Typical zones: above -20 stretched high, below -80 stretched low.",buy:"1. Price at support or bullish trend pullback.\n2. Fast %R(7) recovers from below -80.\n3. Medium %R(14) also turns upward.\n4. Long %R(28) is not strongly bearish.\n5. Buy only after price confirms.",sell:"1. Price at resistance or bearish pullback.\n2. Fast %R leaves above -20 downward.\n3. Medium follows.\n4. Long cycle is neutral/bearish.\n5. Sell after confirmation.",risk:"Stops and targets come from price structure. Oscillators should not dictate exact stop distance.",when:"Best for range swings and pullback timing.",confirm:"Support/resistance, trend filter, candle rejection.",avoid:"Do not trade a single fast-line spike if the 14/28 cycles point the opposite way.",example:"GBP/USD H1 pulls into support. %R7 and %R14 rise out of oversold while %R28 remains constructive. A bullish structure break completes the buy setup."},
+20:{what:"A Linear Regression Channel fits a statistical best-fit trend line through price and adds upper/lower deviation bands. It visualizes the average trajectory and how far price deviates from it.",why:"Use it to judge trend slope, potential mean-reversion edges and whether price remains inside a statistically consistent path.",setup:"H4, Length 100, deviation 2.0. Recalculate only when the chosen window meaningfully changes.",buy:"Mean-reversion version: 1. Regression slope is flat/up. 2. Price reaches lower channel near support. 3. Rejection forms. 4. Buy toward median line, then upper channel if trend supports it.",sell:"1. Slope flat/down. 2. Price reaches upper channel near resistance. 3. Bearish rejection. 4. Sell toward regression median.",risk:"Stop outside the structural swing beyond the channel. First target often regression midline.",when:"Best in stable channels and mature trends without violent structural breaks.",confirm:"Horizontal level, RSI/Stochastic, price-action rejection.",avoid:"Major macro events can invalidate the fitted path immediately. Do not keep fading a channel after a decisive structure break.",example:"EUR/USD H4 has a gently rising regression channel. Price touches the lower 2-deviation band at prior support and prints a bullish rejection. Buy targets the center line first."},
+21:{what:"Rate of Change (ROC) measures percentage price change over a lookback period. Positive ROC means price is above its value N periods ago; negative ROC means below.",why:"Use it to judge acceleration/deceleration and confirm whether a breakout has real momentum.",setup:"M15/H1, ROC Period 9, zero line.",buy:"1. Price breaks resistance or confirms bullish structure.\n2. ROC crosses ABOVE zero and accelerates upward.\n3. Stronger if ROC makes a new momentum high with price breakout.\n4. Enter after breakout/retest confirmation.",sell:"1. Price breaks support.\n2. ROC crosses BELOW zero and falls.\n3. Sell after price confirmation.",risk:"Stop behind breakout/pullback structure. Target next level or trail while ROC remains supportive.",when:"Best during momentum expansions and active sessions.",confirm:"ATR expansion, volume, structure break.",avoid:"News spikes can make ROC extreme after much of the move has already happened; avoid chasing late.",example:"XAU/USD M15 breaks a range high and ROC(9) jumps above zero while ATR expands. A retest of the range high holds, giving a cleaner buy."},
+22:{what:"True Strength Index (TSI) is a double-smoothed momentum oscillator. It usually includes a TSI line and signal line; crosses help show momentum shifts while the zero line shows overall bias.",why:"Use it to filter noise and time trend pullbacks more smoothly than very fast oscillators.",setup:"H1, Long 25, Short 13, Signal 13.",buy:"1. Bullish structure.\n2. TSI pulls back, then crosses ABOVE its signal line.\n3. Stronger if TSI is above zero or crosses zero upward.\n4. Buy after price confirms.",sell:"1. Bearish structure.\n2. TSI crosses BELOW signal.\n3. Stronger below zero.\n4. Sell after bearish price confirmation.",risk:"Use swing-based stop. Target previous swing/next level.",when:"Best in directional markets where you want smoother momentum confirmation.",confirm:"EMA trend, support/resistance, candle structure.",avoid:"Low-volume flat markets can produce small meaningless crosses around zero.",example:"AUD/USD H1 trends up. TSI dips during a pullback, then crosses above its signal while price reclaims support. The combination supports a buy."},
+23:{what:"ALMA (Arnaud Legoux Moving Average) is a smoothed moving average that uses a Gaussian weighting curve. The offset and sigma parameters control responsiveness and smoothness.",why:"Use it as a cleaner trend line and pullback/reclaim reference while reducing some noise.",setup:"M15/H1, Window 9, Offset .85, Sigma 6. Pair with structure or a slower EMA.",buy:"1. Market bias bullish.\n2. ALMA slopes upward.\n3. Price pulls below/touches ALMA then CLOSES back above.\n4. Prefer a bullish candle and structure break.\n5. Buy.",sell:"1. Bias bearish.\n2. ALMA slopes down.\n3. Price rallies to/above ALMA then closes back below.\n4. Sell after bearish confirmation.",risk:"Stop beyond pullback swing. Target previous swing or fixed R multiple.",when:"Best in smooth intraday trends.",confirm:"Volume/tick activity, 100/200 EMA, support/resistance.",avoid:"Do not trade raw ALMA touches in sideways markets; the line will be crossed constantly.",example:"EUR/USD M15 is above the H1 trend support. ALMA 9 slopes up; price dips below it, then closes strongly back above and breaks the micro swing high. That is the buy trigger."},
+24:{what:"Money Flow Index (MFI) is a volume-weighted momentum oscillator. It behaves somewhat like RSI but incorporates volume. Common exhaustion levels are 80 and 20.",why:"Use it to spot pressure extremes and divergence, especially when price is testing important levels.",setup:"H1/H4, Period 14, levels 80/20.",buy:"1. Price reaches support.\n2. MFI falls below/near 20.\n3. Do NOT buy yet. Wait for MFI to turn back up and price to confirm.\n4. Stronger: bullish divergence where price makes lower low but MFI makes higher low.\n5. Buy after structure break.",sell:"1. Price reaches resistance.\n2. MFI above/near 80.\n3. Wait for MFI turn down and bearish confirmation.\n4. Bearish divergence adds strength.\n5. Sell.",risk:"Stop beyond swing. Target range midpoint/opposite side or next structure depending on context.",when:"Best at established support/resistance or within ranges.",confirm:"Price action, divergence, higher-timeframe trend.",avoid:"Strong trends can keep MFI above 80 or below 20 for a long time. Extreme reading alone is not a reversal signal.",example:"USD/JPY H1 reaches resistance, makes a slightly higher high while MFI makes a lower high above 80. Price then breaks a minor swing low. That confirms a possible sell."},
+25:{what:"Elder-Ray uses a 13-period EMA plus Bull Power and Bear Power. Bull Power compares highs with the EMA; Bear Power compares lows with the EMA, helping show buyer/seller pressure.",why:"Use it to join trends when one side temporarily weakens during a pullback and then regains control.",setup:"H4, EMA 13 with Bull Power and Bear Power.",buy:"1. EMA 13 slopes up.\n2. Price pulls back.\n3. Bear Power is negative but begins rising toward zero (selling pressure weakening).\n4. Bull Power remains constructive/turns up.\n5. Buy after bullish price confirmation.",sell:"1. EMA slopes down.\n2. Rally occurs.\n3. Bull Power is positive but begins falling.\n4. Bear Power strengthens.\n5. Sell after bearish confirmation.",risk:"Stop beyond pullback swing. Target previous trend extreme first.",when:"Best in established trends with clear pullbacks.",confirm:"EMA slope, market structure, support/resistance.",avoid:"Flat EMA and compressed Bull/Bear Power around zero indicate a range; avoid trend entries.",example:"GBP/USD H4 has rising EMA13. Bear Power dips negative on a pullback then rises, while price holds support and breaks the pullback high. That is a trend-continuation buy."},
+26:{what:"Center of Gravity (COG) is an oscillator intended to identify cyclic turning points with relatively low lag. Different platform implementations may vary, so settings and behaviour should be tested on your exact version.",why:"Use it to time turns inside a known range/cycle, not as a standalone trend predictor.",setup:"H1, Length 10, smoothing 3. First mark horizontal support/resistance.",buy:"1. Price is near established range support.\n2. COG reaches a lower extreme and turns upward / bullish line cross appears.\n3. Price confirms with rejection or structure break.\n4. Buy toward range midpoint/opposite boundary.",sell:"1. Price near range resistance.\n2. COG upper extreme turns down / bearish cross.\n3. Confirm with price.\n4. Sell.",risk:"Stop outside the range swing. First target midpoint; second target opposite boundary.",when:"Best in cyclical or range-bound markets.",confirm:"Fixed support/resistance, Bollinger/Keltner boundaries, candlestick rejection.",avoid:"Avoid relying on it during strong breakouts. Some COG implementations can recalculate/repaint, so verify your platform version before live use.",example:"USD/CHF H1 is boxed between clear support and resistance. COG turns up at its lower extreme exactly as price rejects support. A buy targets the center of the range first."},
+27:{what:"The Coppock Curve is a long-term momentum indicator traditionally built from smoothed rates of change. It was designed for longer-cycle trend identification, not scalping.",why:"Use it to identify broad momentum turns and confirm long-term directional bias.",setup:"Daily. ROC 14 + ROC 11 smoothed by WMA 10 (or platform-equivalent). Zero line is a useful reference.",buy:"1. Long-term price structure stops falling and forms a base.\n2. Coppock Curve turns upward from a depressed reading.\n3. Stronger if it crosses above zero or price breaks long-term resistance.\n4. Enter only after price confirms the trend change.",sell:"For markets where shorting is appropriate: 1. Long-term structure weakens. 2. Coppock rolls down and price breaks major support. 3. Sell/hedge only after confirmation. Historically the indicator is more commonly used for long-term buy signals than short-term sell timing.",risk:"Use wide structure-based stops appropriate for Daily charts. Targets are major weekly/monthly levels, not small intraday moves.",when:"Best for swing/position trading and macro trends.",confirm:"Weekly structure, 50/200-day averages, major support/resistance.",avoid:"Do not use it for M5/M15 scalping; it is intentionally slow.",example:"A daily index forms a multi-week base. Coppock stops falling, turns up and price breaks the base high. That is the type of long-term confirmation the tool is meant for."},
+28:{what:"Detrended Price Oscillator (DPO) removes a longer-term trend component to make shorter price cycles easier to see.",why:"Use it to estimate recurring cycle highs/lows and to study range rhythm. It is not primarily a trend-following entry signal.",setup:"H1/H4, Period 21. Mark horizontal support/resistance before using the oscillator.",buy:"1. Price near established support.\n2. DPO is at/near a recurring cycle low and turns upward.\n3. Price confirms with bullish rejection.\n4. Buy toward the cycle midpoint/high or resistance.",sell:"1. Price near resistance.\n2. DPO near recurring cycle high and turns downward.\n3. Bearish confirmation.\n4. Sell toward midpoint/support.",risk:"Stop beyond the range swing. Target known horizontal levels.",when:"Best in stable cyclical/range markets.",confirm:"Horizontal structure, Bollinger Bands, candlestick confirmation.",avoid:"Avoid using DPO alone during breakout/trending conditions. Also remember some DPO plots are shifted/centered, so they may not be suitable as real-time standalone triggers.",example:"GBP/USD H4 repeatedly cycles between two levels. At support, DPO reaches a familiar low zone and turns up while price forms a bullish rejection. Buy targets the range midpoint first."},
+29:{what:"Klinger Volume Oscillator attempts to track long-term money flow while remaining sensitive to short-term changes. Common settings are 34 fast, 55 slow and 13 signal.",why:"Use it to confirm whether a trend/breakout is supported by volume-force behaviour and to watch signal-line crosses/divergence.",setup:"H1, Fast 34, Slow 55, Signal 13. Use only where your platform's volume input is meaningful.",buy:"1. Price bullish/breaking resistance.\n2. Klinger oscillator crosses ABOVE its signal line.\n3. Stronger if oscillator also rises through zero or shows bullish divergence before breakout.\n4. Buy after price breakout/retest confirms.",sell:"1. Price bearish/breaks support.\n2. Klinger crosses BELOW signal.\n3. Stronger below zero or with bearish divergence.\n4. Sell after confirmation.",risk:"Stops and targets use price structure. Volume oscillator is a filter, not a stop tool.",when:"Best in liquid markets during active sessions and around clean trend/breakout structures.",confirm:"Support/resistance break, trend filter, ATR expansion.",avoid:"Avoid crossovers inside tightening wedges/ranges because both lines can flip repeatedly. Volume quality also matters.",example:"XAU/USD H1 breaks resistance, retests it, and Klinger crosses above its signal while rising toward zero. That supports a buy continuation."}
+        };
+
+
+        function updateStrategyLanguageUI(){
+            const L = strategyModalLabels[strategyLanguage] || strategyModalLabels.en;
+            const map = {What:'what',Why:'why',Setup:'setup',Buy:'buy',Sell:'sell',Risk:'risk',When:'when',Confirm:'confirm',Avoid:'avoid',Example:'example'};
+            Object.entries(map).forEach(([id,key])=>{ const el=document.getElementById('lbl'+id); if(el) el.textContent=L[key]; });
+            document.querySelectorAll('.show-more-btn').forEach(btn=>btn.textContent=L.button);
+        }
+
+        function addShowMoreButtons(){
+            document.querySelectorAll('.luxury-card').forEach(card => {
+                const title = card.querySelector('.card-title');
+                if(!title) return;
+                const match = title.textContent.trim().match(/^(\d+)\./);
+                if(!match) return;
+                const id = Number(match[1]);
+                if(!indicatorDetails[id]) return; // proprietary card remains unchanged
+                const wrapper = card.querySelector('.card-data-wrapper');
+                if(!wrapper || wrapper.querySelector('.show-more-btn')) return;
+                const btn = document.createElement('button');
+                btn.className = 'show-more-btn';
+                btn.type = 'button';
+                btn.textContent = (strategyModalLabels[strategyLanguage] || strategyModalLabels.en).button;
+                btn.onclick = () => openIndicatorDetails(id);
+                wrapper.appendChild(btn);
+            });
+        }
+
+        let activeDetailId = null;
+        function openIndicatorDetails(id){
+            const base = indicatorDetails[id]; if(!base) return;
+            const d = strategyLanguage === 'ms' ? makeMalayDetail(id, base) : base;
+            activeDetailId = id;
+            const card = [...document.querySelectorAll('.luxury-card')].find(c => c.querySelector('.card-title')?.textContent.trim().startsWith(id+'.'));
+            const title = card?.querySelector('.card-title')?.textContent.trim() || ('Indicator '+id);
+            const badge = card?.querySelector('.card-badge')?.textContent.trim() || '';
+            const setting = card?.querySelector('.data-value code')?.textContent.trim() || '';
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalSub').textContent = badge + (setting ? '  •  '+setting : '');
+            ['What','Why','Setup','Buy','Sell','Risk','When','Confirm','Avoid','Example'].forEach(k=>{
+                document.getElementById('d'+k).textContent = d[k.toLowerCase()];
+            });
+            document.getElementById('strategyModal').classList.add('active');
+            document.body.style.overflow='hidden';
+        }
+        function closeIndicatorDetails(){ document.getElementById('strategyModal').classList.remove('active'); document.body.style.overflow=''; activeDetailId=null; }
+        function modalBackdropClose(e){ if(e.target.id==='strategyModal') closeIndicatorDetails(); }
+        document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeIndicatorDetails(); });
+        addShowMoreButtons();
+        updateStrategyLanguageUI();
+
+    </script>
+</body>
+</html>
