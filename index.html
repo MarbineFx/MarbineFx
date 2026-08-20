@@ -46,6 +46,248 @@ button,a{font:inherit;-webkit-tap-highlight-color:transparent}button{cursor:poin
 @media(max-width:860px){.shell{grid-template-columns:1fr}.wheel-zone{position:absolute;inset:0;pointer-events:none}.wheel{--radius:270px;left:-205px;top:52%}.wheel-item{font-size:.72rem}.pointer-label{display:none}.preview-zone{padding:120px 18px 90px 120px;justify-content:flex-start}.preview{min-height:0;padding:0}.preview h1{font-size:clamp(2.5rem,12vw,4.6rem)}.preview p{font-size:.78rem;line-height:1.7}.hint{display:none}.mobile-hint{display:block;position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:900;color:#6e6454;font-size:.55rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}.wealth-object{opacity:.1}.money-rain:nth-child(n+10){display:none}}
 @media(max-width:540px){.brand{top:42px;font-size:.9rem}.lang-switch{top:38px}.wheel{--radius:240px;left:-185px;top:53%}.preview-zone{padding:112px 14px 80px 94px}.preview h1{font-size:clamp(2.1rem,13vw,3.4rem)}.meta-row{gap:.4rem}.meta{font-size:.5rem;padding:.34rem .5rem}.view-btn{width:100%;min-width:0}}
 @media(prefers-reduced-motion:reduce){.wealth-ticker-track,.money-rain{animation:none!important}}
+
+/* =========================================================
+   WHEEL HOME V2 — MOBILE "DIGITAL CROWN" FEEL
+   ========================================================= */
+
+/* smoother desktop wheel too */
+.wheel-item {
+  transition:
+    color 0.28s cubic-bezier(.2,.8,.2,1),
+    text-shadow 0.28s cubic-bezier(.2,.8,.2,1),
+    opacity 0.28s cubic-bezier(.2,.8,.2,1),
+    filter 0.28s cubic-bezier(.2,.8,.2,1);
+}
+
+.wheel-item.active {
+  filter: brightness(1.08);
+}
+
+/* Home dual CTA row */
+.cta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.telegram-btn {
+  width: max-content;
+  min-width: 160px;
+  min-height: 46px;
+  padding: 0 1.1rem;
+  border-radius: 11px;
+  border: 1px solid rgba(55,167,125,0.34);
+  background:
+    linear-gradient(135deg, rgba(31,122,88,0.96), rgba(12,66,48,0.96));
+  color: #f7efdf;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 12px 30px rgba(15,90,67,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  transition: 0.22s ease;
+}
+
+.telegram-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.07);
+  box-shadow:
+    0 16px 36px rgba(15,90,67,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* Crown tick marker */
+.crown-tick {
+  display: none;
+}
+
+@media(max-width:860px) {
+  .shell {
+    display: block;
+  }
+
+  .wheel-zone {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .wheel {
+    --radius: 248px;
+    left: -188px;
+    top: 52%;
+    border-color: rgba(230,199,102,0.13);
+    box-shadow:
+      0 0 64px rgba(230,199,102,0.02),
+      inset -24px 0 60px rgba(230,199,102,0.012);
+  }
+
+  .wheel::after {
+    right: 7.2%;
+    width: 9px;
+    height: 9px;
+    box-shadow:
+      0 0 0 6px rgba(230,199,102,0.05),
+      0 0 24px rgba(230,199,102,0.28);
+  }
+
+  .wheel-item {
+    font-size: 0.69rem;
+    opacity: 0.26;
+    filter: blur(0.15px);
+  }
+
+  .wheel-item small {
+    font-size: 0.46rem;
+    margin-top: 0.16rem;
+    opacity: 0.7;
+  }
+
+  .wheel-item.near {
+    opacity: 0.58;
+    filter: none;
+  }
+
+  .wheel-item.active {
+    opacity: 1;
+    color: var(--gold2);
+    filter: none;
+    text-shadow:
+      0 0 16px rgba(230,199,102,0.16),
+      0 0 28px rgba(230,199,102,0.06);
+  }
+
+  .preview-zone {
+    position: relative;
+    z-index: 5;
+    height: 100%;
+    padding:
+      calc(102px + env(safe-area-inset-top))
+      18px
+      calc(82px + env(safe-area-inset-bottom))
+      118px;
+    align-items: center;
+  }
+
+  .preview {
+    width: 100%;
+    max-width: 460px;
+    padding: 0;
+    min-height: 0;
+  }
+
+  .kicker {
+    font-size: 0.56rem;
+    margin-bottom: 0.7rem;
+    letter-spacing: 0.15em;
+  }
+
+  .preview h1 {
+    font-size: clamp(2.15rem, 11.8vw, 3.6rem);
+    line-height: 0.95;
+    margin-bottom: 0.8rem;
+  }
+
+  .preview p {
+    font-size: 0.74rem;
+    line-height: 1.65;
+    margin-bottom: 0.85rem;
+    max-width: 350px;
+  }
+
+  .meta-row {
+    gap: 0.34rem;
+    margin-bottom: 1rem;
+  }
+
+  .meta {
+    font-size: 0.48rem;
+    padding: 0.31rem 0.45rem;
+  }
+
+  .cta-row {
+    width: 100%;
+    gap: 0.45rem;
+  }
+
+  .view-btn,
+  .telegram-btn {
+    min-height: 42px;
+    min-width: 0;
+    width: 100%;
+    font-size: 0.64rem;
+  }
+
+  .crown-tick {
+    display: block;
+    position: fixed;
+    left: 80px;
+    top: 50%;
+    width: 26px;
+    height: 1px;
+    transform: translateY(-50%);
+    background:
+      linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,227,154,0.18),
+        rgba(255,227,154,0.9)
+      );
+    box-shadow: 0 0 12px rgba(230,199,102,0.16);
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .mobile-hint {
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    font-size: 0.49rem;
+    letter-spacing: 0.11em;
+    color: #655b4d;
+  }
+
+  /* mobile background: still rich but less visually competitive */
+  .wealth-object {
+    opacity: 0.075 !important;
+  }
+
+  .mega {
+    opacity: 0.65;
+  }
+}
+
+@media(max-width:540px) {
+  .wheel {
+    --radius: 228px;
+    left: -175px;
+    top: 53%;
+  }
+
+  .preview-zone {
+    padding-left: 92px;
+    padding-right: 12px;
+  }
+
+  .preview h1 {
+    font-size: clamp(2rem, 12.4vw, 3.15rem);
+  }
+
+  .preview p {
+    font-size: 0.71rem;
+  }
+
+  .crown-tick {
+    left: 64px;
+    width: 22px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -58,7 +300,8 @@ button,a{font:inherit;-webkit-tap-highlight-color:transparent}button{cursor:poin
 <section class="preview-zone"><div id="preview" class="preview"></div></section>
 </main>
 <div class="hint">Mouse wheel / trackpad to rotate • Enter to open</div>
-<div class="mobile-hint">Swipe up / down to rotate</div>
+<div class="crown-tick"></div>
+<div class="mobile-hint">Swipe / drag like a digital crown</div>
 
 <script>
 const items=[
@@ -72,25 +315,91 @@ const wheel=document.getElementById('wheel'),preview=document.getElementById('pr
 
 function buildWheel(){
  wheel.querySelectorAll('.wheel-item').forEach(x=>x.remove());
- const radius=parseFloat(getComputedStyle(wheel).width)/2,placementRadius=radius*.78,startAngle=-72,step=34,angle=-activeIndex*34;
+
+ const radius=parseFloat(getComputedStyle(wheel).width)/2;
+ const mobile=window.matchMedia('(max-width:860px)').matches;
+ const placementRadius=radius*(mobile?.76:.78);
+ const startAngle=mobile?-66:-72;
+ const step=mobile?30:34;
+ const angle=-activeIndex*step;
+
  items.forEach((item,i)=>{
-  const el=document.createElement('div');el.className='wheel-item';el.dataset.index=i;
-  const a=startAngle+i*step+angle,rad=a*Math.PI/180,x=Math.cos(rad)*placementRadius,y=Math.sin(rad)*placementRadius;
-  el.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%)`;
+  const el=document.createElement('div');
+  el.className='wheel-item';
+  el.dataset.index=i;
+
+  const a=startAngle+i*step+angle;
+  const rad=a*Math.PI/180;
+  const x=Math.cos(rad)*placementRadius;
+  const y=Math.sin(rad)*placementRadius;
+
+  let scale=1;
+  if(mobile){
+    const distance=Math.abs(i-activeIndex);
+    scale=distance===0?1.18:distance===1?0.96:0.84;
+  }
+
+  el.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%) scale(${scale})`;
   el.innerHTML=`<div>${item.label[lang]}</div><small>${item.sub[lang]}</small>`;
-  if(i===activeIndex)el.classList.add('active');wheel.appendChild(el);
+
+  const distance=Math.abs(i-activeIndex);
+  if(distance===0)el.classList.add('active');
+  else if(distance===1)el.classList.add('near');
+
+  wheel.appendChild(el);
  });
 }
 function renderPreview(){
- const item=items[activeIndex];preview.classList.remove('preview-fade');void preview.offsetWidth;preview.classList.add('preview-fade');
- preview.innerHTML=`<div class="kicker">${item.sub[lang]}</div><h1>${item.title[lang]}<br><span class="gold">${item.accent[lang]}</span></h1><p>${item.body[lang]}</p><div class="meta-row">${item.meta[lang].map(x=>`<span class="meta">${x}</span>`).join('')}</div><a class="view-btn" href="${item.href}">${lang==='ms'?'LIHAT LEBIH':'VIEW MORE'} →</a>`;
+ const item=items[activeIndex];
+ preview.classList.remove('preview-fade');
+ void preview.offsetWidth;
+ preview.classList.add('preview-fade');
+
+ const telegramButton = item.id === 'home'
+   ? `<a class="telegram-btn" href="https://t.me/marbinefx" target="_blank" rel="noopener">${lang==='ms'?'SERTAI TELEGRAM':'JOIN TELEGRAM'} ↗</a>`
+   : '';
+
+ preview.innerHTML=`
+   <div class="kicker">${item.sub[lang]}</div>
+   <h1>${item.title[lang]}<br><span class="gold">${item.accent[lang]}</span></h1>
+   <p>${item.body[lang]}</p>
+   <div class="meta-row">${item.meta[lang].map(x=>`<span class="meta">${x}</span>`).join('')}</div>
+   <div class="cta-row">
+     <a class="view-btn" href="${item.href}">${lang==='ms'?'LIHAT LEBIH':'VIEW MORE'} →</a>
+     ${telegramButton}
+   </div>
+ `;
 }
 function setActive(next){activeIndex=(next+items.length)%items.length;buildWheel();renderPreview();parallax()}
-function step(delta){if(locked)return;locked=true;setActive(activeIndex+(delta>0?1:-1));setTimeout(()=>locked=false,260)}
+function tickFeedback(){
+  if('vibrate' in navigator){
+    try{ navigator.vibrate(8); }catch(e){}
+  }
+}
+function step(delta){
+  if(locked)return;
+  locked=true;
+  setActive(activeIndex+(delta>0?1:-1));
+  tickFeedback();
+  setTimeout(()=>locked=false,220);
+}
 window.addEventListener('wheel',e=>{e.preventDefault();if(Math.abs(e.deltaY)>8)step(e.deltaY)},{passive:false});
 window.addEventListener('keydown',e=>{if(['ArrowDown','ArrowRight'].includes(e.key))step(1);if(['ArrowUp','ArrowLeft'].includes(e.key))step(-1);if(e.key==='Enter')location.href=items[activeIndex].href});
 window.addEventListener('touchstart',e=>{touchStartY=e.touches[0].clientY},{passive:true});
 window.addEventListener('touchend',e=>{if(touchStartY===null)return;const dy=e.changedTouches[0].clientY-touchStartY;if(Math.abs(dy)>36)step(dy<0?1:-1);touchStartY=null},{passive:true});
+
+let dragStartY=null;
+window.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse') return;
+  dragStartY=e.clientY;
+},{passive:true});
+window.addEventListener('pointerup',e=>{
+  if(dragStartY===null) return;
+  const dy=e.clientY-dragStartY;
+  if(Math.abs(dy)>30) step(dy<0?1:-1);
+  dragStartY=null;
+},{passive:true});
+
 function setLanguage(next){lang=next;document.getElementById('btn-en').classList.toggle('active',lang==='en');document.getElementById('btn-ms').classList.toggle('active',lang==='ms');buildWheel();renderPreview()}
 
 function createDecor(){
