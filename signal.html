@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#030201">
+<title>MarbineFX | Signal Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#030201;--panel:#0b0805;--gold:#e6c766;--gold2:#ffe39a;--jade:#146247;--jade2:#39a87f;--red:#8f1f1f;--ivory:#fff3db;--muted:#9f9582;--line:rgba(230,199,102,.16)}
+html{scroll-behavior:smooth;background:#030201}
+body{min-height:100vh;font-family:"Plus Jakarta Sans",sans-serif;color:var(--ivory);overflow-x:hidden;background:radial-gradient(circle at 12% 6%,rgba(143,31,31,.13),transparent 26rem),radial-gradient(circle at 88% 5%,rgba(20,98,71,.14),transparent 28rem),radial-gradient(circle at 50% -8%,rgba(230,199,102,.12),transparent 36rem),linear-gradient(180deg,#030201,#070401 50%,#020100)}
+button,input,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
+.nav{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(14px,3vw,36px);border-bottom:1px solid rgba(230,199,102,.11);background:rgba(4,3,2,.9);position:sticky;top:0;z-index:1000;backdrop-filter:blur(16px)}
+.brand{font-size:.95rem;font-weight:900;letter-spacing:1.7px;color:var(--gold)}.brand span{color:#fff}
+.nav-right{display:flex;align-items:center;gap:.7rem}.navlinks{display:flex;gap:1rem}.navlinks a{font-size:.65rem;font-weight:800;color:#817766}.navlinks a.active,.navlinks a:hover{color:var(--gold2)}
+.lang{display:flex;padding:2px;border:1px solid var(--line);border-radius:9px;background:#0c0905}.lang button{border:0;background:transparent;color:#776d5d;padding:.36rem .48rem;border-radius:7px;font-size:.6rem;font-weight:900}.lang button.active{background:linear-gradient(135deg,#ffe39a,#d5ad49);color:#070401}
+
+#wealth{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}.decor{position:absolute;opacity:.09;filter:drop-shadow(0 15px 25px rgba(0,0,0,.4))}.card{width:62px;height:88px;border-radius:9px;background:linear-gradient(145deg,#fff7e6,#dfd1b5);display:grid;place-items:center;font:900 1.35rem Georgia;color:#0b0805;border:1px solid rgba(255,227,154,.45)}.card.red{color:#8f1f1f}.bar{width:92px;height:42px;border-radius:8px 8px 12px 12px;background:linear-gradient(180deg,#fff0a0,#d6a630 56%,#74500b);display:grid;place-items:center;color:#342303;font:900 .5rem Georgia}.emoji{font-size:2.3rem}.cash{width:86px;height:42px;border-radius:7px;background:linear-gradient(135deg,#235b44,#123425);display:grid;place-items:center;color:#bfe7d2;font:900 .64rem Georgia}
+
+.hero,.wrap{width:min(1180px,calc(100% - 2rem));margin:auto}.hero{padding:3.6rem 0 1.8rem}.eyebrow{color:var(--gold);font-size:.58rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;margin-bottom:.7rem}.hero h1{font:700 clamp(3rem,7vw,6rem)/.94 "Playfair Display",serif;letter-spacing:-.045em}.hero h1 span{color:var(--gold2)}.hero p{max-width:760px;color:#a69b88;font-size:.84rem;line-height:1.75;margin-top:.9rem}.mascots{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}.mascot{padding:.48rem .64rem;border:1px solid rgba(230,199,102,.15);border-radius:999px;background:rgba(230,199,102,.025);font-size:.56rem;color:#9b8d6a}.mascot b{font-size:1.05rem;margin-right:.25rem}
+
+.panel{background:linear-gradient(145deg,rgba(230,199,102,.025),transparent 40%),linear-gradient(180deg,#0e0a06,#070503);border:1px solid rgba(230,199,102,.15);border-radius:18px;box-shadow:0 22px 60px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,243,219,.025)}
+.controls{display:grid;grid-template-columns:1.1fr .9fr;gap:.8rem}.control-panel,.status-panel{padding:1rem}.panel h2{font-size:.82rem}.field{margin-top:.72rem}.field label{display:block;font-size:.52rem;color:#786d5b;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem}.field .helper{display:block;font-size:.5rem;color:#61594d;line-height:1.45;margin-top:.28rem}.field input,.field select{width:100%;min-height:44px;padding:0 .75rem;background:#090603;color:#fff3db;border:1px solid rgba(230,199,102,.14);border-radius:9px;outline:none}.field input:focus,.field select:focus{border-color:rgba(230,199,102,.4)}
+.run{width:100%;min-height:46px;margin-top:1rem;border:1px solid rgba(255,227,154,.4);border-radius:10px;background:linear-gradient(135deg,#fff0ae,#e3bf58,#a87720);font-weight:900;color:#070401}
+.session-card{padding:.85rem;border-radius:12px;background:#080603;border:1px solid rgba(230,199,102,.1);margin-top:.75rem}.session-big{font:700 1.35rem "Playfair Display",serif;color:#ffe39a}.session-sub{margin-top:.25rem;font-size:.54rem;color:#716858;line-height:1.5}.pillrow{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem}.pill{padding:.3rem .44rem;border-radius:999px;font-size:.48rem;font-weight:900;border:1px solid rgba(230,199,102,.11);color:#857863}.pill.on{background:rgba(20,98,71,.12);color:#79d0ad;border-color:rgba(57,168,127,.2)}.pill.off{background:rgba(143,31,31,.08);color:#b58479}
+
+.stage{margin-top:.8rem;padding:1rem}.head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap}.label{font-size:.5rem;color:#776d5d;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.bias{font:700 clamp(2rem,5vw,3.35rem) "Playfair Display",serif;margin-top:.2rem}.buy{color:#6fd0a9}.sell{color:#e58b7a}.wait{color:#d4bb78}.ring{width:102px;height:102px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#e6c766 0deg,#1a1308 0deg);position:relative}.ring:after{content:"";position:absolute;inset:9px;border-radius:50%;background:#080603}.ring span{position:relative;z-index:2;font:700 1.1rem "Playfair Display",serif;color:#ffe39a}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;margin-top:1rem}.metric{padding:.75rem;border:1px solid rgba(230,199,102,.1);border-radius:12px;background:#080603}.metric label{display:block;font-size:.46rem;color:#706655;text-transform:uppercase;font-weight:900}.metric strong{display:block;margin-top:.25rem;font-size:.76rem;color:#e7d4a9}.metric strong.low{color:#79d0ad}.metric strong.medium{color:#e4c878}.metric strong.high{color:#e58b7a}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1rem}.why{padding:.85rem;border-radius:13px;border:1px solid rgba(230,199,102,.1);background:#080603}.why h3{font-size:.62rem;margin-bottom:.55rem}.why ul{padding-left:1rem}.why li{font-size:.54rem;color:#817664;line-height:1.55;margin:.2rem 0}.why.buybox{border-color:rgba(57,168,127,.16)}.why.sellbox{border-color:rgba(196,71,54,.15)}
+.indicators{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin-top:1rem}.ibox{padding:.72rem;border:1px solid rgba(230,199,102,.1);border-radius:12px;background:#080603}.ibox-top{display:flex;justify-content:space-between;gap:.4rem}.iname{font-size:.61rem;font-weight:800}.vote{font-size:.46rem;font-weight:900;border-radius:999px;padding:.2rem .36rem}.vote.buy{background:rgba(20,98,71,.16)}.vote.sell{background:rgba(143,31,31,.16)}.vote.neutral{background:rgba(230,199,102,.08);color:#cdb36f}.ibox p{font-size:.5rem;color:#6f6657;margin-top:.35rem;line-height:1.45}
+
+.chart-panel{margin-top:.8rem;padding:1rem}.chart-top{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;margin-bottom:.7rem}.chart-title{font-size:.7rem;font-weight:900}.chart-note{font-size:.5rem;color:#716858}.tv-wrap{height:520px;border-radius:13px;overflow:hidden;border:1px solid rgba(230,199,102,.1);background:#050402}
+.levels{display:grid;grid-template-columns:repeat(5,1fr);gap:.45rem;margin-top:.7rem}.level{padding:.62rem;border-radius:10px;background:#080603;border:1px solid rgba(230,199,102,.1)}.level span{display:block;font-size:.44rem;color:#6e6557;text-transform:uppercase;font-weight:900}.level strong{display:block;margin-top:.2rem;font-size:.63rem;color:#e6d3a5}.level.stop{border-color:rgba(196,71,54,.18)}.level.target{border-color:rgba(57,168,127,.14)}
+.plan{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.8rem}.box{padding:.8rem;border-radius:12px;background:#080603;border:1px solid rgba(230,199,102,.1)}.row{display:flex;justify-content:space-between;gap:.6rem;padding:.46rem 0;border-bottom:1px solid rgba(230,199,102,.06)}.row:last-child{border-bottom:0}.row span{font-size:.51rem;color:#7d7261}.row strong{font-size:.6rem;color:#e8d5a6}.warn{margin-top:.8rem;padding:.75rem;border-radius:11px;background:rgba(143,31,31,.06);border:1px solid rgba(196,71,54,.16);font-size:.53rem;color:#b98c81;line-height:1.55}
+.corner{position:fixed;right:10px;bottom:10px;display:flex;gap:.35rem;z-index:50}.cute{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:rgba(8,6,3,.88);border:1px solid rgba(230,199,102,.14);font-size:1.4rem;backdrop-filter:blur(10px)}
+
+@media(max-width:820px){.navlinks{display:none}.hero{padding:2.4rem 0 1.4rem}.controls,.why-grid,.plan{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.indicators{grid-template-columns:1fr 1fr}.levels{grid-template-columns:repeat(2,1fr)}.tv-wrap{height:430px}.hero h1{font-size:clamp(2.6rem,14vw,4.2rem)}}
+@media(max-width:520px){.indicators{grid-template-columns:1fr}.tv-wrap{height:390px}.levels{grid-template-columns:1fr 1fr}.corner{display:none}}
+
+
+/* ===== SHARED CUTE WEALTH BACKGROUND ===== */
+.global-wealth-layer{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden;
+}
+.global-wealth-item{
+  position:absolute;opacity:.055;filter:drop-shadow(0 14px 24px rgba(0,0,0,.4));
+  user-select:none;will-change:transform;
+}
+.global-wealth-card{
+  width:58px;height:82px;border-radius:9px;
+  background:linear-gradient(145deg,#fff7e6,#dfd1b5);
+  border:1px solid rgba(255,227,154,.38);
+  display:grid;place-items:center;font:900 1.2rem Georgia;color:#0b0805;
+}
+.global-wealth-card.red{color:#8f1f1f}
+.global-wealth-bar{
+  width:88px;height:40px;border-radius:8px 8px 12px 12px;
+  background:linear-gradient(180deg,#fff0a0,#d6a630 56%,#74500b);
+  display:grid;place-items:center;color:#342303;font:900 .48rem Georgia;
+}
+.global-wealth-emoji{font-size:2rem}
+.global-wealth-cash{
+  width:82px;height:40px;border-radius:7px;
+  background:linear-gradient(135deg,#235b44,#123425);
+  display:grid;place-items:center;color:#bfe7d2;font:900 .6rem Georgia;
+}
+@media(max-width:760px){
+  .global-wealth-item{opacity:.035}
+  .global-wealth-item:nth-child(n+9){display:none}
+}
+
+</style>
+</head>
+<body>
+<nav class="nav"><a class="brand" href="index.html">Marbine<span>FX</span></a><div class="nav-right"><div class="navlinks"><a href="index.html">Home</a><a href="strategies.html">Indicators</a><a href="pairs.html">Study Pairs</a><a href="signal.html" class="active">Signal Lab</a><a href="forum.html">Forum</a></div><div class="lang"><button id="en" class="active" onclick="setLang('en')">EN</button><button id="ms" onclick="setLang('ms')">MY</button></div></div></nav>
+
+<div id="wealth"></div>
+
+<section class="hero">
+  <div class="eyebrow" data-en="LIVE CHART + BEGINNER SIGNAL LAB" data-ms="CARTA LIVE + MAKMAL SIGNAL BEGINNER">LIVE CHART + BEGINNER SIGNAL LAB</div>
+  <h1 data-en="Signal Lab. Read It Easy." data-ms="Makmal Signal. Mudah Faham.">Signal Lab.<br><span>Read It Easy.</span></h1>
+  <p data-en="Pick a market, see the live chart, check which global trading session is open, then run our educational indicator stack. Everything is written in simple English or Malay."
+     data-ms="Pilih pasaran, lihat carta live, semak sesi dagangan global yang sedang dibuka, kemudian jalankan gabungan indikator pendidikan kami. Semuanya ditulis dalam Bahasa Inggeris atau Melayu yang mudah.">
+    Pick a market, see the live chart, check which global trading session is open, then run our educational indicator stack.
+  </p>
+  <div class="mascots"><div class="mascot"><b>🐂</b> Bull Team</div><div class="mascot"><b>🐻</b> Bear Team</div><div class="mascot"><b>💰</b> Money First</div><div class="mascot"><b>🪙</b> Gold Mode</div></div>
+</section>
+
+<main class="wrap">
+  <div class="controls">
+    <section class="panel control-panel">
+      <h2 data-en="Tell Us What You Want To Check" data-ms="Beritahu Apa Yang Anda Mahu Semak">Tell Us What You Want To Check</h2>
+      <div class="field"><label data-en="Market" data-ms="Pasaran">Market</label><select id="pair" onchange="pairChanged()"><option>XAU/USD</option><option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option><option>BTC/USD</option><option>NAS100</option><option>US30</option></select></div>
+      <div class="field"><label data-en="Timeframe" data-ms="Timeframe">Timeframe</label><select id="tf"><option>M15</option><option>H1</option><option>H4</option><option>D1</option></select></div>
+      <div class="field"><label data-en="Your Account Balance" data-ms="Baki Akaun Anda">Your Account Balance</label><input id="balance" type="number" min="100" value="10000"></div>
+      <div class="field">
+        <label data-en="How Much Are You Okay Losing If This Setup Fails? (%)" data-ms="Berapa Banyak Anda Sanggup Rugi Jika Setup Ini Gagal? (%)">How Much Are You Okay Losing If This Setup Fails? (%)</label>
+        <input id="riskPct" type="number" min=".1" max="5" step=".1" value="1">
+        <span class="helper" data-en="Example: 1 means you are okay losing up to 1% of your account if the setup fails." data-ms="Contoh: 1 bermaksud anda sanggup rugi sehingga 1% daripada akaun jika setup gagal.">Example: 1 means you are okay losing up to 1%.</span>
+      </div>
+      <button class="run" onclick="runAnalysis()" data-en="CHECK THE MARKET" data-ms="SEMAK PASARAN">CHECK THE MARKET</button>
+    </section>
+
+    <aside class="panel status-panel">
+      <h2 data-en="Market & Session" data-ms="Pasaran & Sesi">Market & Session</h2>
+      <div class="session-card">
+        <div class="session-big" id="marketState">Checking…</div>
+        <div class="session-sub" id="sessionText">Checking sessions…</div>
+        <div class="pillrow" id="sessionPills"></div>
+      </div>
+      <div class="session-card">
+        <div class="label" data-en="Money At Risk If Setup Fails" data-ms="Wang Yang Berisiko Jika Setup Gagal">Money At Risk If Setup Fails</div>
+        <div class="session-big" id="riskMoney">$100.00</div>
+        <div class="session-sub" data-en="This is only a planning number. The page never places a real trade." data-ms="Ini hanya nombor perancangan. Halaman ini tidak pernah membuat trade sebenar.">This is only a planning number.</div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="panel stage">
+    <div class="head"><div><div class="label" data-en="Current Educational Bias" data-ms="Bias Pendidikan Semasa">Current Educational Bias</div><div class="bias wait" id="bias">WAIT</div></div><div class="ring" id="ring"><span id="confidence">0%</span></div></div>
+
+    <div class="metrics">
+      <div class="metric"><label data-en="Volatility" data-ms="Volatiliti">Volatility</label><strong id="vol">—</strong></div>
+      <div class="metric"><label data-en="Risk Level" data-ms="Tahap Risiko">Risk Level</label><strong id="riskTier">—</strong></div>
+      <div class="metric"><label data-en="Indicator Agreement" data-ms="Persetujuan Indikator">Indicator Agreement</label><strong id="agreement">—</strong></div>
+      <div class="metric"><label data-en="Signal Strength" data-ms="Kekuatan Signal">Signal Strength</label><strong id="strength">—</strong></div>
+    </div>
+
+    <div class="why-grid">
+      <div class="why buybox"><h3 data-en="🐂 Why We Would Buy" data-ms="🐂 Kenapa Kami Akan Buy">🐂 Why We Would Buy</h3><ul id="whyBuy"></ul></div>
+      <div class="why sellbox"><h3 data-en="🐻 Why We Would Sell" data-ms="🐻 Kenapa Kami Akan Sell">🐻 Why We Would Sell</h3><ul id="whySell"></ul></div>
+    </div>
+
+    <div class="indicators" id="indicators"></div>
+  </section>
+
+  <section class="panel chart-panel">
+    <div class="chart-top"><div><div class="chart-title" id="chartTitle">XAU/USD Live Chart</div><div class="chart-note" data-en="Live chart is provided by TradingView. The educational levels below are generated by this page and are not drawn by TradingView." data-ms="Carta live disediakan oleh TradingView. Level pendidikan di bawah dijana oleh halaman ini dan tidak dilukis oleh TradingView.">Live chart is provided by TradingView.</div></div></div>
+    <div class="tv-wrap" id="tvWrap"></div>
+    <div class="levels">
+      <div class="level"><span>Entry</span><strong id="entry">—</strong></div>
+      <div class="level stop"><span>SL / Stop</span><strong id="sl">—</strong></div>
+      <div class="level target"><span>TP1</span><strong id="tp1">—</strong></div>
+      <div class="level target"><span>TP2</span><strong id="tp2">—</strong></div>
+      <div class="level target"><span>TP3</span><strong id="tp3">—</strong></div>
+    </div>
+  </section>
+
+  <div class="plan">
+    <section class="box">
+      <div class="row"><span data-en="Money at Risk" data-ms="Wang Berisiko">Money at Risk</span><strong id="riskAmt">—</strong></div>
+      <div class="row"><span data-en="Example Position Size" data-ms="Contoh Saiz Posisi">Example Position Size</span><strong id="positionSize">—</strong></div>
+      <div class="row"><span data-en="Number of Layers" data-ms="Bilangan Layer">Number of Layers</span><strong id="layersCount">—</strong></div>
+      <div id="layers"></div>
+    </section>
+    <section class="box"><div class="label" data-en="Important" data-ms="Penting">Important</div><div class="warn" data-en="The live chart is real-time/near-real-time from TradingView, but the signal logic and TP/SL planner on this page are educational and generated locally. They are not guaranteed accurate and should not be treated as instructions to place a real trade." data-ms="Carta live adalah real-time/hampir real-time daripada TradingView, tetapi logik signal dan perancang TP/SL di halaman ini adalah untuk pendidikan dan dijana secara tempatan. Ia tidak dijamin tepat dan tidak patut dianggap sebagai arahan untuk membuat trade sebenar.">The live chart is real-time/near-real-time from TradingView, but the signal logic is educational.</div></section>
+  </div>
+</main>
+
+<div class="corner"><div class="cute">🐂</div><div class="cute">🐻</div></div>
+
+<script>
+let lang='en';
+const defs=[
+ ['EMA 20/50','Trend direction'],['RSI 14','Momentum'],['MACD','Momentum change'],['Bollinger Bands','Price location'],['ADX','Trend strength'],['Stochastic','Short-term momentum'],['ATR','Volatility'],['Supertrend','Trend direction'],['VWAP','Value area'],['Ichimoku','Trend + structure'],['CCI','Momentum stretch'],['Parabolic SAR','Trend continuation']
+];
+const tvMap={'XAU/USD':'OANDA:XAUUSD','EUR/USD':'FX:EURUSD','GBP/USD':'FX:GBPUSD','USD/JPY':'FX:USDJPY','BTC/USD':'COINBASE:BTCUSD','NAS100':'OANDA:NAS100USD','US30':'OANDA:US30USD'};
+function setLang(v){lang=v;document.getElementById('en').classList.toggle('active',v==='en');document.getElementById('ms').classList.toggle('active',v==='ms');document.querySelectorAll('[data-en]').forEach(el=>el.textContent=el.dataset[v]);updateSessions();runAnalysis()}
+function money(v){return '$'+Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+function seeded(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return()=>((h=(Math.imul(h^h>>>15,2246822507)),h^=h>>>13,h>>>0)/4294967296)}
+
+function updateTradingView(){
+ const pair=document.getElementById('pair').value;
+ document.getElementById('chartTitle').textContent=pair+' '+(lang==='ms'?'Carta Live':'Live Chart');
+ const wrap=document.getElementById('tvWrap');wrap.innerHTML='';
+ const box=document.createElement('div');box.className='tradingview-widget-container';box.style.height='100%';box.innerHTML='<div class="tradingview-widget-container__widget" style="height:100%"></div>';
+ const s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';s.async=true;s.innerHTML=JSON.stringify({autosize:true,symbol:tvMap[pair],interval:"15",timezone:"Etc/UTC",theme:"dark",style:"1",locale:lang==='ms'?'en':'en',backgroundColor:"rgba(5,4,2,1)",gridColor:"rgba(230,199,102,0.06)",hide_top_toolbar:false,hide_legend:false,allow_symbol_change:false,calendar:false,support_host:"https://www.tradingview.com"});
+ box.appendChild(s);wrap.appendChild(box)
+}
+function pairChanged(){updateTradingView();runAnalysis()}
+
+function updateSessions(){
+ const now=new Date(),day=now.getUTCDay(),m=now.getUTCHours()*60+now.getUTCMinutes();
+ const forexClosed=(day===6)||(day===0&&m<21*60)||(day===5&&m>=22*60);
+ const sessions=[
+   {name:'Sydney',start:21*60,end:24*60+6*60},
+   {name:'Tokyo',start:0,end:9*60},
+   {name:'London',start:7*60,end:16*60},
+   {name:'New York',start:13*60,end:22*60}
+ ];
+ const isOpen=s=>s.start<=1440 ? (m>=s.start&&m<s.end) : false;
+ const active=sessions.filter(isOpen);
+ const pair=document.getElementById('pair').value;
+ let marketClosed=forexClosed && pair!=='BTC/USD';
+ document.getElementById('marketState').textContent=marketClosed?(lang==='ms'?'PASARAN DITUTUP':'MARKET CLOSED'):(lang==='ms'?'PASARAN DIBUKA':'MARKET OPEN');
+ let text='';
+ if(marketClosed){
+   let total;
+   if(day===5 && m>=22*60) total=(2*1440)+(21*60-m);
+   else if(day===6) total=(1*1440)+(21*60-m);
+   else total=(21*60-m);
+   total=Math.max(1,total);
+   const h=Math.floor(total/60),min=total%60;
+   text=(lang==='ms'?'Buka semula dalam ':'Reopens in ')+h+'h '+min+'m';
+ }else if(active.length){
+   text=(lang==='ms'?'Sesi sekarang: ':'Current session: ')+active.map(s=>s.name).join(' + ');
+ }else{
+   const future=sessions.map(s=>({s,delta:(s.start-m+1440)%1440})).filter(x=>x.delta>0).sort((a,b)=>a.delta-b.delta)[0];
+   const h=Math.floor(future.delta/60),min=future.delta%60;
+   text=(lang==='ms'?'Sesi seterusnya: ':'Next session: ')+future.s.name+' • '+h+'h '+min+'m';
+ }
+ document.getElementById('sessionText').textContent=text;
+ document.getElementById('sessionPills').innerHTML=sessions.map(s=>`<span class="pill ${active.includes(s)?'on':'off'}">${s.name}</span>`).join('');
+}
+
+function runAnalysis(){
+ const pair=document.getElementById('pair').value,tf=document.getElementById('tf').value,b=Math.max(100,+document.getElementById('balance').value||10000),rp=Math.min(5,Math.max(.1,+document.getElementById('riskPct').value||1));
+ document.getElementById('riskMoney').textContent=money(b*rp/100);
+ const rand=seeded(pair+'|'+tf+'|'+Math.floor(Date.now()/60000));
+ let buy=0,sell=0,neutral=0,cards='',buyReasons=[],sellReasons=[];
+ defs.forEach(([n,d])=>{const x=rand();let v='neutral';if(x>.57){v='buy';buy++;buyReasons.push(n+' supports buyers')}else if(x<.43){v='sell';sell++;sellReasons.push(n+' supports sellers')}else neutral++;cards+=`<div class="ibox"><div class="ibox-top"><div class="iname">${n}</div><span class="vote ${v}">${v.toUpperCase()}</span></div><p>${d}</p></div>`});
+ document.getElementById('indicators').innerHTML=cards;
+ const net=buy-sell,conf=Math.round(50+Math.min(42,Math.abs(net)*5+rand()*8));let bias='WAIT',cls='wait';if(net>=3){bias=lang==='ms'?'BIAS BUY':'BULLISH BIAS';cls='buy'}if(net<=-3){bias=lang==='ms'?'BIAS SELL':'BEARISH BIAS';cls='sell'}
+ document.getElementById('bias').textContent=bias;document.getElementById('bias').className='bias '+cls;document.getElementById('confidence').textContent=conf+'%';document.getElementById('ring').style.background=`conic-gradient(#e6c766 ${conf*3.6}deg,#1a1308 0deg)`;
+ const volScore=rand();const vol=volScore>.72?'HIGH':volScore>.35?'MEDIUM':'LOW';const risk=vol==='HIGH'?'HIGH':vol==='MEDIUM'?'MEDIUM':'LOW';
+ document.getElementById('vol').textContent=vol;document.getElementById('vol').className=vol.toLowerCase();document.getElementById('riskTier').textContent=risk;document.getElementById('riskTier').className=risk.toLowerCase();document.getElementById('agreement').textContent=`${buy} BUY / ${sell} SELL / ${neutral} NEUTRAL`;document.getElementById('strength').textContent=conf>=78?'STRONG':conf>=64?'MEDIUM':'WEAK';
+ const whyB=buyReasons.slice(0,4);const whyS=sellReasons.slice(0,4);
+ document.getElementById('whyBuy').innerHTML=(whyB.length?whyB:['Not enough bullish confirmation yet']).map(x=>`<li>${x}</li>`).join('');
+ document.getElementById('whySell').innerHTML=(whyS.length?whyS:['Not enough bearish confirmation yet']).map(x=>`<li>${x}</li>`).join('');
+ const bases={'XAU/USD':2398.4,'EUR/USD':1.0854,'GBP/USD':1.2728,'USD/JPY':149.36,'BTC/USD':68400,'NAS100':19850,'US30':41600};const ref=bases[pair]*(.995+rand()*.01),atr=ref*(vol==='HIGH'?.012:vol==='MEDIUM'?.006:.0035),dir=net>=0?1:-1,e1=ref-dir*atr*.12,e2=ref+dir*atr*.10,sl=ref-dir*atr*1.1,tp1=ref+dir*atr*1.2,tp2=ref+dir*atr*2,tp3=ref+dir*atr*3,dec=ref<10?5:ref<1000?2:0,fmt=v=>Number(v).toFixed(dec),riskAmt=b*rp/100,stop=Math.max(.00001,Math.abs(ref-sl)),raw=riskAmt/stop,norm=pair.includes('USD')&&ref<10?raw/100000:raw/100,layers=conf>=75?3:conf>=62?2:1;
+ document.getElementById('entry').textContent=`${fmt(Math.min(e1,e2))} – ${fmt(Math.max(e1,e2))}`;document.getElementById('sl').textContent=fmt(sl);document.getElementById('tp1').textContent=fmt(tp1);document.getElementById('tp2').textContent=fmt(tp2);document.getElementById('tp3').textContent=fmt(tp3);document.getElementById('riskAmt').textContent=money(riskAmt);document.getElementById('positionSize').textContent='~'+Math.max(.01,norm).toFixed(2)+' demo units';document.getElementById('layersCount').textContent=layers+' layer'+(layers>1?'s':'');document.getElementById('layers').innerHTML=Array.from({length:layers},(_,i)=>`<div class="row"><span>Layer ${i+1}</span><strong>${fmt(e1+(e2-e1)*(i/Math.max(1,layers-1)))}</strong></div>`).join('');
+ updateSessions()
+}
+document.getElementById('balance').addEventListener('input',runAnalysis);document.getElementById('riskPct').addEventListener('input',runAnalysis);
+
+function decor(){
+ const layer=document.getElementById('wealth'),items=[['decor card','4%','16%','A♠'],['decor card red','90%','20%','A♥'],['decor card red','8%','75%','A♦'],['decor card','84%','78%','A♣'],['decor bar','17%','44%','999.9 GOLD'],['decor bar','73%','53%','999.9 GOLD'],['decor emoji','25%','18%','🐂'],['decor emoji','79%','18%','🐻'],['decor emoji','30%','82%','💎'],['decor emoji','70%','80%','🪙'],['decor cash','40%','31%','$$$'],['decor cash','60%','64%','$$$']];
+ items.forEach(x=>{const e=document.createElement('div');e.className=x[0];e.style.left=x[1];e.style.top=x[2];e.textContent=x[3];layer.appendChild(e)})
+}
+decor();updateTradingView();updateSessions();runAnalysis();setInterval(updateSessions,30000);
+</script>
+
+
+<script>
+(function(){
+  if(document.querySelector('.global-wealth-layer')) return;
+  const layer=document.createElement('div');
+  layer.className='global-wealth-layer';
+  const items=[
+    ['global-wealth-item global-wealth-card','4%','16%','A♠'],
+    ['global-wealth-item global-wealth-card red','90%','20%','A♥'],
+    ['global-wealth-item global-wealth-card red','8%','76%','A♦'],
+    ['global-wealth-item global-wealth-card','84%','80%','A♣'],
+    ['global-wealth-item global-wealth-bar','17%','44%','999.9 GOLD'],
+    ['global-wealth-item global-wealth-bar','73%','54%','999.9 GOLD'],
+    ['global-wealth-item global-wealth-emoji','26%','18%','🐂'],
+    ['global-wealth-item global-wealth-emoji','79%','18%','🐻'],
+    ['global-wealth-item global-wealth-emoji','30%','82%','💎'],
+    ['global-wealth-item global-wealth-emoji','70%','80%','🪙'],
+    ['global-wealth-item global-wealth-cash','40%','31%','$$$'],
+    ['global-wealth-item global-wealth-cash','60%','64%','$$$']
+  ];
+  items.forEach((x,i)=>{
+    const e=document.createElement('div');
+    e.className=x[0];e.style.left=x[1];e.style.top=x[2];e.textContent=x[3];
+    e.style.transform=`rotate(${(i%2?1:-1)*(6+(i%4)*3)}deg)`;
+    layer.appendChild(e);
+  });
+  document.body.appendChild(layer);
+})();
+</script>
+
+</body>
+</html>
