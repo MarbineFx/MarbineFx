@@ -5,276 +5,726 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030201">
 <title>MarbineFX | Login</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
-:root{--gold:#e6c766;--gold2:#ffe39a;--line:rgba(230,199,102,.18);--ivory:#fff3db;--muted:#8f826c}
-html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#030201;color:var(--ivory)}
+:root{
+  --gold:#e6c766;
+  --gold2:#fff0ae;
+  --gold3:#b98221;
+  --bg:#030201;
+  --panel:#0b0704;
+  --text:#fff3db;
+  --muted:#8f826c;
+  --line:rgba(230,199,102,.17);
+  --danger:#e08b7a;
+  --ok:#78d0aa;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+
 body{
-  min-height:100vh;display:grid;place-items:center;padding:18px;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  overflow-x:hidden;
   background:
-    radial-gradient(circle at 18% 8%,rgba(143,31,31,.16),transparent 26rem),
-    radial-gradient(circle at 82% 8%,rgba(20,98,71,.13),transparent 28rem),
-    radial-gradient(circle at 50% -5%,rgba(230,199,102,.10),transparent 32rem),
-    #030201;
+    radial-gradient(circle at 15% 10%,rgba(143,31,31,.16),transparent 25rem),
+    radial-gradient(circle at 85% 8%,rgba(20,98,71,.13),transparent 27rem),
+    radial-gradient(circle at 50% -8%,rgba(230,199,102,.12),transparent 30rem),
+    linear-gradient(180deg,#030201,#060301 60%,#020100);
 }
+
+.bg-item{
+  position:fixed;
+  pointer-events:none;
+  opacity:.07;
+  z-index:0;
+  filter:drop-shadow(0 12px 22px rgba(0,0,0,.45));
+}
+.b1{left:5%;top:16%;font-size:3rem}
+.b2{right:7%;top:20%;font-size:3rem}
+.b3{left:9%;bottom:14%;font-size:2.8rem}
+.b4{right:10%;bottom:13%;font-size:2.8rem}
+.b5{left:24%;top:7%;font-size:2rem}
+.b6{right:25%;bottom:7%;font-size:2rem}
+
 .card{
-  width:min(440px,94vw);padding:28px;border:1px solid var(--line);border-radius:22px;
-  background:linear-gradient(145deg,rgba(230,199,102,.025),transparent 40%),#0a0704;
-  box-shadow:0 30px 90px rgba(0,0,0,.55);
+  position:relative;
+  z-index:2;
+  width:min(450px,95vw);
+  padding:30px;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(230,199,102,.055),transparent 12rem),
+    linear-gradient(145deg,rgba(255,255,255,.018),transparent 45%),
+    #0a0704;
+  box-shadow:
+    0 35px 100px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.025);
 }
-.logo{font-size:29px;font-weight:900;color:var(--gold);letter-spacing:.04em}.logo span{color:#fff}
-.sub{color:var(--muted);font-size:13px;line-height:1.6;margin:8px 0 22px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.tabs button,.btn{
-  border:1px solid #4c3b19;background:#120d07;color:var(--gold);border-radius:12px;
-  padding:12px;font-weight:800;cursor:pointer;transition:.18s
+
+.logo{
+  font-size:30px;
+  font-weight:900;
+  letter-spacing:.04em;
+  color:var(--gold);
 }
-.tabs button:hover,.btn:hover{filter:brightness(1.08)}
-.tabs button.active,.btn.gold{background:linear-gradient(135deg,#fff0ae,#d3a33b);color:#090500;border-color:#ffe39a}
-.field{margin:11px 0}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:800;letter-spacing:.06em}
-.field input{width:100%;padding:13px;border-radius:11px;border:1px solid #332712;background:#050301;color:#fff;outline:none}
-.field input:focus{border-color:rgba(230,199,102,.5);box-shadow:0 0 0 3px rgba(230,199,102,.05)}
-.btn{width:100%;margin-top:10px}.btn:disabled{opacity:.5;cursor:not-allowed}
-.link{display:block;text-align:center;margin-top:14px;color:#d8bd73;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-.msg{min-height:22px;color:#d99a88;font-size:12px;line-height:1.45;margin-top:12px}
-.msg.ok{color:#70cba3}
-.safe{margin-top:18px;padding-top:14px;border-top:1px solid #21180d;color:#6f6557;font-size:11px;line-height:1.55}
-.loader{display:none;text-align:center;color:#837761;font-size:11px;margin-top:8px}.loader.show{display:block}
-@media(max-width:480px){.card{padding:22px 18px}.tabs button,.btn{padding:11px}.logo{font-size:25px}}
+.logo span{color:#fff}
+
+.sub{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+  margin:8px 0 22px;
+}
+
+.tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  padding:4px;
+  border:1px solid rgba(230,199,102,.12);
+  border-radius:14px;
+  background:#050301;
+  margin-bottom:17px;
+}
+
+.tab{
+  position:relative;
+  border:0;
+  background:transparent;
+  color:#756a59;
+  border-radius:10px;
+  min-height:44px;
+  font-weight:900;
+  font-size:12px;
+  cursor:pointer;
+  transition:
+    color .18s ease,
+    background .18s ease,
+    transform .18s ease,
+    box-shadow .18s ease;
+}
+
+.tab:hover{color:#c8ae69}
+
+.tab.active{
+  color:#080501;
+  background:linear-gradient(135deg,var(--gold2),var(--gold),var(--gold3));
+  box-shadow:
+    0 0 0 1px rgba(255,240,174,.22),
+    0 0 22px rgba(230,199,102,.25),
+    0 10px 24px rgba(0,0,0,.28);
+  transform:translateY(-1px);
+}
+
+.field{margin:12px 0}
+
+.field label{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.09em;
+  margin-bottom:7px;
+}
+
+.field input{
+  width:100%;
+  min-height:47px;
+  padding:0 14px;
+  border-radius:11px;
+  border:1px solid #332712;
+  background:#050301;
+  color:#fff;
+  outline:none;
+  transition:.18s ease;
+}
+
+.field input:focus{
+  border-color:rgba(230,199,102,.55);
+  box-shadow:
+    0 0 0 3px rgba(230,199,102,.055),
+    0 0 18px rgba(230,199,102,.05);
+}
+
+.main-btn,.google-btn{
+  width:100%;
+  min-height:47px;
+  margin-top:10px;
+  border-radius:11px;
+  font-weight:900;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.main-btn{
+  border:1px solid rgba(255,240,174,.42);
+  background:linear-gradient(135deg,var(--gold2),var(--gold),var(--gold3));
+  color:#080501;
+  box-shadow:0 12px 28px rgba(230,199,102,.13);
+}
+
+.main-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:
+    0 0 22px rgba(230,199,102,.2),
+    0 15px 32px rgba(0,0,0,.3);
+}
+
+.main-btn:active{transform:scale(.985)}
+
+.google-btn{
+  border:1px solid rgba(230,199,102,.13);
+  background:#100b06;
+  color:#d9c58d;
+}
+
+.google-btn:hover{
+  border-color:rgba(230,199,102,.3);
+  color:#ffe39a;
+  box-shadow:0 0 18px rgba(230,199,102,.06);
+}
+
+.forgot{
+  display:block;
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#d1b66d;
+  text-align:center;
+  font-size:12px;
+  margin-top:15px;
+  cursor:pointer;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+
+.forgot:hover{color:#ffe39a}
+
+.status{
+  min-height:22px;
+  margin-top:13px;
+  font-size:12px;
+  line-height:1.45;
+  color:var(--danger);
+  text-align:center;
+}
+
+.status.ok{color:var(--ok)}
+.status.loading{color:#c7ad6d}
+
+.safe{
+  margin-top:19px;
+  padding-top:15px;
+  border-top:1px solid #21180d;
+  color:#6f6557;
+  font-size:11px;
+  line-height:1.55;
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+@media(max-width:480px){
+  body{padding:12px}
+  .card{padding:23px 18px;border-radius:20px}
+  .logo{font-size:26px}
+  .tab{font-size:11px}
+}
 </style>
 </head>
+
 <body>
-<div class="card">
+
+<div class="bg-item b1">🐂</div>
+<div class="bg-item b2">🐻</div>
+<div class="bg-item b3">💰</div>
+<div class="bg-item b4">🪙</div>
+<div class="bg-item b5">♦</div>
+<div class="bg-item b6">♠</div>
+
+<main class="card">
+
   <div class="logo">Marbine<span>FX</span></div>
-  <div class="sub">Members only. Sign in securely to enter the market dashboard.</div>
+
+  <div class="sub">
+    Sign in to enter the MarbineFX market dashboard.
+  </div>
 
   <div class="tabs">
-    <button id="loginTab" type="button">LOGIN</button>
-    <button id="signupTab" type="button">CREATE ACCOUNT</button>
+    <button id="loginTab" class="tab active" type="button">LOGIN</button>
+    <button id="signupTab" class="tab" type="button">CREATE ACCOUNT</button>
   </div>
 
   <div class="field">
     <label for="email">EMAIL</label>
-    <input id="email" type="email" autocomplete="email" placeholder="you@gmail.com">
+    <input
+      id="email"
+      type="email"
+      autocomplete="email"
+      placeholder="you@gmail.com"
+    >
   </div>
 
   <div class="field">
     <label for="password">PASSWORD</label>
-    <input id="password" type="password" autocomplete="current-password" placeholder="Your password">
+    <input
+      id="password"
+      type="password"
+      autocomplete="current-password"
+      placeholder="Your password"
+    >
   </div>
 
-  <button id="mainBtn" class="btn gold" type="button">LOGIN</button>
-  <button id="googleBtn" class="btn" type="button">CONTINUE WITH GOOGLE</button>
+  <button id="mainBtn" class="main-btn" type="button">
+    LOGIN
+  </button>
 
-  <button id="forgotBtn" type="button" class="link" style="border:0;background:none;width:100%">Forgot password?</button>
+  <button id="googleBtn" class="google-btn" type="button">
+    CONTINUE WITH GOOGLE
+  </button>
 
-  <div id="loader" class="loader">Connecting securely…</div>
-  <div id="msg" class="msg"></div>
+  <button id="forgotBtn" class="forgot" type="button">
+    Forgot password?
+  </button>
+
+  <div id="status" class="status"></div>
 
   <div class="safe">
-    Passwords are handled by Supabase Authentication. MarbineFX never displays or sends users' passwords to the site owner.
+    Your password is securely handled by Supabase Authentication.
+    MarbineFX does not store or reveal users' passwords.
   </div>
-</div>
+
+</main>
 
 <script>
-const SUPABASE_URL = 'https://dodjxijptbvkvpjhelhm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_Eh7J3ChO6ljz7vHVBBUH2Q_st9LhsJA';
+const SUPABASE_URL =
+  'https://dodjxijptbvkvpjhelhm.supabase.co';
 
-const el = {};
+const SUPABASE_KEY =
+  'sb_publishable_Eh7J3ChO6ljz7vHVBBUH2Q_st9LhsJA';
+
 let mode = 'login';
-let sb = null;
+let client = null;
 
-function byId(id){ return document.getElementById(id); }
+const loginTab = document.getElementById('loginTab');
+const signupTab = document.getElementById('signupTab');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const mainBtn = document.getElementById('mainBtn');
+const googleBtn = document.getElementById('googleBtn');
+const forgotBtn = document.getElementById('forgotBtn');
+const statusBox = document.getElementById('status');
 
-function setMessage(text, ok=false){
-  el.msg.textContent = text || '';
-  el.msg.classList.toggle('ok', !!ok);
-}
+function setStatus(message='', type='error'){
+  statusBox.textContent = message;
 
-function setBusy(busy){
-  el.mainBtn.disabled = busy;
-  el.googleBtn.disabled = busy;
-  el.forgotBtn.disabled = busy;
-  el.loginTab.disabled = busy;
-  el.signupTab.disabled = busy;
-  el.loader.classList.toggle('show', busy);
-}
+  statusBox.classList.remove(
+    'ok',
+    'loading'
+  );
 
-function draw(){
-  el.loginTab.classList.toggle('active', mode === 'login');
-  el.signupTab.classList.toggle('active', mode === 'signup');
-  el.mainBtn.textContent = mode === 'login' ? 'LOGIN' : 'CREATE ACCOUNT';
-  el.password.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
-  setMessage('');
-}
-
-function loadScript(src){
-  return new Promise((resolve,reject)=>{
-    const s=document.createElement('script');
-    s.src=src;
-    s.onload=resolve;
-    s.onerror=()=>reject(new Error('Could not load authentication library.'));
-    document.head.appendChild(s);
-  });
-}
-
-async function loadSupabase(){
-  if(window.supabase?.createClient) return;
-  const sources=[
-    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
-    'https://unpkg.com/@supabase/supabase-js@2'
-  ];
-  let lastError=null;
-  for(const src of sources){
-    try{
-      await loadScript(src);
-      if(window.supabase?.createClient) return;
-    }catch(e){ lastError=e; }
+  if(type === 'ok'){
+    statusBox.classList.add('ok');
   }
-  throw lastError || new Error('Authentication library failed to load.');
+
+  if(type === 'loading'){
+    statusBox.classList.add('loading');
+  }
 }
 
-async function init(){
-  el.loginTab=byId('loginTab');
-  el.signupTab=byId('signupTab');
-  el.email=byId('email');
-  el.password=byId('password');
-  el.mainBtn=byId('mainBtn');
-  el.googleBtn=byId('googleBtn');
-  el.forgotBtn=byId('forgotBtn');
-  el.msg=byId('msg');
-  el.loader=byId('loader');
+function setMode(nextMode){
 
-  el.loginTab.addEventListener('click',()=>{ mode='login'; draw(); });
-  el.signupTab.addEventListener('click',()=>{ mode='signup'; draw(); });
-  el.mainBtn.addEventListener('click',submitAuth);
-  el.googleBtn.addEventListener('click',googleLogin);
-  el.forgotBtn.addEventListener('click',forgot);
+  mode = nextMode;
 
-  el.password.addEventListener('keydown',e=>{
-    if(e.key==='Enter') submitAuth();
-  });
+  const login =
+    mode === 'login';
 
-  draw();
-  setBusy(true);
-  setMessage('Loading secure login…');
+  loginTab.classList.toggle(
+    'active',
+    login
+  );
+
+  signupTab.classList.toggle(
+    'active',
+    !login
+  );
+
+  mainBtn.textContent =
+    login
+      ? 'LOGIN'
+      : 'CREATE ACCOUNT';
+
+  passwordInput.autocomplete =
+    login
+      ? 'current-password'
+      : 'new-password';
+
+  setStatus('');
+}
+
+loginTab.addEventListener(
+  'click',
+  () => setMode('login')
+);
+
+signupTab.addEventListener(
+  'click',
+  () => setMode('signup')
+);
+
+async function getClient(){
+
+  if(client){
+    return client;
+  }
+
+  if(
+    !window.supabase ||
+    !window.supabase.createClient
+  ){
+    throw new Error(
+      'Login service did not load. Refresh the page and try again.'
+    );
+  }
+
+  client =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY,
+      {
+        auth:{
+          persistSession:true,
+          autoRefreshToken:true,
+          detectSessionInUrl:true
+        }
+      }
+    );
+
+  return client;
+}
+
+function validate(){
+
+  const email =
+    emailInput.value.trim();
+
+  const password =
+    passwordInput.value;
+
+  if(!email){
+    setStatus(
+      'Please enter your email.'
+    );
+
+    emailInput.focus();
+
+    return null;
+  }
+
+  if(!email.includes('@')){
+    setStatus(
+      'Please enter a valid email.'
+    );
+
+    emailInput.focus();
+
+    return null;
+  }
+
+  if(!password){
+    setStatus(
+      'Please enter your password.'
+    );
+
+    passwordInput.focus();
+
+    return null;
+  }
+
+  if(
+    mode === 'signup' &&
+    password.length < 6
+  ){
+    setStatus(
+      'Your password needs at least 6 characters.'
+    );
+
+    return null;
+  }
+
+  return {
+    email,
+    password
+  };
+}
+
+async function handleMain(){
+
+  const values =
+    validate();
+
+  if(!values){
+    return;
+  }
+
+  mainBtn.disabled = true;
+
+  setStatus(
+    mode === 'login'
+      ? 'Logging you in...'
+      : 'Creating your account...',
+    'loading'
+  );
 
   try{
-    await loadSupabase();
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const { data, error } = await sb.auth.getSession();
-    if(error) console.warn(error);
-    if(data?.session){
-      location.replace('app.html');
-      return;
-    }
+    const sb =
+      await getClient();
 
-    setMessage('');
-  }catch(e){
-    console.error(e);
-    setMessage('Login system could not load. Check your internet connection and refresh the page.');
-  }finally{
-    setBusy(false);
-  }
-}
+    let result;
 
-async function submitAuth(){
-  if(!sb){
-    setMessage('Login system is still loading. Please wait a moment.');
-    return;
-  }
+    if(mode === 'login'){
 
-  const email=el.email.value.trim();
-  const password=el.password.value;
-
-  if(!email || !password){
-    setMessage('Enter your email and password.');
-    return;
-  }
-  if(mode==='signup' && password.length < 6){
-    setMessage('Use a password with at least 6 characters.');
-    return;
-  }
-
-  setBusy(true);
-  setMessage(mode==='login' ? 'Logging in…' : 'Creating your account…');
-
-  try{
-    const r = mode==='login'
-      ? await sb.auth.signInWithPassword({email,password})
-      : await sb.auth.signUp({
-          email,
-          password,
-          options:{ emailRedirectTo:new URL('app.html',location.href).href }
+      result =
+        await sb.auth.signInWithPassword({
+          email:values.email,
+          password:values.password
         });
 
-    if(r.error) throw r.error;
+    }else{
 
-    if(mode==='signup' && !r.data.session){
-      setMessage('Account created. Check your email and confirm it, then come back and login.', true);
+      result =
+        await sb.auth.signUp({
+          email:values.email,
+          password:values.password,
+          options:{
+            emailRedirectTo:
+              new URL(
+                'app.html',
+                window.location.href
+              ).href
+          }
+        });
+
+    }
+
+    if(result.error){
+      throw result.error;
+    }
+
+    if(
+      mode === 'signup' &&
+      !result.data.session
+    ){
+      setStatus(
+        'Account created. Check your email to confirm it, then come back and login.',
+        'ok'
+      );
+
+      setMode('login');
+
       return;
     }
 
-    location.replace('app.html');
-  }catch(e){
-    setMessage(e?.message || 'Something went wrong. Please try again.');
+    setStatus(
+      'Success. Opening MarbineFX...',
+      'ok'
+    );
+
+    setTimeout(
+      () => {
+        window.location.href =
+          'app.html';
+      },
+      300
+    );
+
+  }catch(error){
+
+    console.error(
+      'AUTH ERROR:',
+      error
+    );
+
+    setStatus(
+      error?.message ||
+      'Login failed. Please try again.'
+    );
+
   }finally{
-    setBusy(false);
+
+    mainBtn.disabled = false;
+
   }
 }
 
-async function googleLogin(){
-  if(!sb){
-    setMessage('Login system is still loading. Please wait a moment.');
-    return;
+mainBtn.addEventListener(
+  'click',
+  handleMain
+);
+
+passwordInput.addEventListener(
+  'keydown',
+  event => {
+
+    if(event.key === 'Enter'){
+      handleMain();
+    }
+
   }
+);
 
-  setBusy(true);
-  setMessage('Opening Google login…');
+googleBtn.addEventListener(
+  'click',
+  async () => {
 
-  try{
-    const redirectTo = new URL('app.html', location.href).href;
-    const { error } = await sb.auth.signInWithOAuth({
-      provider:'google',
-      options:{ redirectTo }
-    });
-    if(error) throw error;
-  }catch(e){
-    setMessage((e?.message || 'Google login failed.') + ' If this is your first time using Google login, enable the Google provider in Supabase Authentication.');
-    setBusy(false);
+    googleBtn.disabled = true;
+
+    setStatus(
+      'Opening Google login...',
+      'loading'
+    );
+
+    try{
+
+      const sb =
+        await getClient();
+
+      const redirectTo =
+        new URL(
+          'app.html',
+          window.location.href
+        ).href;
+
+      const result =
+        await sb.auth.signInWithOAuth({
+          provider:'google',
+          options:{
+            redirectTo
+          }
+        });
+
+      if(result.error){
+        throw result.error;
+      }
+
+    }catch(error){
+
+      console.error(
+        'GOOGLE ERROR:',
+        error
+      );
+
+      setStatus(
+        error?.message ||
+        'Google login failed.'
+      );
+
+      googleBtn.disabled = false;
+
+    }
+
   }
-}
+);
 
-async function forgot(){
-  if(!sb){
-    setMessage('Login system is still loading. Please wait a moment.');
-    return;
+forgotBtn.addEventListener(
+  'click',
+  async () => {
+
+    const email =
+      emailInput.value.trim();
+
+    if(!email){
+
+      setStatus(
+        'Type your email above first, then press Forgot password.'
+      );
+
+      emailInput.focus();
+
+      return;
+    }
+
+    forgotBtn.disabled = true;
+
+    setStatus(
+      'Sending password reset email...',
+      'loading'
+    );
+
+    try{
+
+      const sb =
+        await getClient();
+
+      const redirectTo =
+        new URL(
+          'reset.html',
+          window.location.href
+        ).href;
+
+      const result =
+        await sb.auth.resetPasswordForEmail(
+          email,
+          {
+            redirectTo
+          }
+        );
+
+      if(result.error){
+        throw result.error;
+      }
+
+      setStatus(
+        'Reset link sent. Check your email inbox and spam folder.',
+        'ok'
+      );
+
+    }catch(error){
+
+      console.error(
+        'RESET ERROR:',
+        error
+      );
+
+      setStatus(
+        error?.message ||
+        'Could not send reset email.'
+      );
+
+    }finally{
+
+      forgotBtn.disabled = false;
+
+    }
+
   }
+);
 
-  const email=el.email.value.trim();
-  if(!email){
-    setMessage('Type the email you used for your account first, then press Forgot password.');
-    el.email.focus();
-    return;
-  }
+/*
+  IMPORTANT:
+  We intentionally DO NOT call getSession()
+  while the page loads.
 
-  setBusy(true);
-  setMessage('Sending password reset link…');
-
-  try{
-    const redirectTo = new URL('reset.html', location.href).href;
-    const { error } = await sb.auth.resetPasswordForEmail(email,{redirectTo});
-    if(error) throw error;
-    setMessage('Reset link sent. Check your email inbox and spam folder.', true);
-  }catch(e){
-    setMessage(e?.message || 'Could not send reset email.');
-  }finally{
-    setBusy(false);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', init);
+  This keeps the login screen responsive
+  even if an old refresh token is broken.
+*/
 </script>
+
 </body>
 </html>
