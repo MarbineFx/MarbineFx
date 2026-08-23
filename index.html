@@ -377,8 +377,8 @@ function cleanUsername(value){
 }
 
 function signupRedirect(){
-  // Always points back to the same live website/folder, never hardcoded localhost.
-  return new URL('app.html',window.location.href).href;
+  // After email verification, return to the MarbineFX login page.
+  return new URL('index.html',window.location.href).href;
 }
 
 async function handleMain(){
