@@ -141,6 +141,7 @@ background-size:24px 24px,24px 24px,auto,auto;box-shadow:0 35px 110px #000}
 }
 </style>
 
+\n<style id="signal-v5-fixes">\n.custom-market{position:relative}.market-trigger{width:100%;min-height:48px;border:1px solid rgba(230,199,102,.35);border-radius:11px;background:#080502;color:#fff3db;padding:0 14px;display:flex;align-items:center;justify-content:space-between;font-weight:900;cursor:pointer}.market-trigger.open{border-color:#ffe39a;box-shadow:0 0 0 3px rgba(230,199,102,.06)}.market-menu{display:none;position:absolute;z-index:50;left:0;right:0;top:54px;max-height:310px;overflow:auto;padding:7px;background:#090603;border:1px solid rgba(230,199,102,.25);border-radius:12px;box-shadow:0 20px 50px #000}.market-menu.open{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.market-option{border:1px solid rgba(230,199,102,.1);background:#050302;color:#958872;border-radius:9px;padding:10px 8px;font-size:.56rem;font-weight:900;cursor:pointer;text-align:left}.market-option:hover,.market-option.active{background:linear-gradient(135deg,#fff0ae,#d6aa43);color:#090601;border-color:#ffe39a}.indicator-tools{margin-top:.6rem;padding:.8rem}.indicator-tools-head{display:flex;justify-content:space-between;gap:.7rem;align-items:center}.indicator-tools-head b{display:block;color:#e3c873;font-size:.58rem}.indicator-tools-head span{display:block;color:#756b5d;font-size:.48rem;margin-top:.15rem}.indicator-tools-head button{border:1px solid rgba(230,199,102,.13);background:#090603;color:#9d8d6a;border-radius:8px;padding:.45rem .6rem;font-size:.46rem;font-weight:900;cursor:pointer}.indicator-checks{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-top:.65rem}.indicator-toggle{display:flex;gap:.45rem;align-items:center;padding:.55rem;border:1px solid rgba(230,199,102,.08);border-radius:9px;background:#070503;color:#857968;font-size:.48rem;cursor:pointer}.indicator-toggle input{accent-color:#e6c766}.indicator-toggle:has(input:checked){border-color:rgba(230,199,102,.3);color:#e0c77f;background:rgba(230,199,102,.035)}.indicator-info{margin-top:.55rem;padding:.55rem;border-radius:9px;background:#060402;border:1px solid rgba(230,199,102,.07);color:#746b5e;font-size:.48rem;line-height:1.45}.closed-notice{color:#e58b78;font-weight:900}.live-chart-note{color:#75cda8;font-weight:900}@media(max-width:800px){.market-menu.open{grid-template-columns:repeat(2,1fr)}.indicator-checks{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.market-menu.open{grid-template-columns:1fr}.indicator-checks{grid-template-columns:1fr}}\n</style>
 </head><body>
 <div class="wrap">
 <section class="hero"><div class="eye" data-en="HIGH-QUALITY SIGNAL ROOM" data-ms="BILIK SIGNAL BERKUALITI TINGGI">HIGH-QUALITY SIGNAL ROOM</div><h1><span data-en="Signal Room." data-ms="Bilik Signal.">Signal Room.</span><br><span data-en="Wait For The Best." data-ms="Tunggu Yang Terbaik.">Wait For The Best.</span></h1><p data-en="The page shows a trade only when the market is open, a real session is active, liquidity is healthy, indicators strongly agree and price has confirmed a liquidity sweep/reclaim. Otherwise it says WAIT."
@@ -148,9 +149,9 @@ data-ms="Halaman ini hanya menunjukkan trade apabila pasaran dibuka, sesi sebena
 
 <section class="panel pairbar">
   <div class="pairtitle" data-en="Choose a market" data-ms="Pilih pasaran">Choose a market</div>
-  <div class="market-picker-wrap">
-    <select id="marketSelect" class="market-select" aria-label="Choose market"></select>
-    <div id="selectedMarketBadge" class="selected-market-badge">XAU/USD</div>
+  <div class="custom-market" id="customMarket">
+    <button type="button" id="marketTrigger" class="market-trigger" onclick="toggleMarketMenu()"><span id="marketTriggerText">XAU/USD</span><span>▾</span></button>
+    <div id="marketMenu" class="market-menu"></div>
   </div>
 </section>
 
@@ -161,6 +162,12 @@ data-ms="Halaman ini hanya menunjukkan trade apabila pasaran dibuka, sesi sebena
 </section>
 
 <section class="panel chartbox"><div class="charthead"><h3 id="chartTitle">XAU/USD • 15m</h3><div class="timeframes" id="timeframes"></div></div><div id="chart" class="chart"></div><div class="levels"><div class="lv"><span>ENTRY</span><strong id="entry">—</strong></div><div class="lv"><span>SL</span><strong id="sl">—</strong></div><div class="lv"><span>TP1</span><strong id="tp1">—</strong></div><div class="lv"><span>TP2</span><strong id="tp2">—</strong></div><div class="lv"><span>TP3</span><strong id="tp3">—</strong></div></div></section>
+
+<section class="panel indicator-tools">
+  <div class="indicator-tools-head"><div><b>INDICATOR LAB</b><span>Turn confirmations on/off to see available chart overlays.</span></div><button type="button" onclick="clearIndicators()">CLEAR ALL</button></div>
+  <div id="indicatorChecks" class="indicator-checks"></div>
+  <div id="indicatorInfo" class="indicator-info">Select an indicator to test it on the current chart.</div>
+</section>
 
 <section class="panel market-status"><div><h3 id="marketText">Checking market…</h3><p id="sessionText">Checking session…</p></div><div id="marketBadge" class="badge open">…</div></section>
 
@@ -182,36 +189,7 @@ let pair='XAU/USD',tf='15min',lang='en',latest=null,chart,series,lines=[],isOwne
 function fmt(v){if(v==null||!Number.isFinite(+v))return'—';const n=+v;return n<10?n.toFixed(5):n.toFixed(2)}
 function setLanguage(v){lang=v;document.querySelectorAll('[data-en]').forEach(e=>e.textContent=e.dataset[v])}
 window.addEventListener('message',e=>{if(e.data?.type==='marbine-language')setLanguage(e.data.lang)});
-function buildPickers(){
-  const marketSelect=document.getElementById('marketSelect');
-  const timeframesEl=document.getElementById('timeframes');
-
-  if(!marketSelect||!timeframesEl){
-    console.error('Signal Room market picker is missing.');
-    return;
-  }
-
-  marketSelect.innerHTML=pairs.map(p =>
-    `<option value="${p}" ${p===pair?'selected':''}>${p}</option>`
-  ).join('');
-
-  marketSelect.onchange=()=>{
-    choosePair(marketSelect.value);
-  };
-
-  const badge=document.getElementById('selectedMarketBadge');
-  if(badge)badge.textContent=pair;
-
-  timeframesEl.innerHTML=tfs.map(([v,l]) =>
-    `<button type="button" class="tf ${v===tf?'active':''}" data-timeframe="${v}">${l}</button>`
-  ).join('');
-
-  timeframesEl.querySelectorAll('.tf').forEach(btn=>{
-    btn.addEventListener('click',()=>chooseTf(btn.dataset.timeframe));
-  });
-}
-
-function initChart(){const host=document.getElementById('chart');chart=LightweightCharts.createChart(host,{layout:{background:{color:'#050402'},textColor:'#938872'},grid:{vertLines:{color:'rgba(230,199,102,.04)'},horzLines:{color:'rgba(230,199,102,.04)'}},timeScale:{timeVisible:true},rightPriceScale:{borderColor:'rgba(230,199,102,.08)'}});series=chart.addCandlestickSeries({upColor:'#e6c766',downColor:'#0f0c09',borderUpColor:'#ffe39a',borderDownColor:'#a98030',wickUpColor:'#e6c766',wickDownColor:'#a98030'});new ResizeObserver(()=>chart.applyOptions({width:host.clientWidth,height:host.clientHeight})).observe(host)}
+function buildPickers(){\n  const menu=document.getElementById('marketMenu');\n  const tfEl=document.getElementById('timeframes');\n  if(menu){\n    menu.innerHTML=pairs.map(p=>`<button type="button" class="market-option ${p===pair?'active':''}" onclick="choosePair('${p}')">${p}</button>`).join('');\n    const t=document.getElementById('marketTriggerText'); if(t)t.textContent=pair;\n  }\n  if(tfEl){\n    tfEl.innerHTML=tfs.map(([v,l])=>`<button type="button" class="tf ${v===tf?'active':''}" onclick="chooseTf('${v}')">${l}</button>`).join('');\n  }\n}\nfunction toggleMarketMenu(){const m=document.getElementById('marketMenu'),b=document.getElementById('marketTrigger');m.classList.toggle('open');b.classList.toggle('open',m.classList.contains('open'))}\ndocument.addEventListener('click',e=>{const w=document.getElementById('customMarket');if(w&&!w.contains(e.target)){document.getElementById('marketMenu')?.classList.remove('open');document.getElementById('marketTrigger')?.classList.remove('open')}});\n\nfunction initChart(){const host=document.getElementById('chart');chart=LightweightCharts.createChart(host,{layout:{background:{color:'#050402'},textColor:'#938872'},grid:{vertLines:{color:'rgba(230,199,102,.04)'},horzLines:{color:'rgba(230,199,102,.04)'}},timeScale:{timeVisible:true},rightPriceScale:{borderColor:'rgba(230,199,102,.08)'}});series=chart.addCandlestickSeries({upColor:'#e6c766',downColor:'#0f0c09',borderUpColor:'#ffe39a',borderDownColor:'#a98030',wickUpColor:'#e6c766',wickDownColor:'#a98030'});new ResizeObserver(()=>chart.applyOptions({width:host.clientWidth,height:host.clientHeight})).observe(host)}
 function clearLines(){lines.forEach(l=>{try{series.removePriceLine(l)}catch(e){}});lines=[]}function addLine(v,t,c,s=2){if(!Number.isFinite(+v))return;lines.push(series.createPriceLine({price:+v,title:t,color:c,lineWidth:2,lineStyle:s,axisLabelVisible:true}))}
 async function session(){let{data:{session}}=await sb.auth.getSession();return session}
 async function ownerCheck(){const s=await session();if(!s)return;try{const r=await fetch(URL+'/functions/v1/telegram-signal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token,'apikey':KEY},body:JSON.stringify({action:'status'})}),d=await r.json();isOwner=!!d.isOwner;ownerBox.classList.toggle('show',isOwner)}catch(e){}}
@@ -249,7 +227,8 @@ ${d.signal==='BUY'?'🐂 BULLISH SETUP':'🐻 BEARISH SETUP'}
 ⚠️ Educational market analysis only.`}
 async function run(){document.getElementById('bias').textContent='CHECKING…';clearLines();['entry','sl','tp1','tp2','tp3'].forEach(x=>document.getElementById(x).textContent='—');const s=await session();if(!s){document.getElementById('bias').textContent='LOGIN REQUIRED';return}try{const r=await fetch(URL+'/functions/v1/market-signal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token,'apikey':KEY},body:JSON.stringify({pair,timeframe:tf})}),d=await r.json();if(!r.ok)throw new Error(d.error||'Signal check failed');latest=d;document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];if(d.candles?.length){series.setData(d.candles);chart.timeScale().fitContent()}document.getElementById('marketText').textContent=d.market.open?(lang==='ms'?'PASARAN DIBUKA':'MARKET OPEN'):(lang==='ms'?'PASARAN DITUTUP':'MARKET CLOSED');document.getElementById('sessionText').textContent=d.market.sessionText;document.getElementById('marketBadge').textContent=d.market.open?'OPEN':'CLOSED';document.getElementById('marketBadge').className='badge '+(d.market.open?'open':'closed');document.getElementById('bias').textContent=d.signal==='WAIT'?'NO HIGH-QUALITY SETUP':d.signal;document.getElementById('bias').className='bias '+(d.signal==='BUY'?'buy':d.signal==='SELL'?'sell':'wait');document.getElementById('score').textContent=d.signal==='CLOSED'?'—':d.confidence+'%';document.getElementById('price').textContent=fmt(d.currentPrice);document.getElementById('vol').textContent=d.volatility||'—';document.getElementById('vol').className=(d.volatility||'').toLowerCase();document.getElementById('liq').textContent=d.liquidity?.label||'—';document.getElementById('risk').textContent=d.risk||'—';document.getElementById('risk').className=(d.risk||'').toLowerCase();document.getElementById('hold').textContent=(d.signal==='BUY'||d.signal==='SELL')?d.holdReview:'—';document.getElementById('quality').innerHTML=(d.quality?.reasons||[]).map(x=>`<div class="q ${x.includes('No ')||x.includes('too quiet')||x.includes('not strong')||x.includes('closed')?'no':'ok'}">${x}</div>`).join('');document.getElementById('buyWhy').innerHTML=(d.whyBuy||[]).map(x=>'<li>'+x+'</li>').join('');document.getElementById('sellWhy').innerHTML=(d.whySell||[]).map(x=>'<li>'+x+'</li>').join('');if(d.levels){for(const k of ['entry','sl','tp1','tp2','tp3'])document.getElementById(k).textContent=fmt(d.levels[k]);addLine(d.levels.entry,'ENTRY','#e6c766');addLine(d.levels.sl,'SL','#e26f5d',0);addLine(d.levels.tp1,'TP1','#4bd19a');addLine(d.levels.tp2,'TP2','#4bd19a');addLine(d.levels.tp3,'TP3','#4bd19a')}if(isOwner){telegramMessage.value=(d.signal==='BUY'||d.signal==='SELL')?defaultMessage(d):'';ownerMsg.textContent=(d.signal==='BUY'||d.signal==='SELL')?'Ready for your review.':'Nothing to send — wait for a qualified BUY/SELL setup.'}}catch(e){document.getElementById('bias').textContent='DATA ERROR';document.getElementById('bias').className='bias wait';document.getElementById('sessionText').textContent=e.message}}
 async function sendTelegram(){if(!isOwner||!latest||!['BUY','SELL'].includes(latest.signal)){ownerMsg.textContent='No qualified signal to send.';return}ownerMsg.textContent='Sending…';const s=await session();const r=await fetch(URL+'/functions/v1/telegram-signal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token,'apikey':KEY},body:JSON.stringify({signalData:latest,message:telegramMessage.value})}),d=await r.json();ownerMsg.textContent=r.ok?'Sent to Telegram ✅':(d.error||'Send failed')}
-buildPickers();initChart();(async()=>{await ownerCheck();document.getElementById('bias').textContent='READY TO SCAN';})(); 
+\nconst indicatorNames=['Kangaroo Tails','Bollinger Bands','RSI Divergence','MACD','ATR Channel','EMA Ribbon','Ichimoku','Stochastic','Parabolic SAR','CCI','Supertrend','Donchian','Keltner','Pivot Grid','Fibonacci','VWAP','Chaikin Money Flow','Hull MA','Williams %R','Linear Regression','ROC','TSI','ALMA','MFI','Elder Ray','COG','Coppock','DPO','Klinger','Liquidity Sweep'];\nlet indicatorSeries=[];\nfunction buildIndicatorChecks(){const box=document.getElementById('indicatorChecks');if(!box)return;box.innerHTML=indicatorNames.map((n,i)=>`<label class="indicator-toggle"><input type="checkbox" data-i="${i}" onchange="renderIndicatorOverlays()"><span>${String(i+1).padStart(2,'0')} ${n}</span></label>`).join('')}\nfunction removeIndicatorSeries(){indicatorSeries.forEach(s=>{try{chart.removeSeries(s)}catch(e){}});indicatorSeries=[]}\nfunction lineData(vals,c){return c.map((x,i)=>({time:x.time,value:vals[i]})).filter(x=>Number.isFinite(x.value))}\nfunction emaVals(a,n){if(!a.length)return[];let e=a[0],k=2/(n+1);return a.map(v=>(e=v*k+e*(1-k)))}\nfunction smaVals(a,n){return a.map((_,i)=>{const v=a.slice(Math.max(0,i-n+1),i+1);return v.reduce((x,y)=>x+y,0)/v.length})}\nfunction addOverlay(vals,c,title){const s=chart.addLineSeries({lineWidth:2,title,priceLineVisible:false,lastValueVisible:true});s.setData(lineData(vals,c));indicatorSeries.push(s)}\nfunction renderIndicatorOverlays(){removeIndicatorSeries();if(!latest?.candles?.length){indicatorInfo.textContent='Live candles are still loading. Try again in a moment.';return}const c=latest.candles,cl=c.map(x=>+x.close),checks=[...document.querySelectorAll('#indicatorChecks input:checked')].map(x=>+x.dataset.i);let notes=[];for(const i of checks){if(i===1){const mid=smaVals(cl,20);addOverlay(mid,c,'BB MID');notes.push('Bollinger middle line added.')}else if(i===4){const e=emaVals(cl,20),a=c.map((_,k)=>k<2?0:Math.abs(c[k].high-c[k].low));addOverlay(e.map((x,k)=>x+(a[k]||0)*1.5),c,'ATR UPPER');addOverlay(e.map((x,k)=>x-(a[k]||0)*1.5),c,'ATR LOWER');notes.push('ATR channel proxy added.')}else if(i===5){addOverlay(emaVals(cl,20),c,'EMA20');addOverlay(emaVals(cl,50),c,'EMA50');addOverlay(emaVals(cl,Math.min(180,cl.length)),c,'EMA200');notes.push('EMA ribbon added.')}else if(i===11){const h=c.map((x,k)=>Math.max(...c.slice(Math.max(0,k-19),k+1).map(z=>z.high))),l=c.map((x,k)=>Math.min(...c.slice(Math.max(0,k-19),k+1).map(z=>z.low)));addOverlay(h,c,'DONCHIAN H');addOverlay(l,c,'DONCHIAN L');notes.push('Donchian channel added.')}else if(i===12){const e=emaVals(cl,20);addOverlay(e,c,'KELTNER MID');notes.push('Keltner midline added.')}else if(i===13){const p=(c.at(-2).high+c.at(-2).low+c.at(-2).close)/3;addLine(p,'PIVOT','#d6aa43');notes.push('Pivot level added.')}else if(i===14){const hi=Math.max(...c.slice(-50).map(x=>x.high)),lo=Math.min(...c.slice(-50).map(x=>x.low));addLine(lo+(hi-lo)*.5,'FIB 50%','#c8a34c');addLine(lo+(hi-lo)*.618,'FIB 61.8%','#e6c766');notes.push('Fibonacci levels added.')}else if(i===17){addOverlay(emaVals(cl,16),c,'HULL PROXY');notes.push('Hull-style smooth trend proxy added.')}else if(i===22){addOverlay(emaVals(cl,9),c,'ALMA PROXY');notes.push('ALMA-style smooth line added.')}else if(i===29){const sw=latest.liquidity?.sweep;if(sw?.bull||sw?.bear)notes.push('Liquidity sweep detected: '+sw.detail);else notes.push('No recent confirmed liquidity sweep.')}else if([15,16,23,28].includes(i)){notes.push(indicatorNames[i]+' needs reliable volume data, so no fake overlay is drawn.')}else{notes.push(indicatorNames[i]+' is checked by the scanner; its result is shown in the scan console rather than forced onto the price scale.')}}indicatorInfo.textContent=notes.length?notes.join(' • '):'Select an indicator to test it on the current chart.'}\nfunction clearIndicators(){document.querySelectorAll('#indicatorChecks input').forEach(x=>x.checked=false);removeIndicatorSeries();indicatorInfo.textContent='Select an indicator to test it on the current chart.'}\nasync function loadLiveChart(){const s=await session();if(!s)return;try{document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1]+' • loading';const r=await fetch(URL+'/functions/v1/market-signal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token,'apikey':KEY},body:JSON.stringify({pair,timeframe:tf})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Chart data failed');latest=d;if(d.candles?.length){series.setData(d.candles);chart.timeScale().fitContent();renderIndicatorOverlays()}document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1]+' • LIVE CHART';document.getElementById('marketText').textContent=d.market?.open?'MARKET OPEN':'MARKET CLOSED — SIGNALS DISABLED';document.getElementById('sessionText').innerHTML=(d.market?.open?'Live candles loaded. ':'<span class="closed-notice">Market is closed. Showing the latest available candles; no signal will be issued.</span> ')+(d.market?.sessionText||'');document.getElementById('marketBadge').textContent=d.market?.open?'OPEN':'CLOSED';document.getElementById('marketBadge').className='badge '+(d.market?.open?'open':'closed')}catch(e){document.getElementById('sessionText').textContent='Chart error: '+e.message}}\n
+buildPickers();initChart();buildIndicatorChecks();(async()=>{await ownerCheck();document.getElementById('bias').textContent='READY TO SCAN';await loadLiveChart();})(); 
 
 // ===== MARBINEFX 30-SYSTEM VISUAL SCANNER =====
 const scannerIndicators=[
@@ -354,6 +333,7 @@ async function runScanner(){
     const d=await r.json();
     if(!r.ok)throw new Error(d.error||'Signal check failed');
     latest=d;
+    if(d.market && !d.market.open){scannerLog.innerHTML='&gt; <b>MARKET CLOSED.</b> Latest candles remain visible; signal generation is disabled.';}
     scannerLog.innerHTML=`&gt; <b>${d.candles?.length||0} candles received.</b> Market: ${d.market?.open?'OPEN':'CLOSED'} // ${d.market?.sessionText||'—'}`;
     if(d.candles?.length){series.setData(d.candles);chart.timeScale().fitContent()}
     const checks=scannerChecks(d);
@@ -422,26 +402,8 @@ async function runScanner(){
 
 // Pair/timeframe selection no longer automatically burns an API request.
 // User deliberately starts analysis with CHECK SIGNAL.
-function choosePair(p){
-  if(!pairs.includes(p))return;
-  pair=p;
-  buildPickers();
-  const badge=document.getElementById('selectedMarketBadge');
-  if(badge)badge.textContent=pair;
-  document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];
-  document.getElementById('bias').textContent='READY TO SCAN';
-  document.getElementById('bias').className='bias wait';
-  document.getElementById('marketText').textContent='READY TO SCAN';
-  document.getElementById('sessionText').textContent='Selected '+pair+'. Press CHECK SIGNAL.';
-}
-function chooseTf(v){
-  if(!tfs.some(x=>x[0]===v))return;
-  tf=v;
-  buildPickers();
-  document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];
-  document.getElementById('bias').textContent='READY TO SCAN';
-  document.getElementById('bias').className='bias wait';
-}
+function choosePair(p){if(!pairs.includes(p))return;pair=p;document.getElementById('marketMenu')?.classList.remove('open');document.getElementById('marketTrigger')?.classList.remove('open');buildPickers();document.getElementById('bias').textContent='READY TO SCAN';document.getElementById('bias').className='bias wait';clearLines();['entry','sl','tp1','tp2','tp3'].forEach(x=>document.getElementById(x).textContent='—');loadLiveChart()}
+function chooseTf(v){if(!tfs.some(x=>x[0]===v))return;tf=v;buildPickers();document.getElementById('bias').textContent='READY TO SCAN';document.getElementById('bias').className='bias wait';clearLines();['entry','sl','tp1','tp2','tp3'].forEach(x=>document.getElementById(x).textContent='—');loadLiveChart()}
 
 </script>
 <div id="scannerOverlay" class="scanner-overlay">
