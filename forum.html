@@ -1235,6 +1235,17 @@
   .global-wealth-item:nth-child(n+9){display:none}
 }
 
+
+
+html.embed .navbar,html.embed .nav,html.embed .ticker,html.embed footer,
+html.embed .game-carousel,html.embed .game-eyebrow,html.embed .game-selection-line,
+html.embed .nav-page-links,html.embed .lang,html.embed .lang-switch,html.embed .lang-container{display:none!important}
+html.embed body{padding-top:0!important;background:#030201!important}
+html.embed .hero{min-height:auto!important}
+html.embed .hero-content{padding-top:1rem!important}
+html.embed .gold-btn{display:none!important}
+html.embed .money-down-btn{display:none!important}
+
 </style>
 </head>
 
@@ -2439,6 +2450,26 @@
     layer.appendChild(e);
   });
   document.body.appendChild(layer);
+})();
+</script>
+
+
+
+<script>
+(function(){
+ const p=new URLSearchParams(location.search);
+ if(p.get('embed')==='1') document.documentElement.classList.add('embed');
+ function applyLang(v){
+   try{
+     if(typeof window.setLanguage==='function'){try{window.setLanguage(v,false)}catch(e){try{window.setLanguage(v)}catch(_){}}}
+     else if(typeof window.setLang==='function'){try{window.setLang(v)}catch(e){}}
+   }catch(e){}
+ }
+ window.addEventListener('message',e=>{
+   if(e.data?.type==='marbine-language') applyLang(e.data.lang);
+   if(e.data?.type==='marbine-scroll-top') window.scrollTo({top:0,behavior:'smooth'});
+ });
+ const v=p.get('lang'); if(v) window.addEventListener('load',()=>setTimeout(()=>applyLang(v),80));
 })();
 </script>
 
