@@ -729,6 +729,62 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="history-collapse-style">
+.collapse-head{display:flex;align-items:center;justify-content:space-between;gap:.7rem}
+.collapse-actions{display:flex;align-items:center;gap:.35rem;flex:0 0 auto}
+.collapse-toggle{
+  min-width:42px;height:34px;border:1px solid rgba(231,201,104,.16);border-radius:9px;
+  background:#090603;color:#d8bd72;font-size:.75rem;font-weight:1000;cursor:pointer;
+}
+.collapse-toggle:active{transform:scale(.95)}
+.collapse-toggle .chev{display:inline-block;transition:transform .25s ease}
+.collapse-toggle.collapsed .chev{transform:rotate(-90deg)}
+.collapse-body{display:grid;grid-template-rows:1fr;opacity:1;transition:grid-template-rows .25s ease,opacity .2s ease}
+.collapse-body>.collapse-inner{overflow:hidden}
+.collapse-body.collapsed{grid-template-rows:0fr;opacity:0}
+
+.history-panel{margin-top:.6rem;padding:.8rem}
+.history-head h3{color:#ffe39a;font-size:.68rem}
+.history-head p{color:#756a59;font-size:.48rem;margin-top:.16rem;line-height:1.45}
+.history-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-top:.7rem}
+.history-stat{padding:.7rem;border-radius:11px;border:1px solid rgba(231,201,104,.08);background:#070503}
+.history-stat span{display:block;color:#6c6356;font-size:.4rem;font-weight:900;text-transform:uppercase}
+.history-stat strong{display:block;margin-top:.22rem;font:700 1.05rem "Playfair Display",serif}
+.history-stat.win strong{color:#70d0a5}.history-stat.loss strong{color:#e68774}.history-stat.net strong{color:#ffe39a}
+.history-list{display:grid;gap:.45rem;margin-top:.65rem}
+.history-row{
+  display:grid;grid-template-columns:minmax(150px,1fr) auto;gap:.65rem;align-items:center;
+  padding:.7rem;border-radius:11px;border:1px solid rgba(231,201,104,.075);background:#070503
+}
+.history-main{min-width:0}.history-title{font-size:.58rem;font-weight:900;color:#d8c392}
+.history-meta{margin-top:.18rem;color:#6f6659;font-size:.44rem;line-height:1.4}
+.history-result{text-align:right;font-size:.58rem;font-weight:1000;white-space:nowrap}
+.history-result.profit{color:#70d0a5}.history-result.loss{color:#e68774}.history-result.running{color:#d4b86d}
+.history-empty{padding:1rem;text-align:center;color:#72695c;font-size:.5rem;border:1px dashed rgba(231,201,104,.1);border-radius:10px}
+.history-owner{display:none;margin-top:.7rem;padding-top:.7rem;border-top:1px solid rgba(231,201,104,.08)}
+.history-owner.show{display:block}
+.history-owner-btn{
+  width:100%;min-height:45px;border:1px solid rgba(255,227,154,.36);border-radius:10px;
+  background:linear-gradient(135deg,#fff0ad,#d8ad49);color:#090601;font-size:.56rem;font-weight:1000
+}
+.history-period{display:none;grid-template-columns:1fr 1fr;gap:.45rem;margin-top:.5rem}
+.history-period.show{display:grid}
+.history-period button{
+  min-height:43px;border:1px solid rgba(231,201,104,.14);border-radius:9px;background:#090603;
+  color:#d4bb78;font-size:.52rem;font-weight:900
+}
+.history-send-status{min-height:20px;margin-top:.4rem;color:#8b7d66;font-size:.47rem}
+@media(max-width:620px){
+  .collapse-toggle{height:40px;min-width:46px;font-size:.85rem}
+  .history-stats{grid-template-columns:1fr}
+  .history-row{grid-template-columns:1fr}
+  .history-result{text-align:left}
+  .history-period{grid-template-columns:1fr}
+  .history-panel{padding:.65rem}
+}
+</style>
+
 </head>
 <body>
 
@@ -768,34 +824,45 @@ button{cursor:pointer}
   <button type="button" class="scan-btn" id="scanBtn">⚡ CHECK SIGNAL</button>
 </section>
 
-<section class="panel indicator-panel">
-  <div class="indicator-head">
+<section class="panel indicator-panel" id="indicatorPanel">
+  <div class="indicator-head collapse-head">
     <div>
       <h3>INDICATOR LAB</h3>
       <p>Toggle confirmation tools to see how they behave on the current chart.</p>
     </div>
-    <button type="button" class="clear-btn" id="clearIndicators">CLEAR</button>
+    <div class="collapse-actions">
+      <button type="button" class="clear-btn" id="clearIndicators">CLEAR</button>
+      <button type="button" class="collapse-toggle" id="indicatorCollapseBtn" aria-expanded="true" aria-controls="indicatorCollapseBody" title="Minimize Indicator Lab"><span class="chev">⌄</span></button>
+    </div>
   </div>
-  <div id="indicatorGrid" class="indicator-grid"></div>
-  <div id="indicatorInfo" class="indicator-info">Select an indicator to test it on the chart.</div>
+  <div class="collapse-body" id="indicatorCollapseBody">
+    <div class="collapse-inner">
+      <div id="indicatorGrid" class="indicator-grid"></div>
+      <div id="indicatorInfo" class="indicator-info">Select an indicator to test it on the chart.</div>
+    </div>
+  </div>
 </section>
 
-<section class="panel chart-panel">
-  <div class="chart-head">
-    <h3 id="chartTitle">XAU/USD • 15m</h3>
+<section class="panel chart-panel" id="chartPanel">
+  <div class="chart-head collapse-head">
     <div>
+      <h3 id="chartTitle">XAU/USD • 15m</h3>
       <span id="chartHint">Loading latest candles…</span>
       <div class="live-strip"><span class="live-dot"></span><span id="liveRefreshText">Auto refresh: 30s</span><span id="lastUpdated">—</span></div>
     </div>
+    <button type="button" class="collapse-toggle" id="chartCollapseBtn" aria-expanded="true" aria-controls="chartCollapseBody" title="Minimize chart"><span class="chev">⌄</span></button>
   </div>
-  <div id="chart"></div>
-
-  <div class="levels">
-    <div class="level"><span>ENTRY</span><strong id="entry">—</strong></div>
-    <div class="level"><span>SL</span><strong id="sl">—</strong></div>
-    <div class="level"><span>TP1</span><strong id="tp1">—</strong></div>
-    <div class="level"><span>TP2</span><strong id="tp2">—</strong></div>
-    <div class="level"><span>TP3</span><strong id="tp3">—</strong></div>
+  <div class="collapse-body" id="chartCollapseBody">
+    <div class="collapse-inner">
+      <div id="chart"></div>
+      <div class="levels">
+        <div class="level"><span>ENTRY</span><strong id="entry">—</strong></div>
+        <div class="level"><span>SL</span><strong id="sl">—</strong></div>
+        <div class="level"><span>TP1</span><strong id="tp1">—</strong></div>
+        <div class="level"><span>TP2</span><strong id="tp2">—</strong></div>
+        <div class="level"><span>TP3</span><strong id="tp3">—</strong></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -836,6 +903,39 @@ button{cursor:pointer}
     <div class="whybox">
       <h4>🐻 Bearish evidence</h4>
       <ul id="sellWhy"></ul>
+    </div>
+  </div>
+</section>
+
+<section class="panel history-panel" id="historyPanel">
+  <div class="history-head collapse-head">
+    <div>
+      <h3>📚 SIGNAL HISTORY</h3>
+      <p>Official MarbineFX signals sent to Telegram. Running trades update automatically when the tracker closes them.</p>
+    </div>
+    <button type="button" class="collapse-toggle" id="historyCollapseBtn" aria-expanded="true" aria-controls="historyCollapseBody" title="Minimize history"><span class="chev">⌄</span></button>
+  </div>
+
+  <div class="collapse-body" id="historyCollapseBody">
+    <div class="collapse-inner">
+      <div class="history-stats">
+        <div class="history-stat win"><span>All-Time Won Pips</span><strong id="historyWon">+0</strong></div>
+        <div class="history-stat loss"><span>All-Time Lost Pips</span><strong id="historyLost">-0</strong></div>
+        <div class="history-stat net"><span>All-Time Net Pips</span><strong id="historyNet">0</strong></div>
+      </div>
+
+      <div id="historyList" class="history-list">
+        <div class="history-empty">Loading official signal history…</div>
+      </div>
+
+      <div id="historyOwner" class="history-owner">
+        <button type="button" class="history-owner-btn" id="historyTelegramBtn">👑 SEND HISTORY TO TELEGRAM GROUP</button>
+        <div id="historyPeriod" class="history-period">
+          <button type="button" data-period="this_week">📅 THIS WEEK</button>
+          <button type="button" data-period="last_week">🗓️ LAST WEEK</button>
+        </div>
+        <div id="historySendStatus" class="history-send-status"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -1677,6 +1777,147 @@ ${d.liquidity?.sweep?.detail||'—'}
   }
 
 
+
+  function signedPips(value){
+    const n=Math.round(Number(value)||0);
+    return (n>0?'+':'')+n;
+  }
+
+  async function loadHistory(){
+    const list=$('historyList');
+    if(!list) return;
+
+    try{
+      const {data,error}=await sb
+        .from('signal_history')
+        .select('id,pair,timeframe,signal,status,outcome,result_pips,max_profit_pips,max_loss_pips,published_at,closed_at')
+        .order('published_at',{ascending:false})
+        .limit(100);
+
+      if(error) throw error;
+
+      const rows=data||[];
+      const closed=rows.filter(x=>x.status==='closed');
+      const won=closed.filter(x=>Number(x.result_pips)>0).reduce((s,x)=>s+Number(x.result_pips),0);
+      const lost=closed.filter(x=>Number(x.result_pips)<0).reduce((s,x)=>s+Math.abs(Number(x.result_pips)),0);
+      const net=won-lost;
+
+      $('historyWon').textContent='+'+Math.round(won);
+      $('historyLost').textContent='-'+Math.round(lost);
+      $('historyNet').textContent=signedPips(net);
+
+      if(!rows.length){
+        list.innerHTML='<div class="history-empty">No official signals have been published yet.</div>';
+        return;
+      }
+
+      list.innerHTML=rows.map(row=>{
+        const pairName=String(row.pair||'').replace('/','');
+        const animal=row.signal==='BUY'?'🐂':'🐻';
+        const date=new Date(row.published_at).toLocaleString();
+        const p=Number(row.result_pips)||0;
+
+        if(row.status!=='closed'){
+          const best=Math.round(Number(row.max_profit_pips)||0);
+          const worst=Math.round(Number(row.max_loss_pips)||0);
+          return `<div class="history-row">
+            <div class="history-main">
+              <div class="history-title">${animal} ${pairName} ${row.signal} ➜ TRACKING</div>
+              <div class="history-meta">${date} • ${row.timeframe} • Best +${best} / Max -${worst} pips</div>
+            </div>
+            <div class="history-result running">⏳ RUNNING</div>
+          </div>`;
+        }
+
+        const profit=p>=0;
+        return `<div class="history-row">
+          <div class="history-main">
+            <div class="history-title">${animal} ${pairName} ${row.signal} ➜ ${signedPips(p)} PIPS</div>
+            <div class="history-meta">${date} • ${row.timeframe}</div>
+          </div>
+          <div class="history-result ${profit?'profit':'loss'}">${profit?'✅ PROFIT':'❌ LOSS'}</div>
+        </div>`;
+      }).join('');
+
+    }catch(err){
+      console.warn('History load failed',err);
+      list.innerHTML='<div class="history-empty">History could not be loaded right now.</div>';
+    }
+  }
+
+  async function sendHistoryPeriod(period,button){
+    if(!isOwner) return;
+
+    const s=await session();
+    if(!s){
+      $('historySendStatus').textContent='Login required.';
+      return;
+    }
+
+    const buttons=[...$('historyPeriod').querySelectorAll('button')];
+    buttons.forEach(x=>x.disabled=true);
+    $('historySendStatus').textContent='Building Telegram history summary…';
+
+    try{
+      const r=await fetch(SUPABASE_URL+'/functions/v1/telegram-signal',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+s.access_token,
+          'apikey':SUPABASE_KEY
+        },
+        body:JSON.stringify({
+          action:'history_summary',
+          period
+        })
+      });
+
+      const data=await r.json();
+      if(!r.ok) throw new Error(data.error||'Could not send history.');
+
+      $('historySendStatus').textContent=
+        `Sent ✅ ${data.count} signal${data.count===1?'':'s'} • Net ${signedPips(data.net)} pips`;
+      $('historyPeriod').classList.remove('show');
+    }catch(err){
+      $('historySendStatus').textContent=err.message;
+    }finally{
+      buttons.forEach(x=>x.disabled=false);
+    }
+  }
+
+  function setupCollapse(buttonId,bodyId,storageKey){
+    const btn=$(buttonId);
+    const body=$(bodyId);
+    if(!btn||!body) return;
+
+    function setCollapsed(collapsed){
+      body.classList.toggle('collapsed',collapsed);
+      btn.classList.toggle('collapsed',collapsed);
+      btn.setAttribute('aria-expanded',String(!collapsed));
+      btn.title=collapsed?'Expand section':'Minimize section';
+
+      try{localStorage.setItem(storageKey,collapsed?'1':'0')}catch(e){}
+
+      if(buttonId==='chartCollapseBtn' && !collapsed && chart){
+        setTimeout(()=>{
+          chart.applyOptions({
+            width:$('chart').clientWidth,
+            height:$('chart').clientHeight
+          });
+          chart.timeScale().fitContent();
+        },280);
+      }
+    }
+
+    let initial=false;
+    try{initial=localStorage.getItem(storageKey)==='1'}catch(e){}
+    setCollapsed(initial);
+
+    btn.addEventListener('click',()=>{
+      setCollapsed(!body.classList.contains('collapsed'));
+    });
+  }
+
   async function loadOwnerPendingSignal(){
     if(!isOwner) return;
 
@@ -1738,6 +1979,7 @@ ${d.liquidity?.sweep?.detail||'—'}
     liveRefreshTimer=setInterval(async()=>{
       if(document.hidden || scanning) return;
       await loadLatestChart();
+      await loadHistory();
       if(isOwner) await loadOwnerPendingSignal();
     },30000);
   }
@@ -1763,6 +2005,7 @@ ${d.liquidity?.sweep?.detail||'—'}
 
       if(isOwner){
         $('ownerBox').classList.add('show');
+        $('historyOwner').classList.add('show');
         await loadOwnerPendingSignal();
       }
     }catch(err){
@@ -1807,6 +2050,7 @@ ${d.liquidity?.sweep?.detail||'—'}
       if(r.ok){
         pendingSignalId=null;
         $('pendingBanner').classList.remove('show');
+        await loadHistory();
       }
 
     }catch(err){
@@ -1828,6 +2072,20 @@ ${d.liquidity?.sweep?.detail||'—'}
   $('scanAgainBtn').addEventListener('click',runScanner);
   $('sendTelegramBtn').addEventListener('click',sendTelegram);
 
+
+  setupCollapse('indicatorCollapseBtn','indicatorCollapseBody','marbine_indicator_collapsed');
+  setupCollapse('chartCollapseBtn','chartCollapseBody','marbine_chart_collapsed');
+  setupCollapse('historyCollapseBtn','historyCollapseBody','marbine_history_collapsed');
+
+  $('historyTelegramBtn').addEventListener('click',()=>{
+    $('historyPeriod').classList.toggle('show');
+    $('historySendStatus').textContent='';
+  });
+
+  $('historyPeriod').querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click',()=>sendHistoryPeriod(btn.dataset.period,btn));
+  });
+
   $('clearIndicators').addEventListener('click',()=>{
     $('indicatorGrid').querySelectorAll('input').forEach(x=>x.checked=false);
     clearOverlaySeries();
@@ -1841,6 +2099,7 @@ ${d.liquidity?.sweep?.detail||'—'}
 
   (async()=>{
     await loadLatestChart();
+    await loadHistory();
     await ownerCheck();
     startLiveRefresh();
   })();
