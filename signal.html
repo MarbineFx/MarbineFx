@@ -89,12 +89,70 @@ background-size:24px 24px,24px 24px,auto,auto;box-shadow:0 35px 110px #000}
 }
 </style>
 
+
+<style id="market-select-fix">
+.market-picker-wrap{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:.55rem;
+  align-items:center;
+}
+.market-select{
+  width:100%;
+  min-height:46px;
+  appearance:none;
+  -webkit-appearance:none;
+  border:1px solid rgba(230,199,102,.24);
+  border-radius:11px;
+  padding:0 42px 0 14px;
+  color:#fff3db;
+  font-size:.62rem;
+  font-weight:900;
+  outline:none;
+  cursor:pointer;
+  background:
+    linear-gradient(45deg,transparent 50%,#e6c766 50%) calc(100% - 18px) 19px/5px 5px no-repeat,
+    linear-gradient(135deg,#e6c766 50%,transparent 50%) calc(100% - 13px) 19px/5px 5px no-repeat,
+    #080502;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+.market-select:focus{
+  border-color:#e6c766;
+  box-shadow:0 0 0 3px rgba(230,199,102,.07),0 0 20px rgba(230,199,102,.07);
+}
+.market-select option{background:#080502;color:#fff3db}
+.selected-market-badge{
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:96px;
+  padding:0 .8rem;
+  border-radius:11px;
+  background:linear-gradient(135deg,#fff0ae,#d9b04b);
+  color:#080501;
+  font-size:.58rem;
+  font-weight:1000;
+  box-shadow:0 10px 24px rgba(230,199,102,.1);
+}
+@media(max-width:560px){
+  .market-picker-wrap{grid-template-columns:1fr}
+  .selected-market-badge{min-width:0}
+}
+</style>
+
 </head><body>
 <div class="wrap">
 <section class="hero"><div class="eye" data-en="HIGH-QUALITY SIGNAL ROOM" data-ms="BILIK SIGNAL BERKUALITI TINGGI">HIGH-QUALITY SIGNAL ROOM</div><h1><span data-en="Signal Room." data-ms="Bilik Signal.">Signal Room.</span><br><span data-en="Wait For The Best." data-ms="Tunggu Yang Terbaik.">Wait For The Best.</span></h1><p data-en="The page shows a trade only when the market is open, a real session is active, liquidity is healthy, indicators strongly agree and price has confirmed a liquidity sweep/reclaim. Otherwise it says WAIT."
 data-ms="Halaman ini hanya menunjukkan trade apabila pasaran dibuka, sesi sebenar aktif, liquidity sihat, indikator sangat bersetuju dan harga mengesahkan liquidity sweep/reclaim. Jika tidak, ia akan tunjuk WAIT.">The page only shows a trade when the setup passes strict filters.</p><div class="mascots"><div class="mascot">🐂 Bull Team</div><div class="mascot">🐻 Bear Team</div><div class="mascot">💰 High Liquidity</div><div class="mascot">🪙 Sweep Confirmed</div></div></section>
 
-<section class="panel pairbar"><div class="pairtitle" data-en="Choose a market" data-ms="Pilih pasaran">Choose a market</div><div class="pairs" id="pairs"></div></section>
+<section class="panel pairbar">
+  <div class="pairtitle" data-en="Choose a market" data-ms="Pilih pasaran">Choose a market</div>
+  <div class="market-picker-wrap">
+    <select id="marketSelect" class="market-select" aria-label="Choose market"></select>
+    <div id="selectedMarketBadge" class="selected-market-badge">XAU/USD</div>
+  </div>
+</section>
 
 
 <section class="panel scanbar">
@@ -125,43 +183,34 @@ function fmt(v){if(v==null||!Number.isFinite(+v))return'—';const n=+v;return n
 function setLanguage(v){lang=v;document.querySelectorAll('[data-en]').forEach(e=>e.textContent=e.dataset[v])}
 window.addEventListener('message',e=>{if(e.data?.type==='marbine-language')setLanguage(e.data.lang)});
 function buildPickers(){
-  const pairsEl = document.getElementById('pairs');
-  const timeframesEl = document.getElementById('timeframes');
+  const marketSelect=document.getElementById('marketSelect');
+  const timeframesEl=document.getElementById('timeframes');
 
-  if (!pairsEl || !timeframesEl) {
-    console.error('Signal Room picker elements are missing.');
+  if(!marketSelect||!timeframesEl){
+    console.error('Signal Room market picker is missing.');
     return;
   }
 
-  pairsEl.innerHTML = pairs.map(p => `
-    <button
-      type="button"
-      class="pair ${p === pair ? 'active' : ''}"
-      data-pair="${p}"
-    >${p}</button>
-  `).join('');
+  marketSelect.innerHTML=pairs.map(p =>
+    `<option value="${p}" ${p===pair?'selected':''}>${p}</option>`
+  ).join('');
 
-  timeframesEl.innerHTML = tfs.map(([v,l]) => `
-    <button
-      type="button"
-      class="tf ${v === tf ? 'active' : ''}"
-      data-timeframe="${v}"
-    >${l}</button>
-  `).join('');
+  marketSelect.onchange=()=>{
+    choosePair(marketSelect.value);
+  };
 
-  pairsEl.querySelectorAll('.pair').forEach(btn => {
-    btn.addEventListener('click', () => {
-      choosePair(btn.dataset.pair);
-    });
-  });
+  const badge=document.getElementById('selectedMarketBadge');
+  if(badge)badge.textContent=pair;
 
-  timeframesEl.querySelectorAll('.tf').forEach(btn => {
-    btn.addEventListener('click', () => {
-      chooseTf(btn.dataset.timeframe);
-    });
+  timeframesEl.innerHTML=tfs.map(([v,l]) =>
+    `<button type="button" class="tf ${v===tf?'active':''}" data-timeframe="${v}">${l}</button>`
+  ).join('');
+
+  timeframesEl.querySelectorAll('.tf').forEach(btn=>{
+    btn.addEventListener('click',()=>chooseTf(btn.dataset.timeframe));
   });
 }
-function choosePair(p){pair=p;buildPickers();run()}function chooseTf(v){tf=v;buildPickers();run()}
+
 function initChart(){const host=document.getElementById('chart');chart=LightweightCharts.createChart(host,{layout:{background:{color:'#050402'},textColor:'#938872'},grid:{vertLines:{color:'rgba(230,199,102,.04)'},horzLines:{color:'rgba(230,199,102,.04)'}},timeScale:{timeVisible:true},rightPriceScale:{borderColor:'rgba(230,199,102,.08)'}});series=chart.addCandlestickSeries({upColor:'#e6c766',downColor:'#0f0c09',borderUpColor:'#ffe39a',borderDownColor:'#a98030',wickUpColor:'#e6c766',wickDownColor:'#a98030'});new ResizeObserver(()=>chart.applyOptions({width:host.clientWidth,height:host.clientHeight})).observe(host)}
 function clearLines(){lines.forEach(l=>{try{series.removePriceLine(l)}catch(e){}});lines=[]}function addLine(v,t,c,s=2){if(!Number.isFinite(+v))return;lines.push(series.createPriceLine({price:+v,title:t,color:c,lineWidth:2,lineStyle:s,axisLabelVisible:true}))}
 async function session(){let{data:{session}}=await sb.auth.getSession();return session}
@@ -373,8 +422,26 @@ async function runScanner(){
 
 // Pair/timeframe selection no longer automatically burns an API request.
 // User deliberately starts analysis with CHECK SIGNAL.
-function choosePair(p){pair=p;buildPickers();document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];document.getElementById('bias').textContent='READY TO SCAN';document.getElementById('bias').className='bias wait'}
-function chooseTf(v){tf=v;buildPickers();document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];document.getElementById('bias').textContent='READY TO SCAN';document.getElementById('bias').className='bias wait'}
+function choosePair(p){
+  if(!pairs.includes(p))return;
+  pair=p;
+  buildPickers();
+  const badge=document.getElementById('selectedMarketBadge');
+  if(badge)badge.textContent=pair;
+  document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];
+  document.getElementById('bias').textContent='READY TO SCAN';
+  document.getElementById('bias').className='bias wait';
+  document.getElementById('marketText').textContent='READY TO SCAN';
+  document.getElementById('sessionText').textContent='Selected '+pair+'. Press CHECK SIGNAL.';
+}
+function chooseTf(v){
+  if(!tfs.some(x=>x[0]===v))return;
+  tf=v;
+  buildPickers();
+  document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];
+  document.getElementById('bias').textContent='READY TO SCAN';
+  document.getElementById('bias').className='bias wait';
+}
 
 </script>
 <div id="scannerOverlay" class="scanner-overlay">
