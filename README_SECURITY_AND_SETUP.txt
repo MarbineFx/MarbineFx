@@ -40,3 +40,19 @@ V3 OWNER-ONLY SIGNAL ROOM
 - Otherwise it shows NO HIGH-QUALITY SETUP.
 - Timeframes: 5m, 15m, 30m, 1H, 4H.
 - Win rate is deliberately marked Not verified until a real backtest is built.
+
+
+V4 LOGIN FIX
+- Removed unreliable DOM global-variable references that could make all buttons appear dead.
+- Added two CDN fallbacks for Supabase JS.
+- Added visible loading/error status.
+- Login / Create Account / Forgot Password now use explicit event listeners.
+- Password reset page improved.
+
+SUPABASE AUTH SETTINGS STILL REQUIRED:
+1. Authentication > Providers > Email: enable Email.
+2. For Continue with Google: Authentication > Providers > Google must be configured.
+3. Authentication > URL Configuration:
+   - Set Site URL to your real GitHub Pages website URL.
+   - Add your website URLs for app.html and reset.html to Redirect URLs.
+4. Forgot Password sends a RESET LINK, never the user's old password.
