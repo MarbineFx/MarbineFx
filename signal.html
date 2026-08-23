@@ -785,6 +785,51 @@ button{cursor:pointer}
 }
 </style>
 
+
+<style id="owner-live-signal-controls">
+.owner-live{
+  display:none;
+  margin-top:.65rem;
+  padding:.72rem;
+  border:1px solid rgba(231,201,104,.18);
+  border-radius:11px;
+  background:#070503;
+}
+.owner-live.show{display:block}
+.owner-live-title{
+  color:#ffe39a;
+  font-size:.58rem;
+  font-weight:1000;
+}
+.owner-live-meta{
+  margin-top:.3rem;
+  color:#877a64;
+  font-size:.48rem;
+  line-height:1.5;
+}
+.end-signal-btn{
+  width:100%;
+  min-height:46px;
+  margin-top:.55rem;
+  border:1px solid rgba(229,122,103,.4);
+  border-radius:10px;
+  background:linear-gradient(135deg,#3b120d,#701e15);
+  color:#ffd8cf;
+  font-size:.58rem;
+  font-weight:1000;
+}
+.end-signal-btn:disabled{opacity:.5;cursor:not-allowed}
+.owner-live-status{
+  min-height:20px;
+  margin-top:.35rem;
+  color:#a58e72;
+  font-size:.47rem;
+}
+@media(max-width:620px){
+  .end-signal-btn{min-height:52px;font-size:.68rem}
+}
+</style>
+
 </head>
 <body>
 
@@ -946,6 +991,12 @@ button{cursor:pointer}
   <div id="pendingBanner" class="pending-banner">
     <div class="owner-pending-title">🚨 PENDING QUALITY SETUP</div>
     <div id="pendingBannerText">Loading pending setup…</div>
+  </div>
+  <div id="ownerLiveSignal" class="owner-live">
+    <div class="owner-live-title">📡 LIVE OFFICIAL SIGNAL</div>
+    <div id="ownerLiveMeta" class="owner-live-meta">Checking live signal…</div>
+    <button type="button" id="endSignalBtn" class="end-signal-btn">🛑 END SIGNAL</button>
+    <div id="ownerLiveStatus" class="owner-live-status"></div>
   </div>
   <textarea id="telegramMessage"></textarea>
   <button type="button" class="send-btn" id="sendTelegramBtn">SEND TO TELEGRAM</button>
@@ -1918,6 +1969,94 @@ ${d.liquidity?.sweep?.detail||'—'}
     });
   }
 
+
+  async function loadOwnerActiveSignal(){
+    if(!isOwner) return;
+
+    const s=await session();
+    if(!s) return;
+
+    try{
+      const r=await fetch(SUPABASE_URL+'/functions/v1/telegram-signal',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+s.access_token,
+          'apikey':SUPABASE_KEY
+        },
+        body:JSON.stringify({action:'active_trade'})
+      });
+
+      const response=await r.json();
+      if(!r.ok) throw new Error(response.error||'Could not load live signal.');
+
+      const active=response.active;
+      const box=$('ownerLiveSignal');
+
+      if(!active){
+        box.classList.remove('show');
+        $('ownerLiveMeta').textContent='No official signal is running.';
+        return;
+      }
+
+      box.classList.add('show');
+
+      const statusText=active.status==='active'?'ENTRY HIT / RUNNING':'WAITING FOR ENTRY';
+
+      $('ownerLiveMeta').innerHTML=
+        `<b>${active.pair} ${active.signal}</b><br>`+
+        `${statusText}<br>`+
+        `Entry ${fmt(active.entry)} • SL ${fmt(active.sl)} • TP1 ${fmt(active.tp1)} • TP2 ${fmt(active.tp2)} • TP3 ${fmt(active.tp3)}`;
+
+    }catch(err){
+      $('ownerLiveStatus').textContent='Live signal check failed: '+err.message;
+    }
+  }
+
+  async function endOfficialSignal(){
+    if(!isOwner) return;
+
+    const btn=$('endSignalBtn');
+    const s=await session();
+
+    if(!s){
+      $('ownerLiveStatus').textContent='Login required.';
+      return;
+    }
+
+    btn.disabled=true;
+    $('ownerLiveStatus').textContent='Ending official signal…';
+
+    try{
+      const r=await fetch(SUPABASE_URL+'/functions/v1/telegram-signal',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+s.access_token,
+          'apikey':SUPABASE_KEY
+        },
+        body:JSON.stringify({action:'end_signal'})
+      });
+
+      const response=await r.json();
+      if(!r.ok) throw new Error(response.error||'Could not end signal.');
+
+      const pips=Math.round(Number(response.resultPips)||0);
+
+      $('ownerLiveStatus').textContent=
+        `Signal ended ✅ Tracked result ${pips>=0?'+':''}${pips} pips`;
+
+      await loadOwnerActiveSignal();
+      await loadHistory();
+      await loadOwnerPendingSignal();
+
+    }catch(err){
+      $('ownerLiveStatus').textContent=err.message;
+    }finally{
+      btn.disabled=false;
+    }
+  }
+
   async function loadOwnerPendingSignal(){
     if(!isOwner) return;
 
@@ -1980,7 +2119,10 @@ ${d.liquidity?.sweep?.detail||'—'}
       if(document.hidden || scanning) return;
       await loadLatestChart();
       await loadHistory();
-      if(isOwner) await loadOwnerPendingSignal();
+      if(isOwner){
+        await loadOwnerActiveSignal();
+        await loadOwnerPendingSignal();
+      }
     },30000);
   }
 
@@ -2006,6 +2148,7 @@ ${d.liquidity?.sweep?.detail||'—'}
       if(isOwner){
         $('ownerBox').classList.add('show');
         $('historyOwner').classList.add('show');
+        await loadOwnerActiveSignal();
         await loadOwnerPendingSignal();
       }
     }catch(err){
@@ -2076,6 +2219,8 @@ ${d.liquidity?.sweep?.detail||'—'}
   setupCollapse('indicatorCollapseBtn','indicatorCollapseBody','marbine_indicator_collapsed');
   setupCollapse('chartCollapseBtn','chartCollapseBody','marbine_chart_collapsed');
   setupCollapse('historyCollapseBtn','historyCollapseBody','marbine_history_collapsed');
+
+  $('endSignalBtn').addEventListener('click',endOfficialSignal);
 
   $('historyTelegramBtn').addEventListener('click',()=>{
     $('historyPeriod').classList.toggle('show');
