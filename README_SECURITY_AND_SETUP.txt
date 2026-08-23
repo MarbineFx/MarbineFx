@@ -26,3 +26,17 @@ Pair / timeframe / BUY-SELL / Entry / TP1-3 / SL / session / volatility / liquid
 
 NOTE
 The currently deployed market-signal function may still contain the earlier automatic Telegram call. Replace it with a no-auto-send version before public launch.
+
+
+V3 OWNER-ONLY SIGNAL ROOM
+- Public users NEVER auto-send Telegram.
+- market-signal now only analyzes.
+- telegram-signal verifies the logged-in user server-side.
+- Add Supabase Edge Function secret:
+  OWNER_EMAIL = your owner login email
+- Only that email sees/uses the owner Telegram editor.
+- Market closed = chart can still show recent candles, but no signal and no levels.
+- A BUY/SELL requires: active session + active liquidity/ATR + strong indicator agreement + aligned liquidity sweep/reclaim.
+- Otherwise it shows NO HIGH-QUALITY SETUP.
+- Timeframes: 5m, 15m, 30m, 1H, 4H.
+- Win rate is deliberately marked Not verified until a real backtest is built.
