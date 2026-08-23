@@ -23,12 +23,84 @@ body{background:radial-gradient(circle at 12% 5%,rgba(143,31,31,.12),transparent
 .owner{display:none;margin-top:.65rem;padding:.85rem;border:1px solid rgba(255,227,154,.26);border-radius:14px;background:linear-gradient(145deg,rgba(230,199,102,.05),#0a0704)}.owner.show{display:block}.owner h3{font-size:.72rem;color:#ffe39a}.owner p{font-size:.5rem;color:#776c5c;margin-top:.25rem;line-height:1.5}.owner textarea{width:100%;min-height:240px;margin-top:.6rem;background:#050301;color:#fff3db;border:1px solid rgba(230,199,102,.13);border-radius:10px;padding:.7rem;font:500 .58rem/1.55 monospace;resize:vertical}.send{width:100%;margin-top:.5rem;min-height:42px;border:1px solid rgba(255,227,154,.4);border-radius:10px;background:linear-gradient(135deg,#fff0ae,#d9ae47);font-weight:900;color:#080501}.owner-msg{font-size:.5rem;color:#9c8c6d;margin-top:.35rem}
 .note{margin-top:.55rem;padding:.65rem;border-radius:10px;border:1px solid rgba(196,71,54,.14);background:rgba(143,31,31,.05);font-size:.49rem;color:#a97e75;line-height:1.5}
 @media(max-width:850px){.metrics{grid-template-columns:1fr 1fr}.quality{grid-template-columns:1fr 1fr}.why{grid-template-columns:1fr}.levels{grid-template-columns:1fr 1fr}.chart{height:410px}}@media(max-width:480px){.chart{height:360px}}
-</style></head><body>
+</style>
+<style id="marbine-scanner-css">
+.scanbar{margin-top:.6rem;padding:.75rem;display:flex;gap:.6rem;align-items:center;justify-content:space-between}
+.scanbar .hint{font-size:.52rem;color:#746a5b;line-height:1.45}
+.check-signal{min-width:180px;min-height:44px;border:1px solid rgba(255,227,154,.45);border-radius:11px;background:linear-gradient(135deg,#fff0ae,#d6aa43);color:#080501;font-size:.58rem;font-weight:1000;letter-spacing:.06em;cursor:pointer;box-shadow:0 12px 26px rgba(230,199,102,.12);transition:.18s}
+.check-signal:hover{transform:translateY(-1px);box-shadow:0 0 24px rgba(230,199,102,.18)}
+.check-signal:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+.scanner-overlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.84);backdrop-filter:blur(12px)}
+.scanner-overlay.show{display:flex}
+.scanner-console{width:min(820px,97vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(230,199,102,.34);border-radius:18px;background:
+linear-gradient(rgba(90,210,155,.018) 1px,transparent 1px),
+linear-gradient(90deg,rgba(90,210,155,.018) 1px,transparent 1px),
+radial-gradient(circle at 50% -15%,rgba(230,199,102,.11),transparent 28rem),#040403;
+background-size:24px 24px,24px 24px,auto,auto;box-shadow:0 35px 110px #000}
+.scanner-head{padding:13px 15px;border-bottom:1px solid rgba(230,199,102,.13);display:flex;justify-content:space-between;align-items:center;gap:.8rem;background:rgba(9,7,4,.94)}
+.scanner-brand{display:flex;align-items:center;gap:.65rem}
+.scanner-pulse{width:9px;height:9px;border-radius:50%;background:#69d5a6;animation:scanPulse 1.25s infinite}
+@keyframes scanPulse{0%{box-shadow:0 0 0 0 rgba(105,213,166,.55)}70%{box-shadow:0 0 0 10px rgba(105,213,166,0)}100%{box-shadow:0 0 0 0 rgba(105,213,166,0)}}
+.scanner-title{font-size:.62rem;font-weight:1000;letter-spacing:.12em;color:#ffe39a}
+.scanner-sub{font:500 .48rem monospace;color:#70685b;margin-top:.15rem}
+.scanner-close{border:1px solid rgba(230,199,102,.14);background:#0a0704;color:#8d806b;border-radius:8px;padding:.45rem .58rem;font-size:.48rem;font-weight:900;cursor:pointer}
+.scanner-progress-wrap{padding:11px 15px;border-bottom:1px solid rgba(230,199,102,.08)}
+.scanner-meta{display:flex;justify-content:space-between;gap:.5rem;font:600 .48rem monospace;color:#81755f;margin-bottom:.5rem}
+.scanner-progress{height:5px;background:#130e08;border-radius:999px;overflow:hidden}
+.scanner-progress div{height:100%;width:0;background:linear-gradient(90deg,#947121,#ffe39a,#6fd2a8);box-shadow:0 0 15px rgba(230,199,102,.45);transition:width .18s}
+.scanner-list{padding:10px 14px;overflow:auto;min-height:300px;scrollbar-width:thin;scrollbar-color:#5b4720 #070503}
+.scanner-row{display:grid;grid-template-columns:30px minmax(175px,.9fr) minmax(210px,1.3fr) 90px;gap:.55rem;align-items:center;padding:.5rem .4rem;border-bottom:1px solid rgba(230,199,102,.055);font:500 .5rem/1.35 monospace;opacity:.34;transition:.18s}
+.scanner-row.running,.scanner-row.done{opacity:1}.scanner-row.running{background:rgba(230,199,102,.025)}
+.scan-num{color:#4d463b}.scan-name{color:#d7c9a5;font-weight:800}.scan-logic{color:#71695d}
+.scan-state{justify-self:end;font-size:.45rem;font-weight:1000;border-radius:999px;padding:.28rem .38rem;border:1px solid transparent}
+.scan-state.pending{color:#635b50}.scan-state.running{color:#e0c36d;border-color:rgba(230,199,102,.16);animation:scanBlink .65s alternate infinite}
+@keyframes scanBlink{to{opacity:.42}}
+.scan-state.pass{color:#70d0a5;background:rgba(52,158,117,.08);border-color:rgba(52,158,117,.18)}
+.scan-state.fail{color:#e68774;background:rgba(179,65,45,.08);border-color:rgba(179,65,45,.18)}
+.scan-state.neutral{color:#d4b86d;background:rgba(230,199,102,.05);border-color:rgba(230,199,102,.13)}
+.scanner-foot{padding:12px 15px;border-top:1px solid rgba(230,199,102,.11);background:#080603}
+.scanner-log{font:500 .48rem/1.55 monospace;color:#706859;min-height:32px}.scanner-log b{color:#d9c176}
+.scanner-final{display:none;margin-top:.55rem;padding:.72rem;border-radius:10px;border:1px solid rgba(230,199,102,.11);background:#040302}
+.scanner-final.show{display:grid;grid-template-columns:1fr auto;gap:.7rem;align-items:center}
+.final-kicker{font:.44rem monospace;color:#6b6254;letter-spacing:.1em}.final-main{font:700 1.45rem "Playfair Display",serif;margin-top:.16rem}
+.final-detail{font:.48rem/1.55 monospace;color:#7b7264;margin-top:.25rem}.final-score{font:700 1.15rem "Playfair Display",serif;color:#ffe39a}
+.scanner-actions{display:flex;gap:.45rem;margin-top:.55rem}.scanner-action{flex:1;border:1px solid rgba(230,199,102,.15);background:#0b0804;color:#d2ba79;border-radius:9px;padding:.65rem;font-size:.5rem;font-weight:900;cursor:pointer}
+.scanner-action.primary{background:linear-gradient(135deg,#fff0ae,#d6aa43);color:#090601;border-color:#ffe39a}
+@media(max-width:720px){.scanbar{align-items:stretch;flex-direction:column}.check-signal{width:100%}.scanner-row{grid-template-columns:25px 1fr 80px}.scan-logic{grid-column:2/4}.scanner-overlay{padding:7px}.scanner-console{max-height:94vh}}
+</style>
+
+
+<style id="picker-mobile-fix">
+.pair,.tf{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  user-select:none;
+}
+.pairs{
+  scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;
+}
+.pair{
+  scroll-snap-align:start;
+}
+.pair:active,.tf:active{
+  transform:scale(.96);
+}
+</style>
+
+</head><body>
 <div class="wrap">
 <section class="hero"><div class="eye" data-en="HIGH-QUALITY SIGNAL ROOM" data-ms="BILIK SIGNAL BERKUALITI TINGGI">HIGH-QUALITY SIGNAL ROOM</div><h1><span data-en="Signal Room." data-ms="Bilik Signal.">Signal Room.</span><br><span data-en="Wait For The Best." data-ms="Tunggu Yang Terbaik.">Wait For The Best.</span></h1><p data-en="The page shows a trade only when the market is open, a real session is active, liquidity is healthy, indicators strongly agree and price has confirmed a liquidity sweep/reclaim. Otherwise it says WAIT."
 data-ms="Halaman ini hanya menunjukkan trade apabila pasaran dibuka, sesi sebenar aktif, liquidity sihat, indikator sangat bersetuju dan harga mengesahkan liquidity sweep/reclaim. Jika tidak, ia akan tunjuk WAIT.">The page only shows a trade when the setup passes strict filters.</p><div class="mascots"><div class="mascot">🐂 Bull Team</div><div class="mascot">🐻 Bear Team</div><div class="mascot">💰 High Liquidity</div><div class="mascot">🪙 Sweep Confirmed</div></div></section>
 
 <section class="panel pairbar"><div class="pairtitle" data-en="Choose a market" data-ms="Pilih pasaran">Choose a market</div><div class="pairs" id="pairs"></div></section>
+
+
+<section class="panel scanbar">
+  <div class="hint"><b style="color:#d9c176">MARBINEFX SCANNER</b><br>Choose a pair and timeframe, then run the 30-system live candle scan.</div>
+  <button id="checkSignalBtn" class="check-signal" onclick="runScanner()">⚡ CHECK SIGNAL</button>
+</section>
 
 <section class="panel chartbox"><div class="charthead"><h3 id="chartTitle">XAU/USD • 15m</h3><div class="timeframes" id="timeframes"></div></div><div id="chart" class="chart"></div><div class="levels"><div class="lv"><span>ENTRY</span><strong id="entry">—</strong></div><div class="lv"><span>SL</span><strong id="sl">—</strong></div><div class="lv"><span>TP1</span><strong id="tp1">—</strong></div><div class="lv"><span>TP2</span><strong id="tp2">—</strong></div><div class="lv"><span>TP3</span><strong id="tp3">—</strong></div></div></section>
 
@@ -47,12 +119,48 @@ data-ms="Tiada win-rate palsu dipaparkan. Win rate sejarah kekal belum disahkan 
 </div>
 <script>
 const URL='https://dodjxijptbvkvpjhelhm.supabase.co',KEY='sb_publishable_Eh7J3ChO6ljz7vHVBBUH2Q_st9LhsJA',sb=supabase.createClient(URL,KEY);
-const pairs=['XAU/USD','EUR/USD','GBP/USD','USD/JPY','BTC/USD'],tfs=[['5min','5m'],['15min','15m'],['30min','30m'],['1h','1H'],['4h','4H']];
+const pairs=['XAU/USD','EUR/USD','GBP/USD','USD/JPY','USD/CHF','USD/CAD','AUD/USD','NZD/USD','EUR/GBP','EUR/JPY','GBP/JPY','AUD/JPY','EUR/AUD','EUR/CAD','GBP/AUD','GBP/CAD','AUD/NZD','CAD/JPY'],tfs=[['5min','5m'],['15min','15m'],['30min','30m'],['1h','1H'],['4h','4H']];
 let pair='XAU/USD',tf='15min',lang='en',latest=null,chart,series,lines=[],isOwner=false;
 function fmt(v){if(v==null||!Number.isFinite(+v))return'—';const n=+v;return n<10?n.toFixed(5):n.toFixed(2)}
 function setLanguage(v){lang=v;document.querySelectorAll('[data-en]').forEach(e=>e.textContent=e.dataset[v])}
 window.addEventListener('message',e=>{if(e.data?.type==='marbine-language')setLanguage(e.data.lang)});
-function buildPickers(){pairsEl=document.getElementById('pairs');pairsEl.innerHTML=pairs.map(p=>`<button class="pair ${p===pair?'active':''}" onclick="choosePair('${p}')">${p}</button>`).join('');timeframes.innerHTML=tfs.map(([v,l])=>`<button class="tf ${v===tf?'active':''}" onclick="chooseTf('${v}')">${l}</button>`).join('')}
+function buildPickers(){
+  const pairsEl = document.getElementById('pairs');
+  const timeframesEl = document.getElementById('timeframes');
+
+  if (!pairsEl || !timeframesEl) {
+    console.error('Signal Room picker elements are missing.');
+    return;
+  }
+
+  pairsEl.innerHTML = pairs.map(p => `
+    <button
+      type="button"
+      class="pair ${p === pair ? 'active' : ''}"
+      data-pair="${p}"
+    >${p}</button>
+  `).join('');
+
+  timeframesEl.innerHTML = tfs.map(([v,l]) => `
+    <button
+      type="button"
+      class="tf ${v === tf ? 'active' : ''}"
+      data-timeframe="${v}"
+    >${l}</button>
+  `).join('');
+
+  pairsEl.querySelectorAll('.pair').forEach(btn => {
+    btn.addEventListener('click', () => {
+      choosePair(btn.dataset.pair);
+    });
+  });
+
+  timeframesEl.querySelectorAll('.tf').forEach(btn => {
+    btn.addEventListener('click', () => {
+      chooseTf(btn.dataset.timeframe);
+    });
+  });
+}
 function choosePair(p){pair=p;buildPickers();run()}function chooseTf(v){tf=v;buildPickers();run()}
 function initChart(){const host=document.getElementById('chart');chart=LightweightCharts.createChart(host,{layout:{background:{color:'#050402'},textColor:'#938872'},grid:{vertLines:{color:'rgba(230,199,102,.04)'},horzLines:{color:'rgba(230,199,102,.04)'}},timeScale:{timeVisible:true},rightPriceScale:{borderColor:'rgba(230,199,102,.08)'}});series=chart.addCandlestickSeries({upColor:'#e6c766',downColor:'#0f0c09',borderUpColor:'#ffe39a',borderDownColor:'#a98030',wickUpColor:'#e6c766',wickDownColor:'#a98030'});new ResizeObserver(()=>chart.applyOptions({width:host.clientWidth,height:host.clientHeight})).observe(host)}
 function clearLines(){lines.forEach(l=>{try{series.removePriceLine(l)}catch(e){}});lines=[]}function addLine(v,t,c,s=2){if(!Number.isFinite(+v))return;lines.push(series.createPriceLine({price:+v,title:t,color:c,lineWidth:2,lineStyle:s,axisLabelVisible:true}))}
@@ -92,5 +200,209 @@ ${d.signal==='BUY'?'🐂 BULLISH SETUP':'🐻 BEARISH SETUP'}
 ⚠️ Educational market analysis only.`}
 async function run(){document.getElementById('bias').textContent='CHECKING…';clearLines();['entry','sl','tp1','tp2','tp3'].forEach(x=>document.getElementById(x).textContent='—');const s=await session();if(!s){document.getElementById('bias').textContent='LOGIN REQUIRED';return}try{const r=await fetch(URL+'/functions/v1/market-signal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token,'apikey':KEY},body:JSON.stringify({pair,timeframe:tf})}),d=await r.json();if(!r.ok)throw new Error(d.error||'Signal check failed');latest=d;document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];if(d.candles?.length){series.setData(d.candles);chart.timeScale().fitContent()}document.getElementById('marketText').textContent=d.market.open?(lang==='ms'?'PASARAN DIBUKA':'MARKET OPEN'):(lang==='ms'?'PASARAN DITUTUP':'MARKET CLOSED');document.getElementById('sessionText').textContent=d.market.sessionText;document.getElementById('marketBadge').textContent=d.market.open?'OPEN':'CLOSED';document.getElementById('marketBadge').className='badge '+(d.market.open?'open':'closed');document.getElementById('bias').textContent=d.signal==='WAIT'?'NO HIGH-QUALITY SETUP':d.signal;document.getElementById('bias').className='bias '+(d.signal==='BUY'?'buy':d.signal==='SELL'?'sell':'wait');document.getElementById('score').textContent=d.signal==='CLOSED'?'—':d.confidence+'%';document.getElementById('price').textContent=fmt(d.currentPrice);document.getElementById('vol').textContent=d.volatility||'—';document.getElementById('vol').className=(d.volatility||'').toLowerCase();document.getElementById('liq').textContent=d.liquidity?.label||'—';document.getElementById('risk').textContent=d.risk||'—';document.getElementById('risk').className=(d.risk||'').toLowerCase();document.getElementById('hold').textContent=(d.signal==='BUY'||d.signal==='SELL')?d.holdReview:'—';document.getElementById('quality').innerHTML=(d.quality?.reasons||[]).map(x=>`<div class="q ${x.includes('No ')||x.includes('too quiet')||x.includes('not strong')||x.includes('closed')?'no':'ok'}">${x}</div>`).join('');document.getElementById('buyWhy').innerHTML=(d.whyBuy||[]).map(x=>'<li>'+x+'</li>').join('');document.getElementById('sellWhy').innerHTML=(d.whySell||[]).map(x=>'<li>'+x+'</li>').join('');if(d.levels){for(const k of ['entry','sl','tp1','tp2','tp3'])document.getElementById(k).textContent=fmt(d.levels[k]);addLine(d.levels.entry,'ENTRY','#e6c766');addLine(d.levels.sl,'SL','#e26f5d',0);addLine(d.levels.tp1,'TP1','#4bd19a');addLine(d.levels.tp2,'TP2','#4bd19a');addLine(d.levels.tp3,'TP3','#4bd19a')}if(isOwner){telegramMessage.value=(d.signal==='BUY'||d.signal==='SELL')?defaultMessage(d):'';ownerMsg.textContent=(d.signal==='BUY'||d.signal==='SELL')?'Ready for your review.':'Nothing to send — wait for a qualified BUY/SELL setup.'}}catch(e){document.getElementById('bias').textContent='DATA ERROR';document.getElementById('bias').className='bias wait';document.getElementById('sessionText').textContent=e.message}}
 async function sendTelegram(){if(!isOwner||!latest||!['BUY','SELL'].includes(latest.signal)){ownerMsg.textContent='No qualified signal to send.';return}ownerMsg.textContent='Sending…';const s=await session();const r=await fetch(URL+'/functions/v1/telegram-signal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token,'apikey':KEY},body:JSON.stringify({signalData:latest,message:telegramMessage.value})}),d=await r.json();ownerMsg.textContent=r.ok?'Sent to Telegram ✅':(d.error||'Send failed')}
-buildPickers();initChart();(async()=>{await ownerCheck();await run()})(); 
-</script></body></html>
+buildPickers();initChart();(async()=>{await ownerCheck();document.getElementById('bias').textContent='READY TO SCAN';})(); 
+
+// ===== MARBINEFX 30-SYSTEM VISUAL SCANNER =====
+const scannerIndicators=[
+'Kangaroo Tails System','Bollinger Bands Mean Reversal','RSI Hidden Divergence','MACD Institutional Cross',
+'ATR Volatility Channel','EMA Institutional Ribbon','Ichimoku Cloud Break','MTF Stochastic Engine',
+'Parabolic Trailing Stop','CCI Cyclical Model','Supertrend Algo Filter','Donchian Channel Break',
+'Keltner Volatility Band','Floor Pivot Target Grid','Fibonacci Golden Ratio','Session VWAP True Anchor',
+'Chaikin Money Flow','Hull Zero-Lag Velocity','Williams Multi-Cycle Engine','Linear Regression Channel',
+'ROC Pure Momentum','True Strength Index (TSI)','ALMA Gaussian Filter','Money Flow Index (MFI)',
+'Elder Ray Bull/Bear Power','Center of Gravity (COG)','Coppock Cyclical Matrix','Detrended Price Model',
+'Klinger Volume Force','MarbineFX Confluence Core'
+];
+
+function scAvg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
+function scSma(a,n){return scAvg(a.slice(-Math.min(n,a.length)))}
+function scEma(a,n){if(!a.length)return[];let e=a[0],k=2/(n+1);return a.map(x=>(e=x*k+e*(1-k)))}
+function scStd(a){let m=scAvg(a);return Math.sqrt(scAvg(a.map(x=>(x-m)**2)))}
+function scRsi(a,n=14){let d=a.slice(1).map((x,i)=>x-a[i]).slice(-n),g=0,l=0;d.forEach(x=>x>0?g+=x:l-=x);if(!l)return 100;let rs=(g/n)/(l/n);return 100-100/(1+rs)}
+function scAtr(c,n=14){let t=[];for(let i=1;i<c.length;i++)t.push(Math.max(c[i].high-c[i].low,Math.abs(c[i].high-c[i-1].close),Math.abs(c[i].low-c[i-1].close)));return scSma(t,n)}
+function scWma(a,n){let v=a.slice(-Math.min(n,a.length)),num=0,den=0;v.forEach((x,i)=>{let w=i+1;num+=x*w;den+=w});return den?num/den:a.at(-1)}
+function scHma(a,n=20){let half=Math.max(2,Math.floor(n/2));return 2*scWma(a,half)-scWma(a,n)}
+function scSlope(a,n=30){let y=a.slice(-n);if(y.length<2)return 0,xm=(y.length-1)/2,ym=scAvg(y),num=0,den=0;y.forEach((v,i)=>{num+=(i-xm)*(v-ym);den+=(i-xm)**2});return den?num/den:0}
+function scCci(c,n=20){let tp=c.map(x=>(x.high+x.low+x.close)/3),m=scSma(tp,n),v=tp.slice(-n),dev=scAvg(v.map(x=>Math.abs(x-m)));return dev?(tp.at(-1)-m)/(.015*dev):0}
+function scRoc(a,n=12){return a.length>n?(a.at(-1)-a.at(-1-n))/a.at(-1-n)*100:0}
+function scWilliams(c,n=14){let v=c.slice(-n),hh=Math.max(...v.map(x=>x.high)),ll=Math.min(...v.map(x=>x.low));return hh===ll?-50:(hh-c.at(-1).close)/(hh-ll)*-100}
+function scSleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function scDir(v,logic){return {dir:v>0?'BUY':v<0?'SELL':'WAIT',logic}}
+function scannerRows(){
+  scannerList.innerHTML=scannerIndicators.map((n,i)=>`<div class="scanner-row" id="scrow${i}"><span class="scan-num">${String(i+1).padStart(2,'0')}</span><span class="scan-name">${n}</span><span class="scan-logic">queued...</span><span class="scan-state pending">WAIT</span></div>`).join('');
+}
+function openScanner(){scannerOverlay.classList.add('show');scannerRows();scannerProgress.style.width='0%';scannerPct.textContent='0%';scannerStage.textContent='CONNECTING TO LIVE MARKET FEED';scannerFinal.classList.remove('show');scannerLog.innerHTML='&gt; Requesting authenticated candle packet...'}
+function closeScanner(){scannerOverlay.classList.remove('show')}
+
+function scannerChecks(d){
+  const c=d.candles||[],cl=c.map(x=>+x.close),hi=c.map(x=>+x.high),lo=c.map(x=>+x.low),cur=cl.at(-1);
+  if(c.length<30)return scannerIndicators.map(n=>({dir:'WAIT',logic:'Insufficient candle history'}));
+  const e20=scEma(cl,20).at(-1),e50=scEma(cl,50).at(-1),e200=scEma(cl,Math.min(180,cl.length)).at(-1);
+  const rv=scRsi(cl),a=scAtr(c),mid=scSma(cl,20),sd=scStd(cl.slice(-20)),mac=scEma(cl,12).at(-1)-scEma(cl,26).at(-1);
+  const prevMac=scEma(cl.slice(0,-1),12).at(-1)-scEma(cl.slice(0,-1),26).at(-1);
+  const stoch=((cur-Math.min(...lo.slice(-14)))/Math.max(1e-9,Math.max(...hi.slice(-14))-Math.min(...lo.slice(-14))))*100;
+  const cc=scCci(c),wr=scWilliams(c),roc=scRoc(cl),slope=scSlope(cl),hma=scHma(cl);
+  const last=c.at(-1),range=Math.max(1e-9,last.high-last.low),body=Math.abs(last.close-last.open),upper=last.high-Math.max(last.open,last.close),lower=Math.min(last.open,last.close)-last.low;
+  const prior20=c.slice(-21,-1),hh=Math.max(...prior20.map(x=>x.high)),ll=Math.min(...prior20.map(x=>x.low));
+  const kUp=e20+1.5*a,kDn=e20-1.5*a,donHi=hh,donLo=ll;
+  const pv=(c.at(-2).high+c.at(-2).low+c.at(-2).close)/3;
+  const swingHi=Math.max(...hi.slice(-50)),swingLo=Math.min(...lo.slice(-50)),fib50=swingLo+(swingHi-swingLo)*.5;
+  const tsiFast=scEma(cl.map((x,i)=>i?x-cl[i-1]:0),13).at(-1);
+  const alma=scWma(cl,9);
+  const elderBull=last.high-e20,elderBear=last.low-e20;
+  const dpo=cur-scSma(cl.slice(0,-6),20);
+  const sweep=d.liquidity?.sweep||{};
+  const checks=[
+    scDir(lower>body*1.6?1:upper>body*1.6?-1:0,`wick/body ${Math.max(upper,lower)/Math.max(body,1e-9).toFixed?.(2)||''}; rejection ${lower>upper?'below':'above'}`),
+    scDir(cur<mid-1.7*sd?1:cur>mid+1.7*sd?-1:cur>mid?1:-1,`price ${cur>mid?'above':'below'} BB mid; deviation ${sd.toFixed(3)}`),
+    scDir(rv<42&&cur>cl.at(-4)?1:rv>58&&cur<cl.at(-4)?-1:0,`RSI ${rv.toFixed(1)}; checking price/momentum mismatch`),
+    scDir(mac>0&&mac>=prevMac?1:mac<0&&mac<=prevMac?-1:0,`MACD ${mac.toFixed(4)} vs prior ${prevMac.toFixed(4)}`),
+    scDir(a>0?(cur>cl.at(-4)?1:cur<cl.at(-4)?-1:0):0,`ATR ${a.toFixed(4)}; volatility expansion filter`),
+    scDir(e20>e50&&e50>e200?1:e20<e50&&e50<e200?-1:0,`EMA20 ${e20.toFixed(3)} / EMA50 ${e50.toFixed(3)} / EMA200 ${e200.toFixed(3)}`),
+    scDir(cur>e20&&e20>e50?1:cur<e20&&e20<e50?-1:0,`cloud proxy: price/EMA structure ${cur>e20?'bullish':'bearish'}`),
+    scDir(stoch>55?1:stoch<45?-1:0,`Stochastic ${stoch.toFixed(1)}`),
+    scDir(cl.at(-1)>cl.at(-2)&&lo.at(-1)>lo.at(-2)?1:cl.at(-1)<cl.at(-2)&&hi.at(-1)<hi.at(-2)?-1:0,`trailing structure ${cl.at(-1)>cl.at(-2)?'rising':'falling'}`),
+    scDir(cc>50?1:cc<-50?-1:0,`CCI ${cc.toFixed(1)}`),
+    scDir(cur>e20+a*.5?1:cur<e20-a*.5?-1:0,`ATR trend band: price ${cur>e20?'above':'below'} core`),
+    scDir(cur>donHi?1:cur<donLo?-1:0,`Donchian H ${donHi.toFixed(3)} / L ${donLo.toFixed(3)}`),
+    scDir(cur>kUp?1:cur<kDn?-1:0,`Keltner ${kDn.toFixed(3)} - ${kUp.toFixed(3)}`),
+    scDir(cur>pv?1:cur<pv?-1:0,`daily/session pivot proxy ${pv.toFixed(3)}`),
+    scDir(cur>fib50?1:cur<fib50?-1:0,`50% swing equilibrium ${fib50.toFixed(3)}`),
+    {dir:'WAIT',logic:'True VWAP requires reliable volume; candle feed has no volume field'},
+    {dir:'WAIT',logic:'Chaikin Money Flow requires volume; not fabricated'},
+    scDir(cur>hma?1:cur<hma?-1:0,`Hull zero-lag estimate ${hma.toFixed(3)}`),
+    scDir(wr>-45?1:wr<-55?-1:0,`Williams %R ${wr.toFixed(1)}`),
+    scDir(slope>0?1:slope<0?-1:0,`regression slope ${slope.toFixed(5)}`),
+    scDir(roc>0?1:roc<0?-1:0,`ROC ${roc.toFixed(2)}%`),
+    scDir(tsiFast>0?1:tsiFast<0?-1:0,`smoothed momentum ${tsiFast.toFixed(5)}`),
+    scDir(cur>alma?1:cur<alma?-1:0,`ALMA proxy ${alma.toFixed(3)}`),
+    {dir:'WAIT',logic:'MFI requires volume; not fabricated from OHLC candles'},
+    scDir(elderBull>Math.abs(elderBear)?1:Math.abs(elderBear)>elderBull?-1:0,`Bull ${elderBull.toFixed(3)} / Bear ${elderBear.toFixed(3)}`),
+    scDir((cur-scSma(cl,10))>0?1:(cur-scSma(cl,10))<0?-1:0,`COG proxy displacement ${(cur-scSma(cl,10)).toFixed(3)}`),
+    scDir(scRoc(cl,14)+scRoc(cl,11)>0?1:scRoc(cl,14)+scRoc(cl,11)<0?-1:0,`Coppock ROC sum ${(scRoc(cl,14)+scRoc(cl,11)).toFixed(2)}`),
+    scDir(dpo>0?1:dpo<0?-1:0,`DPO ${dpo.toFixed(3)}`),
+    {dir:'WAIT',logic:'Klinger Volume Force requires volume; not fabricated'},
+    scDir(d.signal==='BUY'?1:d.signal==='SELL'?-1:0,`${d.market?.sessionText||'session'}; liquidity ${d.liquidity?.label||'—'}; sweep: ${sweep.detail||'none'}`)
+  ];
+  return checks;
+}
+
+async function runScanner(){
+  if(scanning)return;
+  scanning=true;
+  const btn=document.getElementById('checkSignalBtn'); if(btn)btn.disabled=true;
+  openScanner();
+  try{
+    const s=await session();
+    if(!s)throw new Error('LOGIN REQUIRED — sign in before running the scanner.');
+    scannerSub.textContent=`${pair} // ${tf.toUpperCase()} // LIVE`;
+    scannerStage.textContent='DOWNLOADING LIVE CANDLES';
+    const r=await fetch(URL+'/functions/v1/market-signal',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token,'apikey':KEY},
+      body:JSON.stringify({pair,timeframe:tf})
+    });
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'Signal check failed');
+    latest=d;
+    scannerLog.innerHTML=`&gt; <b>${d.candles?.length||0} candles received.</b> Market: ${d.market?.open?'OPEN':'CLOSED'} // ${d.market?.sessionText||'—'}`;
+    if(d.candles?.length){series.setData(d.candles);chart.timeScale().fitContent()}
+    const checks=scannerChecks(d);
+    const target=d.signal==='BUY'?'BUY':d.signal==='SELL'?'SELL':null;
+    let pass=0,fail=0,neutral=0;
+
+    for(let i=0;i<checks.length;i++){
+      const row=document.getElementById('scrow'+i),state=row.querySelector('.scan-state'),logic=row.querySelector('.scan-logic');
+      row.classList.add('running'); state.className='scan-state running'; state.textContent='SCANNING';
+      logic.textContent='calculating...';
+      scannerStage.textContent=`ANALYZING ${String(i+1).padStart(2,'0')} / 30`;
+      scannerProgress.style.width=Math.round((i/30)*100)+'%'; scannerPct.textContent=Math.round((i/30)*100)+'%';
+      await scSleep(55);
+      logic.textContent=checks[i].logic;
+      let cls,label;
+      if(checks[i].dir==='WAIT'||!target){cls='neutral';label=checks[i].dir==='WAIT'?'NEUTRAL':checks[i].dir;neutral++}
+      else if(checks[i].dir===target){cls='pass';label='PASS';pass++}
+      else{cls='fail';label='FAIL';fail++}
+      state.className='scan-state '+cls;state.textContent=label;row.classList.remove('running');row.classList.add('done');
+      row.scrollIntoView({block:'nearest',behavior:'smooth'});
+    }
+
+    scannerProgress.style.width='100%';scannerPct.textContent='100%';scannerStage.textContent='SCAN COMPLETE';
+    scannerFinal.classList.add('show');
+    const final=d.signal==='CLOSED'?'MARKET CLOSED':d.signal==='WAIT'?'NO QUALIFIED SETUP':d.signal+' SETUP';
+    scannerFinalMain.textContent=final;
+    scannerFinalMain.className='final-main '+(d.signal==='BUY'?'buy':d.signal==='SELL'?'sell':'wait');
+    scannerFinalScore.textContent=d.signal==='CLOSED'?'—':(d.confidence??0)+'%';
+    scannerFinalDetail.innerHTML=`Support: ${pass} &nbsp; | &nbsp; Against: ${fail} &nbsp; | &nbsp; Neutral/unavailable: ${neutral}<br>${d.liquidity?.sweep?.detail||''}`;
+    scannerLog.innerHTML=`&gt; Scan complete. <b>${final}</b> // backend quality score ${d.confidence??0}%`;
+
+    // Populate the existing result panel and levels using the real backend output.
+    document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];
+    document.getElementById('marketText').textContent=d.market.open?(lang==='ms'?'PASARAN DIBUKA':'MARKET OPEN'):(lang==='ms'?'PASARAN DITUTUP':'MARKET CLOSED');
+    document.getElementById('sessionText').textContent=d.market.sessionText;
+    document.getElementById('marketBadge').textContent=d.market.open?'OPEN':'CLOSED';
+    document.getElementById('marketBadge').className='badge '+(d.market.open?'open':'closed');
+    document.getElementById('bias').textContent=d.signal==='WAIT'?'NO HIGH-QUALITY SETUP':d.signal;
+    document.getElementById('bias').className='bias '+(d.signal==='BUY'?'buy':d.signal==='SELL'?'sell':'wait');
+    document.getElementById('score').textContent=d.signal==='CLOSED'?'—':d.confidence+'%';
+    document.getElementById('price').textContent=fmt(d.currentPrice);
+    document.getElementById('vol').textContent=d.volatility||'—';
+    document.getElementById('liq').textContent=d.liquidity?.label||'—';
+    document.getElementById('risk').textContent=d.risk||'—';
+    document.getElementById('hold').textContent=(d.signal==='BUY'||d.signal==='SELL')?d.holdReview:'—';
+    document.getElementById('quality').innerHTML=(d.quality?.reasons||[]).map(x=>`<div class="q ${x.includes('No ')||x.includes('too quiet')||x.includes('not strong')||x.includes('closed')?'no':'ok'}">${x}</div>`).join('');
+    document.getElementById('buyWhy').innerHTML=(d.whyBuy||[]).map(x=>'<li>'+x+'</li>').join('');
+    document.getElementById('sellWhy').innerHTML=(d.whySell||[]).map(x=>'<li>'+x+'</li>').join('');
+    clearLines();
+    ['entry','sl','tp1','tp2','tp3'].forEach(x=>document.getElementById(x).textContent='—');
+    if(d.levels){
+      for(const k of ['entry','sl','tp1','tp2','tp3'])document.getElementById(k).textContent=fmt(d.levels[k]);
+      addLine(d.levels.entry,'ENTRY','#e6c766');addLine(d.levels.sl,'SL','#e26f5d',0);addLine(d.levels.tp1,'TP1','#4bd19a');addLine(d.levels.tp2,'TP2','#4bd19a');addLine(d.levels.tp3,'TP3','#4bd19a');
+    }
+    if(isOwner){
+      telegramMessage.value=(d.signal==='BUY'||d.signal==='SELL')?defaultMessage(d):'';
+      ownerMsg.textContent=(d.signal==='BUY'||d.signal==='SELL')?'Ready for your review.':'Nothing to send — wait for a qualified BUY/SELL setup.';
+    }
+  }catch(e){
+    scannerStage.textContent='SCAN ABORTED';scannerLog.innerHTML='&gt; <b>ERROR:</b> '+e.message;
+    scannerFinal.classList.add('show');scannerFinalMain.textContent='DATA ERROR';scannerFinalMain.className='final-main wait';scannerFinalScore.textContent='—';scannerFinalDetail.textContent=e.message;
+  }finally{
+    scanning=false;if(btn)btn.disabled=false;
+  }
+}
+
+// Pair/timeframe selection no longer automatically burns an API request.
+// User deliberately starts analysis with CHECK SIGNAL.
+function choosePair(p){pair=p;buildPickers();document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];document.getElementById('bias').textContent='READY TO SCAN';document.getElementById('bias').className='bias wait'}
+function chooseTf(v){tf=v;buildPickers();document.getElementById('chartTitle').textContent=pair+' • '+tfs.find(x=>x[0]===tf)[1];document.getElementById('bias').textContent='READY TO SCAN';document.getElementById('bias').className='bias wait'}
+
+</script>
+<div id="scannerOverlay" class="scanner-overlay">
+  <div class="scanner-console">
+    <div class="scanner-head">
+      <div class="scanner-brand">
+        <div class="scanner-pulse"></div>
+        <div><div class="scanner-title">MARBINEFX // SIGNAL CORE</div><div id="scannerSub" class="scanner-sub">SYSTEM READY</div></div>
+      </div>
+      <button class="scanner-close" onclick="closeScanner()">CLOSE</button>
+    </div>
+    <div class="scanner-progress-wrap">
+      <div class="scanner-meta"><span id="scannerStage">WAITING FOR COMMAND</span><span id="scannerPct">0%</span></div>
+      <div class="scanner-progress"><div id="scannerProgress"></div></div>
+    </div>
+    <div id="scannerList" class="scanner-list"></div>
+    <div class="scanner-foot">
+      <div id="scannerLog" class="scanner-log">&gt; Ready.</div>
+      <div id="scannerFinal" class="scanner-final">
+        <div><div class="final-kicker">FINAL SYSTEM OUTPUT</div><div id="scannerFinalMain" class="final-main">—</div><div id="scannerFinalDetail" class="final-detail"></div></div>
+        <div id="scannerFinalScore" class="final-score">—</div>
+      </div>
+      <div class="scanner-actions">
+        <button class="scanner-action" onclick="closeScanner()">VIEW CHART</button>
+        <button class="scanner-action primary" onclick="runScanner()">SCAN AGAIN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body></html>
