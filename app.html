@@ -1,5 +1,162 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"><title>MarbineFX</title><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"><style>
 *{box-sizing:border-box;margin:0;padding:0}:root{--gold:#e6c766;--gold2:#ffe39a;--line:rgba(230,199,102,.15);--ivory:#fff3db}html,body{height:100%;background:#030201;color:var(--ivory);font-family:"Plus Jakarta Sans",sans-serif;overflow:hidden}.top{height:68px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 clamp(14px,3vw,36px);border-bottom:1px solid rgba(230,199,102,.1);background:#050302}.brand{font-size:.95rem;font-weight:900;letter-spacing:1.7px;color:var(--gold)}.brand span{color:#fff}.lang{justify-self:center;display:flex;padding:3px;border:1px solid var(--line);border-radius:11px;background:#0b0805;gap:2px}.lang button{border:0;background:transparent;color:#756b5b;padding:.45rem .72rem;border-radius:8px;font-size:.62rem;font-weight:900}.lang button.active{background:linear-gradient(135deg,#ffe39a,#d5ad49);color:#070401}.menu-area{height:132px;padding:18px clamp(12px,3vw,36px) 14px;background:radial-gradient(circle at 20% 0%,rgba(143,31,31,.08),transparent 20rem),radial-gradient(circle at 80% 0%,rgba(20,98,71,.08),transparent 22rem),#050302;border-bottom:1px solid rgba(230,199,102,.08)}.menu-label{text-align:center;color:#c4a95f;font-size:.52rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.65rem}.menu{display:flex;gap:.55rem;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;justify-content:center}.menu::-webkit-scrollbar{display:none}.tab{flex:0 0 150px;min-height:72px;scroll-snap-align:center;border:1px solid rgba(230,199,102,.11);border-radius:14px;background:linear-gradient(145deg,#130e08,#090603);color:#8a7e69;text-align:left;padding:.7rem;position:relative;transition:.25s}.tab .n{position:absolute;right:.55rem;top:.4rem;font:700 1.5rem "Playfair Display",serif;color:rgba(230,199,102,.08)}.tab strong{display:block;margin-top:1.55rem;font-size:.62rem;text-transform:uppercase}.tab small{display:block;margin-top:.16rem;font-size:.42rem;text-transform:uppercase;color:#5d5548}.tab.active{flex-basis:210px;border-color:rgba(255,227,154,.32);color:#ffe39a;box-shadow:0 14px 34px rgba(0,0,0,.28),0 0 26px rgba(230,199,102,.035);transform:translateY(-2px)}.frame-wrap{height:calc(100vh - 200px);background:#030201}.frame{width:100%;height:100%;border:0;background:#030201}@media(max-width:700px){.top{height:62px;grid-template-columns:1fr auto}.brand{font-size:.82rem}.lang button{padding:.4rem .55rem;font-size:.56rem}.menu-area{height:122px;padding-top:13px}.menu{justify-content:flex-start}.tab{flex-basis:120px;min-height:68px}.tab.active{flex-basis:168px}.frame-wrap{height:calc(100vh - 184px)}}
-</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>(async()=>{const s=supabase.createClient('https://dodjxijptbvkvpjhelhm.supabase.co','sb_publishable_Eh7J3ChO6ljz7vHVBBUH2Q_st9LhsJA');const {data:{session}}=await s.auth.getSession();if(!session)location.replace('index.html')})();</script></head><body><header class="top"><div class="brand">Marbine<span>FX</span></div><div class="lang"><button id="english" class="active" onclick="setLang('en')">ENGLISH</button><button id="malay" onclick="setLang('ms')">MALAY</button></div><div></div></header><section class="menu-area"><div class="menu-label">Choose Your Section</div><div class="menu"><button class="tab active" data-page="home.html"><span class="n">01</span><strong>Home</strong><small>Money Lab</small></button><button class="tab" data-page="strategies.html"><span class="n">02</span><strong>Indicators</strong><small>30 Systems</small></button><button class="tab" data-page="pairs.html"><span class="n">03</span><strong>Study Pairs</strong><small>20 Markets</small></button><button class="tab" data-page="signal.html"><span class="n">04</span><strong>Signal Lab</strong><small>Live Setup</small></button><button class="tab" data-page="forum.html"><span class="n">05</span><strong>Forum</strong><small>Community</small></button></div></section><div class="frame-wrap"><iframe id="frame" class="frame" src="home.html?embed=1&lang=en"></iframe></div><script>
-let lang='en';const frame=document.getElementById('frame');function setLang(v){lang=v;document.getElementById('english').classList.toggle('active',v==='en');document.getElementById('malay').classList.toggle('active',v==='ms');try{frame.contentWindow.postMessage({type:'marbine-language',lang},'*')}catch(e){}}document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===btn));frame.src=btn.dataset.page+'?embed=1&lang='+lang;btn.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}));frame.addEventListener('load',()=>{try{frame.contentWindow.postMessage({type:'marbine-language',lang},'*')}catch(e){}})
+
+.owner-welcome{display:none;position:absolute;left:50%;top:6px;transform:translateX(-50%);font-size:.52rem;color:#d9bd70;font-weight:900;letter-spacing:.08em;white-space:nowrap}
+.owner-welcome.show{display:block}
+.owner-members-btn{display:none;justify-self:end;border:1px solid rgba(230,199,102,.16);background:#0c0804;color:#d4b86b;border-radius:9px;padding:.45rem .65rem;font-size:.53rem;font-weight:900;cursor:pointer}
+.owner-members-btn.show{display:block}
+.members-modal{display:none;position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);padding:18px;overflow:auto}
+.members-modal.show{display:block}
+.members-card{width:min(900px,96vw);margin:5vh auto;background:#090603;border:1px solid rgba(230,199,102,.18);border-radius:18px;padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
+.members-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.members-head h2{font:700 1.4rem "Playfair Display",serif;color:#ffe39a}
+.close-members{border:1px solid rgba(230,199,102,.15);background:#120d07;color:#d6bb72;border-radius:9px;padding:.5rem .7rem;cursor:pointer}
+.member-count{margin-top:.35rem;color:#746a5a;font-size:.56rem}
+.member-table{margin-top:1rem;display:grid;gap:.45rem}
+.member-row{display:grid;grid-template-columns:1fr 1.5fr .8fr;gap:.6rem;padding:.7rem;border-radius:11px;border:1px solid rgba(230,199,102,.08);background:#060402;font-size:.56rem}
+.member-row strong{color:#e8d4a0}.member-row span{color:#7c7160;word-break:break-word}
+@media(max-width:700px){.owner-welcome{top:2px;font-size:.45rem}.member-row{grid-template-columns:1fr}.owner-members-btn{padding:.4rem .5rem}}
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body><header class="top"><div class="brand">Marbine<span>FX</span></div><div id="ownerWelcome" class="owner-welcome">WELCOME BACK MEIGAN 👑</div><div class="lang"><button id="english" class="active" onclick="setLang('en')">ENGLISH</button><button id="malay" onclick="setLang('ms')">MALAY</button></div><button id="ownerMembersBtn" class="owner-members-btn" onclick="openMembers()">MEMBERS</button></header><section class="menu-area"><div class="menu-label">Choose Your Section</div><div class="menu"><button class="tab active" data-page="home.html"><span class="n">01</span><strong>Home</strong><small>Money Lab</small></button><button class="tab" data-page="strategies.html"><span class="n">02</span><strong>Indicators</strong><small>30 Systems</small></button><button class="tab" data-page="pairs.html"><span class="n">03</span><strong>Study Pairs</strong><small>20 Markets</small></button><button class="tab" data-page="signal.html"><span class="n">04</span><strong>Signal Lab</strong><small>Live Setup</small></button><button class="tab" data-page="forum.html"><span class="n">05</span><strong>Forum</strong><small>Community</small></button></div></section>
+<div id="membersModal" class="members-modal">
+  <div class="members-card">
+    <div class="members-head">
+      <div>
+        <h2>Registered Members</h2>
+        <div id="memberCount" class="member-count">Loading...</div>
+      </div>
+      <button class="close-members" onclick="closeMembers()">CLOSE</button>
+    </div>
+    <div id="memberTable" class="member-table"></div>
+  </div>
+</div>
+<div class="frame-wrap"><iframe id="frame" class="frame" src="home.html?embed=1&lang=en"></iframe></div><script>
+const SB_URL='https://dodjxijptbvkvpjhelhm.supabase.co';
+const SB_KEY='sb_publishable_Eh7J3ChO6ljz7vHVBBUH2Q_st9LhsJA';
+const shellSb=supabase.createClient(SB_URL,SB_KEY);
+
+let lang='en';
+let currentSession=null;
+let isOwner=false;
+const frame=document.getElementById('frame');
+
+function setLang(v){
+  lang=v;
+  document.getElementById('english').classList.toggle('active',v==='en');
+  document.getElementById('malay').classList.toggle('active',v==='ms');
+  try{frame.contentWindow.postMessage({type:'marbine-language',lang},'*')}catch(e){}
+}
+
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===btn));
+  frame.src=btn.dataset.page+'?embed=1&lang='+lang;
+  btn.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}));
+
+frame.addEventListener('load',()=>{
+  try{frame.contentWindow.postMessage({type:'marbine-language',lang},'*')}catch(e){}
+});
+
+async function ensureProfile(user){
+  let username=(user.user_metadata?.username||'').trim();
+  const pending=(localStorage.getItem('marbinefx_pending_username')||'').trim();
+
+  if(pending){
+    username=pending;
+    localStorage.removeItem('marbinefx_pending_username');
+  }
+
+  if(!username){
+    username=(user.email||'Trader').split('@')[0]||'Trader';
+  }
+
+  username=username.slice(0,24);
+  if(username.length<3)username='Trader'+user.id.replaceAll('-','').slice(0,6);
+
+  const {data:existing}=await shellSb.from('profiles').select('id,username').eq('id',user.id).maybeSingle();
+
+  if(!existing){
+    await shellSb.from('profiles').insert({id:user.id,username});
+  }else if(pending && existing.username!==username){
+    await shellSb.from('profiles').update({username,updated_at:new Date().toISOString()}).eq('id',user.id);
+  }
+}
+
+async function checkOwner(){
+  try{
+    const r=await fetch(SB_URL+'/functions/v1/owner-members',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+currentSession.access_token,
+        'apikey':SB_KEY
+      },
+      body:'{}'
+    });
+
+    if(r.ok){
+      isOwner=true;
+      document.getElementById('ownerWelcome').classList.add('show');
+      document.getElementById('ownerMembersBtn').classList.add('show');
+    }
+  }catch(e){
+    console.warn(e);
+  }
+}
+
+async function openMembers(){
+  if(!isOwner||!currentSession)return;
+
+  const modal=document.getElementById('membersModal');
+  modal.classList.add('show');
+  document.getElementById('memberCount').textContent='Loading members...';
+  document.getElementById('memberTable').innerHTML='';
+
+  try{
+    const r=await fetch(SB_URL+'/functions/v1/owner-members',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+currentSession.access_token,
+        'apikey':SB_KEY
+      },
+      body:'{}'
+    });
+
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'Could not load members.');
+
+    document.getElementById('memberCount').textContent=d.total+' registered account'+(d.total===1?'':'s');
+
+    document.getElementById('memberTable').innerHTML=d.members.map(m=>{
+      const joined=new Date(m.created_at).toLocaleDateString();
+      return `<div class="member-row">
+        <strong>${escapeHtml(m.username||'No username')}</strong>
+        <span>${escapeHtml(m.email||'')}</span>
+        <span>Joined ${joined}</span>
+      </div>`;
+    }).join('');
+  }catch(e){
+    document.getElementById('memberCount').textContent=e.message;
+  }
+}
+
+function closeMembers(){
+  document.getElementById('membersModal').classList.remove('show');
+}
+
+function escapeHtml(v=''){
+  return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+
+(async()=>{
+  const {data:{session},error}=await shellSb.auth.getSession();
+
+  if(error||!session){
+    location.replace('index.html');
+    return;
+  }
+
+  currentSession=session;
+  await ensureProfile(session.user);
+  await checkOwner();
+})();
 </script></body></html>

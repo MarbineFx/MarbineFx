@@ -280,6 +280,18 @@ button:disabled{
     >
   </div>
 
+
+  <div class="field" id="usernameField" style="display:none">
+    <label for="username">FORUM USERNAME</label>
+    <input
+      id="username"
+      type="text"
+      maxlength="24"
+      autocomplete="nickname"
+      placeholder="e.g. GoldHunter"
+    >
+  </div>
+
   <div class="field">
     <label for="password">PASSWORD</label>
     <input
@@ -312,418 +324,178 @@ button:disabled{
 </main>
 
 <script>
-const SUPABASE_URL =
-  'https://dodjxijptbvkvpjhelhm.supabase.co';
+const SUPABASE_URL='https://dodjxijptbvkvpjhelhm.supabase.co';
+const SUPABASE_KEY='sb_publishable_Eh7J3ChO6ljz7vHVBBUH2Q_st9LhsJA';
 
-const SUPABASE_KEY =
-  'sb_publishable_Eh7J3ChO6ljz7vHVBBUH2Q_st9LhsJA';
+let mode='login';
+let client=null;
 
-let mode = 'login';
-let client = null;
+const loginTab=document.getElementById('loginTab');
+const signupTab=document.getElementById('signupTab');
+const usernameField=document.getElementById('usernameField');
+const usernameInput=document.getElementById('username');
+const emailInput=document.getElementById('email');
+const passwordInput=document.getElementById('password');
+const mainBtn=document.getElementById('mainBtn');
+const googleBtn=document.getElementById('googleBtn');
+const forgotBtn=document.getElementById('forgotBtn');
+const statusBox=document.getElementById('status');
 
-const loginTab = document.getElementById('loginTab');
-const signupTab = document.getElementById('signupTab');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const mainBtn = document.getElementById('mainBtn');
-const googleBtn = document.getElementById('googleBtn');
-const forgotBtn = document.getElementById('forgotBtn');
-const statusBox = document.getElementById('status');
-
-function setStatus(message='', type='error'){
-  statusBox.textContent = message;
-
-  statusBox.classList.remove(
-    'ok',
-    'loading'
-  );
-
-  if(type === 'ok'){
-    statusBox.classList.add('ok');
-  }
-
-  if(type === 'loading'){
-    statusBox.classList.add('loading');
-  }
+function setStatus(message='',type='error'){
+  statusBox.textContent=message;
+  statusBox.classList.remove('ok','loading');
+  if(type==='ok')statusBox.classList.add('ok');
+  if(type==='loading')statusBox.classList.add('loading');
 }
 
-function setMode(nextMode){
-
-  mode = nextMode;
-
-  const login =
-    mode === 'login';
-
-  loginTab.classList.toggle(
-    'active',
-    login
-  );
-
-  signupTab.classList.toggle(
-    'active',
-    !login
-  );
-
-  mainBtn.textContent =
-    login
-      ? 'LOGIN'
-      : 'CREATE ACCOUNT';
-
-  passwordInput.autocomplete =
-    login
-      ? 'current-password'
-      : 'new-password';
-
+function setMode(next){
+  mode=next;
+  const login=mode==='login';
+  loginTab.classList.toggle('active',login);
+  signupTab.classList.toggle('active',!login);
+  usernameField.style.display=login?'none':'block';
+  mainBtn.textContent=login?'LOGIN':'CREATE ACCOUNT';
+  passwordInput.autocomplete=login?'current-password':'new-password';
+  googleBtn.textContent=login?'CONTINUE WITH GOOGLE':'CREATE WITH GOOGLE';
   setStatus('');
 }
 
-loginTab.addEventListener(
-  'click',
-  () => setMode('login')
-);
+loginTab.addEventListener('click',()=>setMode('login'));
+signupTab.addEventListener('click',()=>setMode('signup'));
 
-signupTab.addEventListener(
-  'click',
-  () => setMode('signup')
-);
-
-async function getClient(){
-
-  if(client){
-    return client;
-  }
-
-  if(
-    !window.supabase ||
-    !window.supabase.createClient
-  ){
-    throw new Error(
-      'Login service did not load. Refresh the page and try again.'
-    );
-  }
-
-  client =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY,
-      {
-        auth:{
-          persistSession:true,
-          autoRefreshToken:true,
-          detectSessionInUrl:true
-        }
-      }
-    );
-
+function getClient(){
+  if(client)return client;
+  if(!window.supabase?.createClient)throw new Error('Login service did not load. Refresh the page.');
+  client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+  });
   return client;
 }
 
-function validate(){
+function cleanUsername(value){
+  return String(value||'').trim().replace(/\s+/g,' ');
+}
 
-  const email =
-    emailInput.value.trim();
-
-  const password =
-    passwordInput.value;
-
-  if(!email){
-    setStatus(
-      'Please enter your email.'
-    );
-
-    emailInput.focus();
-
-    return null;
-  }
-
-  if(!email.includes('@')){
-    setStatus(
-      'Please enter a valid email.'
-    );
-
-    emailInput.focus();
-
-    return null;
-  }
-
-  if(!password){
-    setStatus(
-      'Please enter your password.'
-    );
-
-    passwordInput.focus();
-
-    return null;
-  }
-
-  if(
-    mode === 'signup' &&
-    password.length < 6
-  ){
-    setStatus(
-      'Your password needs at least 6 characters.'
-    );
-
-    return null;
-  }
-
-  return {
-    email,
-    password
-  };
+function signupRedirect(){
+  // Always points back to the same live website/folder, never hardcoded localhost.
+  return new URL('app.html',window.location.href).href;
 }
 
 async function handleMain(){
+  const email=emailInput.value.trim();
+  const password=passwordInput.value;
+  const username=cleanUsername(usernameInput.value);
 
-  const values =
-    validate();
+  if(!email){setStatus('Please enter your email.');emailInput.focus();return}
+  if(!email.includes('@')){setStatus('Please enter a valid email.');emailInput.focus();return}
+  if(!password){setStatus('Please enter your password.');passwordInput.focus();return}
 
-  if(!values){
-    return;
+  if(mode==='signup'){
+    if(username.length<3){setStatus('Choose a forum username with at least 3 characters.');usernameInput.focus();return}
+    if(username.length>24){setStatus('Username must be 24 characters or less.');return}
+    if(!/^[A-Za-z0-9_\- ]+$/.test(username)){setStatus('Username can use letters, numbers, spaces, _ and - only.');return}
+    if(password.length<6){setStatus('Your password needs at least 6 characters.');return}
   }
 
-  mainBtn.disabled = true;
-
-  setStatus(
-    mode === 'login'
-      ? 'Logging you in...'
-      : 'Creating your account...',
-    'loading'
-  );
+  mainBtn.disabled=true;
+  setStatus(mode==='login'?'Logging you in...':'Creating your account...','loading');
 
   try{
-
-    const sb =
-      await getClient();
-
+    const sb=getClient();
     let result;
 
-    if(mode === 'login'){
-
-      result =
-        await sb.auth.signInWithPassword({
-          email:values.email,
-          password:values.password
-        });
-
+    if(mode==='login'){
+      result=await sb.auth.signInWithPassword({email,password});
     }else{
-
-      result =
-        await sb.auth.signUp({
-          email:values.email,
-          password:values.password,
-          options:{
-            emailRedirectTo:
-              new URL(
-                'app.html',
-                window.location.href
-              ).href
-          }
-        });
-
+      result=await sb.auth.signUp({
+        email,
+        password,
+        options:{
+          data:{username},
+          emailRedirectTo:signupRedirect()
+        }
+      });
     }
 
-    if(result.error){
-      throw result.error;
-    }
+    if(result.error)throw result.error;
 
-    if(
-      mode === 'signup' &&
-      !result.data.session
-    ){
-      setStatus(
-        'Account created. Check your email to confirm it, then come back and login.',
-        'ok'
-      );
-
-      setMode('login');
-
+    if(mode==='signup'){
+      if(result.data.session){
+        setStatus('Account created. Opening MarbineFX...','ok');
+        setTimeout(()=>location.href='app.html',450);
+      }else{
+        setStatus('Verification sent ✅ Check your email, press the verification link, then you will return to MarbineFX.','ok');
+        setMode('login');
+        emailInput.value=email;
+      }
       return;
     }
 
-    setStatus(
-      'Success. Opening MarbineFX...',
-      'ok'
-    );
-
-    setTimeout(
-      () => {
-        window.location.href =
-          'app.html';
-      },
-      300
-    );
+    setStatus('Success. Opening MarbineFX...','ok');
+    setTimeout(()=>location.href='app.html',350);
 
   }catch(error){
-
-    console.error(
-      'AUTH ERROR:',
-      error
-    );
-
-    setStatus(
-      error?.message ||
-      'Login failed. Please try again.'
-    );
-
+    console.error(error);
+    setStatus(error?.message||'Something went wrong. Please try again.');
   }finally{
-
-    mainBtn.disabled = false;
-
+    mainBtn.disabled=false;
   }
 }
 
-mainBtn.addEventListener(
-  'click',
-  handleMain
-);
+mainBtn.addEventListener('click',handleMain);
+passwordInput.addEventListener('keydown',e=>{if(e.key==='Enter')handleMain()});
 
-passwordInput.addEventListener(
-  'keydown',
-  event => {
+googleBtn.addEventListener('click',async()=>{
+  try{
+    const sb=getClient();
 
-    if(event.key === 'Enter'){
-      handleMain();
-    }
-
-  }
-);
-
-googleBtn.addEventListener(
-  'click',
-  async () => {
-
-    googleBtn.disabled = true;
-
-    setStatus(
-      'Opening Google login...',
-      'loading'
-    );
-
-    try{
-
-      const sb =
-        await getClient();
-
-      const redirectTo =
-        new URL(
-          'app.html',
-          window.location.href
-        ).href;
-
-      const result =
-        await sb.auth.signInWithOAuth({
-          provider:'google',
-          options:{
-            redirectTo
-          }
-        });
-
-      if(result.error){
-        throw result.error;
+    if(mode==='signup'){
+      const username=cleanUsername(usernameInput.value);
+      if(username.length<3){
+        setStatus('Choose your forum username first, then press Create with Google.');
+        usernameInput.focus();
+        return;
       }
-
-    }catch(error){
-
-      console.error(
-        'GOOGLE ERROR:',
-        error
-      );
-
-      setStatus(
-        error?.message ||
-        'Google login failed.'
-      );
-
-      googleBtn.disabled = false;
-
+      localStorage.setItem('marbinefx_pending_username',username);
     }
 
+    setStatus('Opening Google login...','loading');
+
+    const {error}=await sb.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:signupRedirect()}
+    });
+
+    if(error)throw error;
+  }catch(error){
+    console.error(error);
+    setStatus(error?.message||'Google login failed.');
   }
-);
+});
 
-forgotBtn.addEventListener(
-  'click',
-  async () => {
+forgotBtn.addEventListener('click',async()=>{
+  const email=emailInput.value.trim();
+  if(!email){setStatus('Type your email above first, then press Forgot password.');emailInput.focus();return}
 
-    const email =
-      emailInput.value.trim();
+  forgotBtn.disabled=true;
+  setStatus('Sending password reset email...','loading');
 
-    if(!email){
-
-      setStatus(
-        'Type your email above first, then press Forgot password.'
-      );
-
-      emailInput.focus();
-
-      return;
-    }
-
-    forgotBtn.disabled = true;
-
-    setStatus(
-      'Sending password reset email...',
-      'loading'
-    );
-
-    try{
-
-      const sb =
-        await getClient();
-
-      const redirectTo =
-        new URL(
-          'reset.html',
-          window.location.href
-        ).href;
-
-      const result =
-        await sb.auth.resetPasswordForEmail(
-          email,
-          {
-            redirectTo
-          }
-        );
-
-      if(result.error){
-        throw result.error;
-      }
-
-      setStatus(
-        'Reset link sent. Check your email inbox and spam folder.',
-        'ok'
-      );
-
-    }catch(error){
-
-      console.error(
-        'RESET ERROR:',
-        error
-      );
-
-      setStatus(
-        error?.message ||
-        'Could not send reset email.'
-      );
-
-    }finally{
-
-      forgotBtn.disabled = false;
-
-    }
-
+  try{
+    const sb=getClient();
+    const {error}=await sb.auth.resetPasswordForEmail(email,{
+      redirectTo:new URL('reset.html',window.location.href).href
+    });
+    if(error)throw error;
+    setStatus('Reset link sent ✅ Check your email inbox and spam folder.','ok');
+  }catch(error){
+    console.error(error);
+    setStatus(error?.message||'Could not send reset email.');
+  }finally{
+    forgotBtn.disabled=false;
   }
-);
+});
 
-/*
-  IMPORTANT:
-  We intentionally DO NOT call getSession()
-  while the page loads.
-
-  This keeps the login screen responsive
-  even if an old refresh token is broken.
-*/
+setMode('login');
 </script>
 
 </body>
