@@ -678,6 +678,57 @@ button{cursor:pointer}
   .scanner-final.show{grid-template-columns:1fr}
 }
 </style>
+
+<style id="signal-v2-mobile-live">
+.live-strip{
+  display:flex;align-items:center;gap:.38rem;flex-wrap:wrap;
+  color:#756a58;font-size:.46rem;font-weight:800
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;background:#64cfa2;
+  box-shadow:0 0 10px rgba(100,207,162,.6)
+}
+.pending-banner{
+  display:none;margin-top:.65rem;padding:.72rem .8rem;border-radius:11px;
+  border:1px solid rgba(255,227,154,.26);
+  background:linear-gradient(135deg,rgba(231,201,104,.08),rgba(231,201,104,.02));
+  color:#cdb474;font-size:.5rem;line-height:1.5
+}
+.pending-banner.show{display:block}
+.owner-pending-title{color:#ffe39a;font-weight:1000}
+@media(max-width:620px){
+  .wrap{width:calc(100% - .7rem);padding-top:.7rem}
+  .hero{padding:.3rem .2rem .75rem}
+  .hero h1{font-size:clamp(2rem,13vw,3.3rem)}
+  .hero p{font-size:.7rem}
+  .panel{border-radius:13px}
+  .market-panel,.controls,.chart-panel,.indicator-panel,.result-panel,.status-panel{padding:.65rem}
+  .market-trigger{min-height:50px;font-size:.72rem}
+  .market-option{min-height:48px;font-size:.65rem}
+  .timeframes{width:100%;display:grid;grid-template-columns:repeat(5,1fr)}
+  .tf{min-width:0;min-height:43px;font-size:.57rem}
+  .control-left{width:100%;display:block}
+  .timeframe-label{display:block;margin-bottom:.4rem}
+  .scan-btn{min-height:50px;font-size:.66rem}
+  #chart{height:360px}
+  .chart-head{align-items:flex-start}
+  .chart-head h3{font-size:.72rem}
+  .levels{grid-template-columns:repeat(2,1fr)}
+  .level:last-child{grid-column:1/-1}
+  .indicator-head{align-items:flex-start}
+  .indicator-grid{grid-template-columns:1fr}
+  .indicator-item{min-height:49px;font-size:.56rem}
+  .metrics{grid-template-columns:1fr 1fr}
+  .metric{min-height:64px}
+  .quality{grid-template-columns:1fr}
+  .why{grid-template-columns:1fr}
+  .owner textarea{min-height:300px;font-size:.63rem}
+  .send-btn{min-height:50px;font-size:.68rem}
+  .scanner-list{min-height:250px}
+  .scan-row{padding:.58rem .35rem}
+}
+</style>
+
 </head>
 <body>
 
@@ -717,10 +768,25 @@ button{cursor:pointer}
   <button type="button" class="scan-btn" id="scanBtn">⚡ CHECK SIGNAL</button>
 </section>
 
+<section class="panel indicator-panel">
+  <div class="indicator-head">
+    <div>
+      <h3>INDICATOR LAB</h3>
+      <p>Toggle confirmation tools to see how they behave on the current chart.</p>
+    </div>
+    <button type="button" class="clear-btn" id="clearIndicators">CLEAR</button>
+  </div>
+  <div id="indicatorGrid" class="indicator-grid"></div>
+  <div id="indicatorInfo" class="indicator-info">Select an indicator to test it on the chart.</div>
+</section>
+
 <section class="panel chart-panel">
   <div class="chart-head">
     <h3 id="chartTitle">XAU/USD • 15m</h3>
-    <span id="chartHint">Loading latest candles…</span>
+    <div>
+      <span id="chartHint">Loading latest candles…</span>
+      <div class="live-strip"><span class="live-dot"></span><span id="liveRefreshText">Auto refresh: 30s</span><span id="lastUpdated">—</span></div>
+    </div>
   </div>
   <div id="chart"></div>
 
@@ -741,17 +807,7 @@ button{cursor:pointer}
   <div id="marketBadge" class="status-badge open">…</div>
 </section>
 
-<section class="panel indicator-panel">
-  <div class="indicator-head">
-    <div>
-      <h3>INDICATOR LAB</h3>
-      <p>Toggle confirmation tools to see how they behave on the current chart.</p>
-    </div>
-    <button type="button" class="clear-btn" id="clearIndicators">CLEAR</button>
-  </div>
-  <div id="indicatorGrid" class="indicator-grid"></div>
-  <div id="indicatorInfo" class="indicator-info">Select an indicator to test it on the chart.</div>
-</section>
+
 
 <section class="panel result-panel">
   <div class="result-head">
@@ -787,6 +843,10 @@ button{cursor:pointer}
 <section id="ownerBox" class="owner">
   <h3>👑 OWNER TELEGRAM CONTROL</h3>
   <p>Visible only to the verified owner account.</p>
+  <div id="pendingBanner" class="pending-banner">
+    <div class="owner-pending-title">🚨 PENDING QUALITY SETUP</div>
+    <div id="pendingBannerText">Loading pending setup…</div>
+  </div>
   <textarea id="telegramMessage"></textarea>
   <button type="button" class="send-btn" id="sendTelegramBtn">SEND TO TELEGRAM</button>
   <div id="ownerMsg" class="owner-msg"></div>
@@ -909,6 +969,8 @@ button{cursor:pointer}
   let overlaySeries=[];
   let isOwner=false;
   let scanning=false;
+  let pendingSignalId=null;
+  let liveRefreshTimer=null;
 
   const $=id=>document.getElementById(id);
 
@@ -1224,6 +1286,7 @@ button{cursor:pointer}
       }
 
       $('chartHint').textContent='Latest available candles';
+      $('lastUpdated').textContent='Updated '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
       const open=Boolean(data.market?.open);
 
@@ -1423,7 +1486,7 @@ button{cursor:pointer}
       $(id).textContent='—';
     });
 
-    if(data.levels){
+    if(data.quality?.highQuality && ['BUY','SELL'].includes(data.signal) && data.levels){
       for(const key of ['entry','sl','tp1','tp2','tp3']){
         $(key).textContent=fmt(data.levels[key]);
       }
@@ -1530,7 +1593,7 @@ ${d.liquidity?.sweep?.detail||'—'}
         $('scannerPct').textContent=pct+'%';
         $('scannerProgress').style.width=pct+'%';
 
-        await sleep(60);
+        await sleep(220);
 
         logic.textContent=checks[i].logic;
 
@@ -1613,6 +1676,72 @@ ${d.liquidity?.sweep?.detail||'—'}
     }
   }
 
+
+  async function loadOwnerPendingSignal(){
+    if(!isOwner) return;
+
+    const s=await session();
+    if(!s) return;
+
+    try{
+      const r=await fetch(SUPABASE_URL+'/functions/v1/telegram-signal',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+s.access_token,
+          'apikey':SUPABASE_KEY
+        },
+        body:JSON.stringify({action:'pending'})
+      });
+
+      const response=await r.json();
+      if(!r.ok) throw new Error(response.error||'Could not load pending signal.');
+
+      const p=response.pending;
+
+      if(!p){
+        pendingSignalId=null;
+        $('pendingBanner').classList.remove('show');
+        $('ownerMsg').textContent='No pending quality setup right now.';
+        return;
+      }
+
+      pendingSignalId=p.id;
+      latest=p.signal_data;
+
+      $('pendingBanner').classList.add('show');
+      $('pendingBannerText').textContent=
+        `${p.pair} • ${p.signal} • ${p.confidence}% • detected ${new Date(p.created_at).toLocaleString()}`;
+
+      if(latest?.candles?.length){
+        pair=latest.pair||p.pair;
+        timeframe=latest.timeframe||p.timeframe;
+        $('marketTriggerText').textContent=pair;
+        buildMarketMenu();
+        buildTimeframes();
+        candleSeries.setData(latest.candles);
+        chart.timeScale().fitContent();
+      }
+
+      fillResult(latest);
+      $('telegramMessage').value=defaultTelegramMessage(latest);
+      $('ownerMsg').textContent='Quality setup detected by the server. Review/edit the full message, then publish it.';
+    }catch(err){
+      console.warn('Pending signal load failed',err);
+      $('ownerMsg').textContent='Pending setup could not be loaded: '+err.message;
+    }
+  }
+
+  function startLiveRefresh(){
+    if(liveRefreshTimer) clearInterval(liveRefreshTimer);
+
+    liveRefreshTimer=setInterval(async()=>{
+      if(document.hidden || scanning) return;
+      await loadLatestChart();
+      if(isOwner) await loadOwnerPendingSignal();
+    },30000);
+  }
+
   async function ownerCheck(){
     const s=await session();
     if(!s) return;
@@ -1634,6 +1763,7 @@ ${d.liquidity?.sweep?.detail||'—'}
 
       if(isOwner){
         $('ownerBox').classList.add('show');
+        await loadOwnerPendingSignal();
       }
     }catch(err){
       console.warn('Owner check failed',err);
@@ -1664,7 +1794,8 @@ ${d.liquidity?.sweep?.detail||'—'}
         },
         body:JSON.stringify({
           signalData:latest,
-          message:$('telegramMessage').value
+          message:$('telegramMessage').value,
+          pendingId:pendingSignalId
         })
       });
 
@@ -1672,6 +1803,11 @@ ${d.liquidity?.sweep?.detail||'—'}
 
       $('ownerMsg').textContent=
         r.ok?'Sent to Telegram ✅':(data.error||'Send failed');
+
+      if(r.ok){
+        pendingSignalId=null;
+        $('pendingBanner').classList.remove('show');
+      }
 
     }catch(err){
       $('ownerMsg').textContent=err.message;
@@ -1704,8 +1840,9 @@ ${d.liquidity?.sweep?.detail||'—'}
   initChart();
 
   (async()=>{
-    await ownerCheck();
     await loadLatestChart();
+    await ownerCheck();
+    startLiveRefresh();
   })();
 
 })();
