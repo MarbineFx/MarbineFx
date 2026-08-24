@@ -1905,17 +1905,14 @@ ${d.liquidity?.sweep?.detail||'—'}
     $('historySendStatus').textContent='Building Telegram history summary…';
 
     try{
-      const r=await fetch(SUPABASE_URL+'/functions/v1/telegram-signal',{
+      const r=await fetch(SUPABASE_URL+'/functions/v1/history-summary',{
         method:'POST',
         headers:{
           'Content-Type':'application/json',
           'Authorization':'Bearer '+s.access_token,
           'apikey':SUPABASE_KEY
         },
-        body:JSON.stringify({
-          action:'history_summary',
-          period
-        })
+        body:JSON.stringify({period})
       });
 
       const data=await r.json();
