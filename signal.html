@@ -900,12 +900,10 @@ button{cursor:pointer}
   <div class="collapse-body" id="chartCollapseBody">
     <div class="collapse-inner">
       <div id="chart"></div>
-      <div class="levels">
+      <div class="levels" style="grid-template-columns:repeat(3,1fr)">
         <div class="level"><span>ENTRY</span><strong id="entry">—</strong></div>
         <div class="level"><span>SL</span><strong id="sl">—</strong></div>
-        <div class="level"><span>TP1</span><strong id="tp1">—</strong></div>
-        <div class="level"><span>TP2</span><strong id="tp2">—</strong></div>
-        <div class="level"><span>TP3</span><strong id="tp3">—</strong></div>
+        <div class="level"><span>TP</span><strong id="tp1">—</strong></div>
       </div>
     </div>
   </div>
@@ -1122,6 +1120,7 @@ button{cursor:pointer}
   let scanning=false;
   let pendingSignalId=null;
   let liveRefreshTimer=null;
+  let ownerActiveTrade=null;
 
   const $=id=>document.getElementById(id);
 
@@ -1633,20 +1632,18 @@ button{cursor:pointer}
 
     clearPriceLines();
 
-    ['entry','sl','tp1','tp2','tp3'].forEach(id=>{
+    ['entry','sl','tp1'].forEach(id=>{
       $(id).textContent='—';
     });
 
     if(data.quality?.highQuality && ['BUY','SELL'].includes(data.signal) && data.levels){
-      for(const key of ['entry','sl','tp1','tp2','tp3']){
-        $(key).textContent=fmt(data.levels[key]);
+      for(const key of ['entry','sl','tp1']){
+        $(key).textContent=fmt(key==='tp1'?(data.levels.tp ?? data.levels.tp1):data.levels[key]);
       }
 
       addPriceLine(data.levels.entry,'ENTRY','#e7c968');
       addPriceLine(data.levels.sl,'SL','#e26f5d');
-      addPriceLine(data.levels.tp1,'TP1','#4bd19a');
-      addPriceLine(data.levels.tp2,'TP2','#4bd19a');
-      addPriceLine(data.levels.tp3,'TP3','#4bd19a');
+      addPriceLine(data.levels.tp ?? data.levels.tp1,'TP','#4bd19a');
     }
 
     if(isOwner){
@@ -1674,9 +1671,7 @@ Pair: ${d.pair.replace('/','')}
 Timeframe: ${d.timeframe}
 
 ${d.signal==='BUY'?'🟢':'🔴'} Entry: ${d.signal} @ ${fmt(d.levels.entry)}
-🎯 TP1: ${fmt(d.levels.tp1)}
-🎯 TP2: ${fmt(d.levels.tp2)}
-🎯 TP3: ${fmt(d.levels.tp3)}
+🎯 TP: ${fmt(d.levels.tp ?? d.levels.tp1)}
 🛑 SL: ${fmt(d.levels.sl)}
 
 ⚡ Volatility: ${d.volatility}
@@ -1994,11 +1989,13 @@ ${d.liquidity?.sweep?.detail||'—'}
       const box=$('ownerLiveSignal');
 
       if(!active){
+        ownerActiveTrade=null;
         box.classList.remove('show');
         $('ownerLiveMeta').textContent='No official signal is running.';
         return;
       }
 
+      ownerActiveTrade=active;
       box.classList.add('show');
 
       const statusText=active.status==='active'?'ENTRY HIT / RUNNING':'WAITING FOR ENTRY';
@@ -2006,7 +2003,7 @@ ${d.liquidity?.sweep?.detail||'—'}
       $('ownerLiveMeta').innerHTML=
         `<b>${active.pair} ${active.signal}</b><br>`+
         `${statusText}<br>`+
-        `Entry ${fmt(active.entry)} • SL ${fmt(active.sl)} • TP1 ${fmt(active.tp1)} • TP2 ${fmt(active.tp2)} • TP3 ${fmt(active.tp3)}`;
+        `Entry ${fmt(active.entry)} • SL ${fmt(active.sl)} • TP ${fmt(active.tp1)}`;
 
     }catch(err){
       $('ownerLiveStatus').textContent='Live signal check failed: '+err.message;
@@ -2025,9 +2022,35 @@ ${d.liquidity?.sweep?.detail||'—'}
     }
 
     btn.disabled=true;
-    $('ownerLiveStatus').textContent='Ending official signal…';
+    btn.textContent='CLOSING…';
+    $('ownerLiveStatus').textContent='Refreshing live price before close…';
 
     try{
+      // Refresh the public market snapshot first so the owner sees the closest
+      // available price immediately instead of staring at a loading button.
+      await loadLatestChart();
+
+      let liveEstimate=null;
+      if(ownerActiveTrade && latest && Number.isFinite(Number(latest.currentPrice))){
+        const entry=Number(ownerActiveTrade.entry);
+        const px=Number(latest.currentPrice);
+        const pip=ownerActiveTrade.pair==='XAU/USD'
+          ? 0.10
+          : String(ownerActiveTrade.pair).includes('JPY')
+            ? 0.01
+            : 0.0001;
+
+        liveEstimate=(ownerActiveTrade.signal==='BUY'
+          ? (px-entry)
+          : (entry-px)) / pip;
+
+        $('ownerLiveStatus').innerHTML=
+          `<b style="color:#ffe39a">LIVE CLOSE ESTIMATE</b><br>`+
+          `${liveEstimate>=0?'+':''}${Math.round(liveEstimate)} pips • sending close…`;
+      }else{
+        $('ownerLiveStatus').textContent='Sending close…';
+      }
+
       const r=await fetch(SUPABASE_URL+'/functions/v1/telegram-signal',{
         method:'POST',
         headers:{
@@ -2043,8 +2066,14 @@ ${d.liquidity?.sweep?.detail||'—'}
 
       const pips=Math.round(Number(response.resultPips)||0);
 
-      $('ownerLiveStatus').textContent=
-        `Signal ended ✅ Tracked result ${pips>=0?'+':''}${pips} pips`;
+      const estimateText =
+        (typeof liveEstimate==='number' && Math.abs(liveEstimate-pips)>=10)
+          ? `<br><span style="color:#d4b86d">Live estimate was ${liveEstimate>=0?'+':''}${Math.round(liveEstimate)} pips; tracker close differed.</span>`
+          : '';
+
+      $('ownerLiveStatus').innerHTML=
+        `<b style="color:#ffe39a">🛑 TRADE ENDED</b><br>`+
+        `Closed: <b>${pips>=0?'+':''}${pips} pips</b>${estimateText}`;
 
       await loadOwnerActiveSignal();
       await loadHistory();
@@ -2054,6 +2083,7 @@ ${d.liquidity?.sweep?.detail||'—'}
       $('ownerLiveStatus').textContent=err.message;
     }finally{
       btn.disabled=false;
+      btn.textContent='🛑 END SIGNAL';
     }
   }
 
@@ -2254,3 +2284,13 @@ ${d.liquidity?.sweep?.detail||'—'}
 
 </body>
 </html>
+
+<style id="one-tp-mobile-fix">
+@media(max-width:620px){
+  .levels[style]{grid-template-columns:1fr 1fr 1fr!important}
+  .levels[style] .level:last-child{grid-column:auto!important}
+}
+@media(max-width:430px){
+  .levels[style]{grid-template-columns:1fr!important}
+}
+</style>
